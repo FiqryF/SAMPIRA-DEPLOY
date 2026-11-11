@@ -1,0 +1,84 @@
+/* Phase 8 portal surfaces use the established landing.css design tokens. */
+body:is(.role-warrior,.role-collector) {
+    --sp-green:#174c3c;
+    --sp-green-dark:#103d2f;
+    --sp-ink:#182c23;
+    --sp-muted:#4b6459;
+    --sp-border:#d4e1d8;
+    --sp-canvas:#f7f9f5;
+    --sp-soft:#eaf3eb;
+    --sp-radius:14px;
+    --sp-shadow:0 2px 7px rgb(18 53 39 / 7%);
+    --portal-ink:#182c23;
+    --portal-muted:#4b6459;
+    --portal-line:#d4e1d8;
+    --portal-canvas:#f7f9f5;
+    --portal-radius:14px;
+    --portal-shadow:0 2px 7px rgb(18 53 39 / 7%);
+    font-family:Inter,system-ui,sans-serif;
+    color:var(--sp-ink);
+    background:var(--sp-canvas);
+}
+body:is(.role-warrior,.role-collector) :is(h1,h2,h3,h4,.sidebar-logo) { font-family:Manrope,Inter,system-ui,sans-serif; letter-spacing:-.025em; }
+body:is(.role-warrior,.role-collector) :focus-visible { outline:3px solid #963d10; outline-offset:3px; }
+body:is(.role-warrior,.role-collector) :is(.sp-panel,.sp-pickup-panel,.panel-card,.kpi-card,.queue-panel) { border-color:var(--sp-border); border-radius:var(--sp-radius); box-shadow:var(--sp-shadow); }
+body:is(.role-warrior,.role-collector) :is(.sp-button,.btn-primary,.location-action) { min-height:44px; border-radius:8px; }
+.sp-dashboard-state { display:flex; flex-wrap:wrap; align-items:center; gap:10px; padding:10px 14px; margin-bottom:12px; border:1px solid var(--sp-border); border-radius:10px; background:#fff; color:var(--sp-muted); }
+.sp-dashboard-state p { margin:0; flex:1 1 240px; }
+body.role-warrior :is(.sp-history-intro,.sp-pickup-intro) h2 { font-size:clamp(1.5rem,2.6vw,1.85rem); }
+body.role-warrior .sp-home-map-frame .sp-map-legend { position:static; display:flex; flex-wrap:wrap; gap:8px 18px; width:auto; padding:8px 0 0; border:0; background:transparent; box-shadow:none; font-size:.8rem; }
+body.role-warrior #own-location-map { height:clamp(280px,40vh,400px); }
+body.role-warrior #own-map-status { margin:6px 0; font-size:.8rem; }
+body.role-warrior .sp-summary-card { box-shadow:none; }
+body.role-warrior .sp-history-card { padding:14px; border-radius:14px; box-shadow:var(--sp-shadow); }
+body.role-warrior .sp-history-card h3 { font-size:1rem; }
+body.role-warrior #lacak-pickup .panel-card { padding:clamp(14px,2.5vw,26px); border-radius:14px; }
+body.role-warrior .tracking-search { display:flex; flex-direction:row; flex-wrap:wrap; gap:10px; max-width:none; margin:20px 0 8px; }
+body.role-warrior .tracking-search .input-wrapper { flex:1 1 200px; min-width:0; }
+body.role-warrior .tracking-search button { min-height:44px; padding:8px 22px; border:1px solid var(--sp-green); border-radius:8px; background:var(--sp-green); color:white; }
+#tracking-feedback { margin:8px 0 16px; color:var(--sp-muted); font-size:.85rem; }
+#tracking-feedback:empty { display:none; }
+body.role-warrior #tracking-timeline-container > div { padding:18px; border-radius:12px; background:#f7f9f5; }
+body.role-warrior #track-disp-number { font-size:1rem; overflow-wrap:anywhere; }
+body.role-warrior #track-disp-detail, body.role-warrior #track-disp-reward { line-height:1.6; overflow-wrap:anywhere; }
+body.role-warrior .timeline-node { padding-bottom:18px; }
+body.role-warrior .timeline-node-title { margin:4px 0; font-size:.9rem; }
+body.role-warrior .timeline-node-time { font-size:.75rem; font-variant-numeric:tabular-nums; }
+body.role-warrior .timeline-node-desc { font-size:.83rem; }
+body.role-warrior .sp-settings-summary { border:1px solid var(--sp-border); border-radius:14px; padding:16px; background:#fff; box-shadow:none; }
+body.role-warrior .sp-settings-form { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:16px; }
+body.role-warrior .sp-settings-form > section:first-child, body.role-warrior .sp-settings-actions { grid-column:1/-1; }
+body.role-warrior .sp-settings-form .sp-pickup-panel { margin:0; padding:20px; }
+body.role-warrior .sp-settings-form > section:first-child .sp-settings-fields { grid-template-columns:repeat(3,minmax(0,1fr)); }
+body.role-warrior .sp-settings-form .sp-settings-fields { grid-template-columns:minmax(0,1fr); }
+body.role-warrior .sp-settings-actions { display:flex; justify-content:flex-end; padding:0; }
+body.role-collector { --portal-sidebar:224px; font-size:14px; }
+body.role-collector .sidebar { background:#103d2f; }
+body.role-collector .sidebar-item { font-weight:600; font-size:.88rem; border-radius:8px; }
+body.role-collector .sidebar-item.active { background:#245541; }
+body.role-collector .main-workspace { padding:24px clamp(14px,3vw,38px) 32px; }
+body.role-collector .kpi-row { grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin-bottom:18px; }
+body.role-collector .kpi-card { min-width:0; padding:16px; border-bottom:1px solid var(--sp-border); }
+body.role-collector .kpi-card::after { display:none; }
+body.role-collector .kpi-card h3 { font-size:1.5rem; }
+body.role-collector .layout-grid { grid-template-columns:minmax(0,1fr); gap:14px; }
+body.role-collector .sp-field-shortcut { display:grid; grid-template-columns:minmax(0,1fr); align-content:start; padding:20px; min-height:0; background:#fff; }
+body.role-collector .sp-field-shortcut h2 { font-size:1.2rem; }
+body.role-collector .sp-field-shortcut > p { margin:5px 0; color:var(--sp-muted); }
+body.role-collector .queue-panel { padding:20px; }
+body.role-collector .task-item { min-width:0; padding:14px; border-radius:10px; }
+body.role-collector .task-item :is(h4,div) { overflow-wrap:anywhere; }
+body.role-collector .task-item .btn-primary { flex-shrink:0; }
+body.role-collector .mission-panel { padding:clamp(14px,2.5vw,26px); }
+body.role-collector .mobile-header { border-radius:14px; background:var(--sp-soft); color:var(--sp-ink); }
+body.role-collector .bottom-nav { background:#fff; }
+.sp-collector-state { margin:0 0 14px; color:var(--sp-muted); }
+@media (max-width:900px) {
+    body.role-warrior .sp-settings-form { grid-template-columns:minmax(0,1fr); }
+    body.role-warrior .sp-settings-form > section:first-child .sp-settings-fields { grid-template-columns:minmax(0,1fr); }
+    body.role-collector .kpi-row { grid-template-columns:minmax(0,1fr); }
+    body.role-collector .main-workspace { padding-bottom:100px; }
+}
+@media (prefers-reduced-motion:reduce) {
+    body:is(.role-warrior,.role-collector) * { scroll-behavior:auto; animation:none; transition:none; }
+}

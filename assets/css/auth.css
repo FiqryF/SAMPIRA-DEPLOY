@@ -1,0 +1,218 @@
+body.auth-split-page {
+    display: flex;
+    align-items: stretch;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    background: var(--white);
+    font-family: 'Outfit', sans-serif;
+    overflow: hidden;
+}
+
+.auth-banner {
+    flex: 1.2;
+    background-image: url('https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&q=80&w=2000');
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    padding: 80px;
+    color: white;
+}
+
+.banner-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to top, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.3) 100%);
+    z-index: 1;
+}
+
+.banner-content {
+    position: relative;
+    z-index: 2;
+    max-width: 500px;
+}
+
+.banner-content h1 {
+    font-size: 3rem;
+    font-weight: 900;
+    margin-bottom: 20px;
+    line-height: 1.2;
+}
+
+.banner-content p {
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.85);
+    line-height: 1.6;
+}
+
+.auth-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 40px 24px;
+    background: var(--white);
+    height: 100vh;
+    overflow-y: auto;
+}
+
+.auth-card-split {
+    width: 100%;
+    max-width: 420px;
+    margin: auto;
+    padding: 20px 0;
+}
+
+.back-to-home {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    transition: color 0.3s;
+    margin-bottom: 40px;
+    padding: 8px 16px;
+    background: var(--gray-50);
+    border-radius: 20px;
+    border: 1px solid var(--gray-200);
+}
+
+.back-to-home:hover {
+    color: var(--brand-primary);
+    background: var(--white);
+    border-color: var(--brand-primary);
+}
+
+.auth-split-header {
+    margin-bottom: 40px;
+    background: transparent;
+    color: var(--brand-dark);
+    padding: 0;
+    text-align: left;
+}
+
+.auth-split-header .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--brand-dark);
+    text-decoration: none;
+    font-size: 1.8rem;
+    font-weight: 900;
+    margin-bottom: 30px;
+}
+
+.auth-split-header .logo i {
+    color: var(--brand-primary);
+    font-size: 2.2rem;
+}
+
+.auth-split-header h2 {
+    font-size: 2.2rem;
+    color: var(--brand-dark);
+    margin-bottom: 12px;
+    font-weight: 800;
+}
+
+.auth-split-header p {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    margin-bottom: 0;
+}
+
+.input-field {
+    margin-bottom: 24px;
+}
+
+.input-field label {
+    display: block;
+    font-weight: 700;
+    color: var(--brand-dark);
+    margin-bottom: 10px;
+    font-size: 0.95rem;
+}
+
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-wrapper i {
+    position: absolute;
+    left: 20px;
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+}
+
+.input-wrapper input {
+    width: 100%;
+    padding: 16px 20px 16px 50px;
+    border: 2px solid var(--gray-200);
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--brand-dark);
+    transition: all 0.3s;
+    background: var(--gray-50);
+}
+
+.input-wrapper input:focus {
+    outline: none;
+    border-color: var(--brand-primary);
+    background: var(--white);
+    box-shadow: 0 0 0 4px rgba(225, 29, 72, 0.1);
+}
+
+.btn-primary {
+    background: var(--brand-primary);
+    color: white;
+    border: none;
+    padding: 16px;
+    border-radius: 12px;
+    font-weight: 800;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-top: 10px;
+    box-shadow: 0 10px 25px rgba(225, 29, 72, 0.25);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 35px rgba(225, 29, 72, 0.35);
+    background: #be123c;
+}
+
+.auth-footer {
+    margin-top: 40px;
+    text-align: center;
+}
+
+.auth-footer p {
+    color: var(--text-secondary);
+    font-size: 1rem;
+}
+
+.auth-footer a {
+    color: var(--brand-primary);
+    font-weight: 800;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.auth-footer a:hover {
+    color: var(--brand-dark);
+}
+
+@media (max-width: 992px) {
+    .auth-banner {
+        display: none;
+    }
+}

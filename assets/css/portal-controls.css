@@ -1,0 +1,9 @@
+/* Native navigation buttons share the existing portal layout. */
+button.sidebar-item, button.nav-item { appearance: none; font: inherit; cursor: pointer; text-align: left; }
+button.sidebar-item { width: 100%; }
+button.nav-item { background: transparent; border: 0; padding: 0; }
+button.sidebar-overlay { border: 0; padding: 0; }
+.sidebar-item:focus-visible, .nav-item:focus-visible { outline: 3px solid #c6a74c; outline-offset: 3px; }
+output { display: block; }
+
+button.task-item { width: 100%; font: inherit; text-align: left; cursor: pointer; }

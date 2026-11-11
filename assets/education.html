@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Pusat Edukasi Lingkungan | SAMPIRA</title>
+    <link rel="icon" href="/assets/img/sampira-mark.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/assets/css/sampira.css?v=phase6b-live">
+    <script type="module" src="/assets/js/education.js?v=phase6b"></script>
+</head>
+<body class="sp-public">
+    <a class="sp-skip" href="#education-reader">Lewati ke konten</a>
+    <header class="sp-public-header">
+        <a class="sp-brand" href="/home"><img src="/assets/img/sampira-mark.svg" width="28" height="28" alt=""> SAMPIRA</a>
+        <nav aria-label="Navigasi utama"><a href="/home">Beranda</a><a href="/assets/education.html" aria-current="page">Edukasi</a><a href="/login">Masuk</a></nav>
+    </header>
+    <main id="education-reader" class="sp-public-container">
+        <div class="sp-education-hero">
+            <p class="sp-kicker">Belajar dari rumah</p>
+            <h1>Pusat Edukasi Lingkungan</h1>
+            <p>Panduan memilah, mengurangi, dan mengelola sampah sehari-hari.</p>
+        </div>
+        <form class="sp-filter">
+            <label>Cari artikel<input type="search" name="q" maxlength="100" placeholder="Contoh: memilah sampah"></label>
+            <label>Kategori<select name="category"><option value="">Semua kategori</option></select></label>
+            <button class="sp-button" type="submit">Cari</button>
+            <a class="sp-button sp-button--quiet" href="/assets/education.html">Bersihkan</a>
+        </form>
+        <p role="status">Memuat artikel…</p>
+        <div id="education-results" class="sp-card-grid"></div>
+        <nav class="sp-pager" aria-label="Halaman artikel">
+            <a class="sp-button sp-button--quiet" id="education-prev" hidden>Sebelumnya</a>
+            <a class="sp-button" id="education-next" hidden>Berikutnya</a>
+            <a href="/assets/education.html">Daftar artikel</a>
+        </nav>
+    </main>
+    <footer class="sp-public-footer">SAMPIRA · Layanan pengelolaan sampah</footer>
+</body>
+</html>

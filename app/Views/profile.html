@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil Saya | SAMPIRA</title>
+    <link rel="stylesheet" href="assets/css/style.css?v=20261029-quality5">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha384-iw3OoTErCYJJB9mCa8LNS2hbsQ7M3C0EpIsO/H5+EGAkPGc6rk+V8i04oW/K5xq0" crossorigin="anonymous">
+
+
+    <script src="/assets/js/portal-session.js?v=phase1-final"></script>
+    <link rel="icon" href="/assets/img/sampira-mark.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/assets/css/sampira.css?v=phase6b-live">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/portal-design.css?v=roles-1">
+</head>
+
+<body class="sp-portal portal-page sp-profile">
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <a href="home" class="mobile-logo">
+            <img src="/assets/img/sampira-mark.svg" width="30" height="30" alt=""> SAMPIRA
+        </a>
+        <button type="button" class="hamburger-btn" id="mobileMenuToggle" aria-label="Menu profil">
+            <i class="fas fa-bars"></i>
+        </button>
+    </div>
+
+    <!-- Mobile Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+        <a href="home" class="sidebar-logo">
+            <img src="/assets/img/sampira-mark.svg" width="34" height="34" alt=""> SAMPIRA
+        </a>
+
+        <div class="sidebar-nav">
+            <div class="nav-group-label">Menu Pengguna</div>
+            <div id="sidebar-menu-content">
+                <a href="dashboard" class="sidebar-item">
+                    <i class="fas fa-home"></i> Beranda
+                </a>
+                <a href="dashboard" class="sidebar-item">
+                    <i class="fas fa-recycle"></i> Setor Sampah
+                </a>
+                <a href="dashboard" class="sidebar-item">
+                    <i class="fas fa-truck-pickup"></i> Lacak Status
+                </a>
+                <a href="dashboard" class="sidebar-item">
+                    <i class="fas fa-history"></i> Riwayat Payout
+                </a>
+            </div>
+        </div>
+
+        <div class="sidebar-footer">
+            <div class="user-profile-side">
+                <div class="avatar" id="nav-user-avatar">EW</div>
+                <div class="user-info">
+                    <span class="user-name-side" id="nav-user-name">Warga</span>
+                    <span class="user-role-side" id="nav-user-role">Warga</span>
+                </div>
+            </div>
+            <div>
+                <a href="login" onclick="logoutProfile(event)">
+                    <i class="fas fa-sign-out-alt" aria-hidden="true"></i> Keluar
+                </a>
+            </div>
+        </div>
+    </aside>
+
+    <div class="portal-content">
+        <!-- Main Content -->
+        <main class="profile-dashboard">
+
+            <!-- Center Profile Tabs -->
+            <div class="profile-tabs-wrapper">
+                <button type="button" class="header-tab active" aria-pressed="true" aria-controls="pane-data" data-target="pane-data">Data Profil</button>
+                <button type="button" class="header-tab" aria-pressed="false" aria-controls="pane-settings" data-target="pane-settings">Pengaturan</button>
+                <button type="button" class="header-tab" aria-pressed="false" aria-controls="pane-policy" data-target="pane-policy">Kebijakan &amp; Privasi</button>
+            </div>
+
+            <!-- Centered User Card -->
+            <div class="profile-header-centered">
+                <div class="avatar-glow" id="profile-avatar-glow">EW</div>
+                <h1 class="user-name" id="profile-user-name">Memuat...</h1>
+                <div class="premium-badge" id="profile-user-role">Warga SAMPIRA</div>
+                <p id="profile-load-status" role="status"></p><button type="button" class="sp-button sp-button--quiet" id="profile-retry" hidden>Muat ulang profil</button>
+            </div>
+
+            <section class="content-area">
+
+                <!-- PANE 1: Data Diri -->
+                <div id="pane-data" class="pane active">
+                    <div class="pane-header">
+                        <h2>Data Diri</h2>
+                        <p>Kelola data identitas dan alamat donasi sampah Anda.</p>
+                    </div>
+                    <form id="profile-data-form">
+                        <div class="data-grid">
+                            <div class="data-group">
+                                <label for="profile-input-name">Nama Lengkap</label>
+                                <input type="text" class="data-input" id="profile-input-name" maxlength="100" required value="">
+                            </div>
+                            <div class="data-group">
+                                <label for="profile-input-phone">Nomor WhatsApp Aktif</label>
+                                <input type="tel" class="data-input" id="profile-input-phone" maxlength="30" value="" placeholder="Masukkan Nomor WA">
+                            </div>
+                            <div class="data-group sp-data-wide">
+                                <label for="profile-input-email">Alamat Email</label>
+                                <input type="email" class="data-input" id="profile-input-email" value="" readonly>
+                            </div>
+                            <div class="data-group sp-data-wide">
+                                <label for="profile-input-address">Alamat Utama Penjemputan (Bandung)</label>
+                                <textarea id="profile-input-address" maxlength="500" class="data-input" rows="4"></textarea>
+                            </div>
+                        </div>
+                        <button type="submit" class="action-btn"><i class="fas fa-save"></i> Simpan Perubahan</button>
+                    <p id="profile-save-status" role="status"></p></form>
+                </div>
+
+                <!-- PANE 2: Pengaturan -->
+                <div id="pane-settings" class="pane">
+                    <div class="pane-header">
+                        <h2>Pengaturan Akun</h2>
+                        <p>Sesuaikan keamanan akun dan metode payout reward Anda.</p>
+                    </div>
+
+                    <div class="sp-profile-note"><h3>Profil dan tujuan pembayaran</h3><p>Data profil dapat diperbarui pada tab Data Profil. Tujuan pembayaran reward dikelola melalui Pengaturan di Portal Warga.</p><a class="action-btn" href="/dashboard">Buka Portal Warga</a></div>
+                    <p class="sp-note">Perubahan kata sandi, autentikasi dua faktor, dan notifikasi WhatsApp belum tersedia.</p>
+                </div>
+
+                <!-- PANE 3: Kebijakan -->
+                <div id="pane-policy" class="pane">
+                    <div class="pane-header">
+                        <h2>Kebijakan & Privasi</h2>
+                        <p>Persyaratan setoran sampah dan privasi data.</p>
+                    </div>
+                    <div>
+                        <h4>1. Ketentuan Sampah</h4>
+                        <p>SAMPIRA menyediakan kategori organik, anorganik terpilah, elektronik, serta B3 rumah tangga. Pilih satu kategori untuk setiap pengajuan. B3 harus dipisahkan dan jenis serta kondisinya dijelaskan; penjemputannya menyesuaikan kesiapan penanganan. Kategori B3 rumah tangga bukan untuk limbah medis, industri, atau bahan peledak.</p>
+
+                        <h4>2. Keamanan Data</h4>
+                        <p>Kami mengenkripsi nama, alamat penjemputan, dan kontak WhatsApp Anda untuk kebutuhan sinkronisasi kurir kolektor di lapangan. Data tidak akan disalahgunakan atau dibagikan ke pihak ketiga di luar logistik sampah.</p>
+
+                        <h4>3. Hak Penghapusan Akun</h4>
+                        <p>Warga berhak penuh meminta penghapusan seluruh data identitas dan riwayat transaksi donasi mereka dari basis data kami kapan saja melalui pusat bantuan.</p>
+                    </div>
+                </div>
+
+            </section>
+        </main>
+    </div> <!-- End of portal-content -->
+
+    <script>
+        // Interactive Tab Switching Logic for Profile Tabs
+        let profileData;
+        const headerTabs = document.querySelectorAll('.header-tab');
+        const panes = document.querySelectorAll('.pane');
+
+        // Mobile Sidebar Logic
+        const hamburgerBtn = document.getElementById('mobileMenuToggle');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+        function openSidebar() {
+            sidebar.classList.add('active');
+            sidebarOverlay.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSidebar() {
+            sidebar.classList.remove('active');
+            sidebarOverlay.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+
+        if (hamburgerBtn) hamburgerBtn.addEventListener('click', openSidebar);
+        if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeSidebar);
+
+        // Tab Switching
+        headerTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const targetPaneId = tab.dataset.target;
+
+                headerTabs.forEach(t => {
+                    const active = t.dataset.target === targetPaneId;
+                    t.classList.toggle('active', active);
+                    t.setAttribute('aria-pressed', String(active));
+                });
+
+                panes.forEach(p => p.classList.remove('active'));
+                document.getElementById(targetPaneId).classList.add('active');
+
+                closeSidebar();
+            });
+        });
+
+        // Read the profile from the current server session
+        async function loadUserData() {
+            const status=document.getElementById('profile-load-status');
+            const retry=document.getElementById('profile-retry');
+            const save=document.querySelector('#profile-data-form [type=submit]');
+            save.disabled=true; retry.hidden=true; status.textContent='Memuat profil…';
+            try {
+                const user=await portalUser('user');
+                if (!user) throw Error('Profile unavailable');
+                profileData=user;
+                for (const id of ['nav-user-name','profile-user-name']) document.getElementById(id).textContent=user.name;
+                document.getElementById('nav-user-role').textContent='Warga';
+                document.getElementById('profile-user-role').textContent='Warga SAMPIRA';
+                for (const id of ['nav-user-avatar','profile-avatar-glow']) document.getElementById(id).textContent=user.name.substring(0,2).toUpperCase();
+                for (const field of ['name','email','phone','address']) document.getElementById('profile-input-'+field).value=user[field] || '';
+                status.textContent='';
+            } catch {
+                profileData=null;
+                status.textContent='Profil belum dapat dimuat. Periksa koneksi lalu coba lagi.';
+                retry.hidden=false;
+            } finally { save.disabled=!profileData; }
+        }
+        document.getElementById('profile-retry').addEventListener('click',loadUserData);
+
+        function logoutProfile(e) {
+            if(e) e.preventDefault();
+            logoutPortal();
+        }
+
+        document.getElementById('profile-data-form').addEventListener('submit', async event => {
+            event.preventDefault();
+            if (!profileData) return;
+            const button=event.target.querySelector('[type=submit]');
+            const status=document.getElementById('profile-save-status');
+            if (button.disabled) return;
+            button.disabled=true; status.textContent='Menyimpan profil…';
+            try {
+                const response=await portalFetch('/api/user/profile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+                    name:document.getElementById('profile-input-name').value.trim(),
+                    phone:document.getElementById('profile-input-phone').value.trim(),
+                    address:document.getElementById('profile-input-address').value.trim(),
+                    payout_method:profileData.payout_method || '',payout_account_name:profileData.payout_account_name || '',payout_account_number:profileData.payout_account_number || ''
+                })});
+                const result=await response.json();
+                if (!response.ok || result.status!=='success') throw Error('Simpan profil gagal. Periksa isian dan coba lagi.');
+                profileData=result.data;
+                document.getElementById('profile-user-name').textContent=result.data.name;
+                document.getElementById('nav-user-name').textContent=result.data.name;
+                status.textContent='Profil berhasil disimpan.';
+            } catch { status.textContent='Profil belum dapat disimpan. Periksa isian atau koneksi, lalu coba lagi.'; }
+            finally {button.disabled=false;}
+        });
+        // Run on load
+        loadUserData();
+    </script>
+</body>
+
+</html>

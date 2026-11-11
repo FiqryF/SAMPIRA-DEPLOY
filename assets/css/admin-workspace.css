@@ -1,0 +1,86 @@
+/* Admin operational workspace; shared controls are in portal-design.css. */
+body.sp-portal.sp-admin { --admin-sidebar:240px; --admin-gutter:clamp(18px,3vw,40px); }
+body.sp-portal.sp-admin.sp-console .facility-admin-main { display:grid; grid-template-columns:var(--admin-sidebar) minmax(0,1fr); width:100%; max-width:none; margin:0; padding:0; gap:0; }
+.sp-admin-sidebar { position:sticky; top:0; height:100dvh; display:flex; flex-direction:column; padding:28px 16px; background:#103d2f; color:#fff; }
+body.sp-portal.sp-admin .sp-admin-brand-row { padding:0 8px 32px; }
+body.sp-portal.sp-admin .sp-admin-brand-row .sp-brand { color:#fff; }
+body.sp-portal.sp-admin .sp-brand small { display:block; margin-top:5px; font:400 .72rem Inter,sans-serif; letter-spacing:0; color:#c9ddd1; }
+body.sp-portal.sp-admin #admin-sidebar-body { display:flex; flex-direction:column; flex:1; }
+body.sp-portal.sp-admin.sp-console .sp-admin-nav { display:grid; gap:6px; padding:0; border:0; background:none; }
+body.sp-portal.sp-admin .sp-admin-nav .facility-button { justify-content:flex-start; gap:12px; width:100%; min-height:46px; padding:12px; background:none; border:0; border-radius:8px; color:#c9ddd1; font-size:.8rem; font-weight:500; }
+body.sp-portal.sp-admin .sp-admin-nav .facility-button:hover { background:#ffffff10; color:#fff; }
+body.sp-portal.sp-admin .sp-admin-nav .facility-button[aria-pressed=true] { color:#103d2f; background:#eaf3eb; font-weight:600; }
+.sp-admin-nav svg,.sp-admin-metric-mark svg { width:19px; height:19px; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; flex:none; }
+.sp-admin-account { margin-top:auto; padding-top:20px; border-top:1px solid #ffffff25; }
+body.sp-portal.sp-admin .sp-admin-account .facility-button { width:100%; background:none; border:0; color:#dce9df; text-align:left; }
+.sp-admin-sidebar :focus-visible { outline-color:#dcefd7; }
+#admin-menu-toggle { display:none; }
+body.sp-portal.sp-admin .sp-console-content { min-width:0; min-height:100vh; padding:0 var(--admin-gutter) 40px; }
+.sp-admin-breadcrumb { display:flex; gap:10px; align-items:center; min-height:76px; margin:0 calc(-1 * var(--admin-gutter)) 32px; padding-inline:var(--admin-gutter); background:white; border-bottom:1px solid var(--sp-border); color:var(--sp-muted); font-size:.8rem; }
+.sp-admin-breadcrumb strong { color:var(--sp-green); font-weight:600; }
+.sp-admin-heading { margin-bottom:24px; }
+.sp-admin-heading :is(h1,h2) { margin:8px 0; }
+.sp-admin-heading p { margin:0; color:var(--sp-muted); }
+body.sp-portal.sp-admin .sp-admin-shortcuts { display:flex; flex-wrap:wrap; align-items:center; gap:12px; margin:24px 0; padding:0; background:none; border:0; }
+body.sp-portal.sp-admin .sp-admin-shortcuts h2 { font-size:.8rem; color:var(--sp-muted); margin:0 8px 0 0; }
+.sp-admin-shortcuts .sp-button { width:auto; display:flex; gap:18px; align-items:center; text-align:left; }
+.sp-admin-shortcuts small { display:none; }
+.sp-admin-shortcuts strong { font-size:.8rem; font-weight:600; }
+body.sp-portal.sp-admin .sp-admin-metrics { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:0; margin:24px 0 12px; padding:22px 0; border:1px solid var(--sp-border); border-radius:12px; background:white; }
+body.sp-portal.sp-admin .sp-admin-metrics > div { display:grid; grid-template-columns:auto minmax(0,1fr); gap:5px 12px; align-items:center; padding:0 20px; border:0; border-right:1px solid var(--sp-border); background:none; border-radius:0; box-shadow:none; }
+body.sp-portal.sp-admin .sp-admin-metrics > div:last-child { border:0; }
+.sp-admin-metric-mark { grid-row:span 2; display:grid; place-items:center; width:36px; height:36px; border-radius:8px; background:#eaf3eb; color:#174c3c; }
+body.sp-portal.sp-admin .sp-admin-metrics dt { font-size:.73rem; }
+body.sp-portal.sp-admin .sp-admin-metrics dd { font:800 1.6rem Manrope,Inter,sans-serif; margin:0; }
+.sp-admin-overview-meta { display:flex; gap:12px; align-items:center; margin-bottom:26px; color:var(--sp-muted); font-size:.8rem; }
+.sp-admin-overview-layout { display:grid; grid-template-columns:minmax(0,1fr); }
+body.sp-portal.sp-admin .sp-admin-recent { padding:24px; border:0; background:none; }
+.sp-admin-recent .sp-section-heading { margin-bottom:18px; }
+.sp-admin-recent h2 { font-size:1.15rem; }
+.sp-admin-recent td small { display:block; color:var(--sp-muted); font-size:.73rem; margin-top:4px; }
+.sp-admin-recent th:last-child,.sp-admin-recent td:last-child { width:1%; white-space:nowrap; }
+body.sp-portal.sp-admin .facility-header { padding:0 0 24px; margin-bottom:20px; }
+body.sp-portal.sp-admin .facility-panel { padding:22px; }
+body.sp-portal.sp-admin .facility-toolbar { align-items:end; }
+body.sp-portal.sp-admin .facility-table { min-width:560px; }
+body.sp-portal.sp-admin .facility-card { border-radius:10px; background:white; box-shadow:none; }
+body.sp-portal.sp-admin .handling-nav:not(.sp-admin-nav) { padding:4px; border:0; background:#eaf3eb; border-radius:8px; }
+body.sp-portal.sp-admin .handling-nav:not(.sp-admin-nav) button { border:0; border-radius:6px; }
+body.sp-portal.sp-admin .handling-detail h3 { font-size:1.1rem; }
+body.sp-portal.sp-admin #admin-operation-map > .sp-filter { margin:22px 0; }
+body.sp-portal.sp-admin .sp-map-layout { display:grid; grid-template-columns:minmax(0,1.7fr) minmax(260px,1fr); gap:24px; }
+body.sp-portal.sp-admin .sp-admin-map-frame { min-width:0; }
+body.sp-portal.sp-admin .sp-map-canvas { height:480px; border:1px solid var(--sp-border); border-radius:10px; overflow:hidden; }
+body.sp-portal.sp-admin .sp-admin-map-results { min-width:0; padding:0; }
+body.sp-portal.sp-admin .sp-map-list { max-height:400px; overflow:auto; list-style:none; margin:16px 0; padding:0; }
+body.sp-portal.sp-admin .sp-map-list li { padding:14px 0; border-bottom:1px solid var(--sp-border); }
+body.sp-portal.sp-admin .sp-map-list button { text-align:left; overflow-wrap:anywhere; }
+body.sp-portal.sp-admin #education-cms { padding:0; border:0; background:none; }
+body.sp-portal.sp-admin #education-cms .sp-section-heading { margin:8px 0 12px; }
+body.sp-portal.sp-admin #education-cms .sp-table-wrap { margin-top:20px; }
+body.sp-portal.sp-admin #education-cms .sp-pager { padding-top:20px; }
+body.sp-portal.sp-admin .sp-admin-skip { position:fixed; top:8px; left:8px; z-index:3000; transform:translateY(-180%); padding:10px; background:white; }
+body.sp-portal.sp-admin .sp-admin-skip:focus { transform:none; }
+@media (max-width:1200px) {
+ body.sp-portal.sp-admin .sp-admin-metrics { grid-template-columns:repeat(2,minmax(0,1fr)); gap:22px 0; }
+ body.sp-portal.sp-admin .sp-admin-metrics > div:nth-child(2) { border:0; }
+}
+@media (max-width:900px) {
+ body.sp-portal.sp-admin.sp-console .facility-admin-main { grid-template-columns:minmax(0,1fr); }
+ .sp-admin-sidebar { position:static; height:auto; padding:12px 18px; }
+ body.sp-portal.sp-admin .sp-admin-brand-row { display:flex; justify-content:space-between; align-items:center; padding:0; }
+ #admin-menu-toggle { display:block; }
+ body.sp-portal.sp-admin .sp-admin-brand-row:has(#admin-menu-toggle[aria-expanded=false]) + #admin-sidebar-body { display:none; }
+ body.sp-portal.sp-admin .sp-admin-nav { margin-top:16px; }
+ .sp-admin-account { margin-top:16px; }
+ body.sp-portal.sp-admin .sp-map-layout { grid-template-columns:minmax(0,1fr); }
+ .sp-admin-breadcrumb { min-height:56px; margin-bottom:24px; }
+}
+@media (max-width:600px) {
+ body.sp-portal.sp-admin .sp-admin-metrics > div { padding-inline:12px; gap:4px 8px; }
+ body.sp-portal.sp-admin .sp-admin-metrics dt { font-size:.68rem; }
+ body.sp-portal.sp-admin .sp-admin-metrics dd { font-size:1.3rem; }
+ body.sp-portal.sp-admin .sp-admin-shortcuts { display:grid; grid-template-columns:minmax(0,1fr); }
+ body.sp-portal.sp-admin .sp-admin-recent,body.sp-portal.sp-admin .facility-panel { padding:0; }
+ body.sp-portal.sp-admin .sp-map-canvas { height:340px; }
+}

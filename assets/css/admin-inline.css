@@ -1,0 +1,103 @@
+/* View defaults; the portal theme owns presentation overrides. */
+@layer portalDefaults {
+    .admin-3d21472f83 {background:#f8fafc; font-family:'Plus Jakarta Sans', sans-serif
+    }
+    .admin-a48cc2f1ff {background-color: #0f172a; border-right: 1px solid #1e293b
+    }
+    .admin-383445bc25 {color:white; font-family:'Outfit', sans-serif
+    }
+    .admin-d45b386fc9 {color: #a4b4ac
+    }
+    .admin-35fd747e6e {border-top:1px solid #1e293b; padding:24px 16px
+    }
+    .admin-834fd65dce {display:flex; align-items:center; gap:12px; margin-bottom:16px
+    }
+    .admin-8df8a3f3ee {width:40px; height:40px; border-radius:50%; background:#087443; color:white; display:flex; align-items:center; justify-content:center; font-weight:800
+    }
+    .admin-281119f090 {color:white; font-weight:700; font-size:0.9rem
+    }
+    .admin-20d59bce61 {color:#a4b4ac; font-size:0.75rem; display:block
+    }
+    .admin-5fb6767e8d {display: flex; align-items: center; justify-content: center; gap: 12px; font-weight: 700; color: #ff9b9b; background: #15231f; border: 1px solid rgba(239, 68, 68, 0.1); width: 100%; padding: 12px; border-radius: 12px; cursor: pointer; transition: background 0.3s
+    }
+    .admin-45c6113de6 {background:#0f172a; border-bottom:1px solid #1e293b
+    }
+    .admin-af38dc5948 {display: block; font-size: 1.25rem; color:white; background:none; border:none; cursor:pointer
+    }
+    .admin-02c3d45f36 {color:white; font-weight:900; text-decoration:none
+    }
+    .admin-23404d418d {color:#087443
+    }
+    .admin-d7f1e04b40 {width: 32px
+    }
+    .admin-5c1ace26af {background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(4px); position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 998; display: none
+    }
+    .admin-f9fe232d7c {margin-left: 280px; width: calc(100% - 280px); padding: 40px; min-height: 100vh
+    }
+    .admin-293242ee3e {margin-bottom:32px
+    }
+    .admin-1fd767b3f6 {font-family:'Outfit',sans-serif; font-size:2rem; font-weight:900; color:#0f172a
+    }
+    .admin-e5b6a454fe {color:#64748b; margin-top:4px
+    }
+    .admin-d70b74aa28 {background:white; border:1px solid #e2e8f0; padding:16px 24px; border-radius:16px; margin-bottom:24px; display:flex; gap:16px; align-items:center; flex-wrap:wrap
+    }
+    .admin-3f8d69adfd {flex:1; max-width:400px
+    }
+    .admin-b887bfd543 {display:flex; gap:8px
+    }
+    .admin-4bfa45e20c {border-radius:10px; padding:10px 16px; font-size:0.85rem
+    }
+    .admin-8b38491930 {display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:20px; margin-bottom:32px
+    }
+    .admin-0a5e1072f3 {background:white; padding:24px; border-radius:20px; border:1px solid #e2e8f0
+    }
+    .admin-8e7137fcc7 {display:flex; justify-content:space-between; align-items:center; margin-bottom:12px
+    }
+    .admin-1b1c584415 {font-size:0.75rem; font-weight:800; color:#64748b; text-transform:uppercase
+    }
+    .admin-ab64daf53e {background:#ecfdf5; color:#087443; width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center
+    }
+    .admin-00013e7321 {font-size:1.8rem; font-weight:900; margin:0; color:#0f172a
+    }
+    .admin-3023f73122 {background:#f0fdfa; color:#276e57; width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center
+    }
+    .admin-874e1e5911 {background:#fffbeb; color:#8a5315; width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center
+    }
+    .admin-cdb70493ab {background:#f8fafc; color:#475569; width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center
+    }
+    .admin-a82c141b12 {display:grid; grid-template-columns: 1.2fr 0.8fr; gap:24px
+    }
+    .admin-af4797bb6e {background:white; border-radius:24px; border:1px solid #e2e8f0; padding:32px
+    }
+    .admin-33673ee54e {font-weight:900; font-size:1.2rem; color:#0f172a; margin-bottom:20px
+    }
+    .admin-fbff25e9fc {overflow-x:auto
+    }
+    .admin-2e5daa7686 {width:100%; border-collapse:collapse; min-width:500px
+    }
+    .admin-2c6c5b0f8e {border-bottom:2px solid #f1f5f9; text-align:left
+    }
+    .admin-617dd2c602 {padding:12px; font-size:0.75rem; font-weight:800; color:#64748b
+    }
+    .admin-afd96faa13 {padding:12px; font-size:0.75rem; font-weight:800; color:#64748b; text-align:right
+    }
+    .admin-2543dceb38 {text-align:center; padding:16px; color:#64748b
+    }
+    .admin-2cc83afa6f {height: 300px; border-radius: 16px; overflow: hidden; border: 1px solid #e2e8f0
+    }
+    .admin-d13674593a {width:100%; height:100%
+    }
+    .admin-105ad79cd2 {width:100%; border-collapse:collapse; min-width:800px
+    }
+    .admin-8e610124b8 {padding:16px; font-size:0.75rem; font-weight:800; color:#64748b
+    }
+    .admin-54c3b7208c {display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:20px; margin-bottom:32px
+    }
+    .admin-318f9db82d {display:grid; grid-template-columns: 1.2fr 0.8fr; gap:24px; margin-bottom:32px
+    }
+    .admin-321500124c {width:100%; border-collapse:collapse; min-width:720px
+    }
+    .admin-6ba1173f58 {height:250px; position:relative
+    }
+}

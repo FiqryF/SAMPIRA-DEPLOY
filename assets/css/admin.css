@@ -1,0 +1,273 @@
+/* EcoRecycle Admin Center Styling */
+
+body.portal-page {
+    display: flex;
+    background-color: #f8fafc;
+    min-height: 100vh;
+}
+
+/* Sidebar Navigation */
+.sidebar {
+    width: 280px;
+    background-color: #0f172a; /* Slate Dark */
+    color: white;
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 1001;
+    display: flex;
+    flex-direction: column;
+    padding: 32px 0;
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.sidebar-logo {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: white;
+    text-decoration: none;
+    padding: 0 32px;
+    margin-bottom: 48px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.sidebar-logo i {
+    color: #10b981;
+}
+
+.sidebar-nav {
+    flex: 1;
+    padding: 0 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: 12px;
+    color: #94a3b8;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+}
+
+.sidebar-item:hover {
+    background-color: #1b2b3f;
+    color: white;
+}
+
+.sidebar-item.active {
+    background-color: #087443; /* Emerald Green */
+    color: white;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+}
+
+/* Main Container */
+.main-container {
+    margin-left: 280px;
+    width: calc(100% - 280px);
+    padding: 40px;
+    min-height: 100vh;
+}
+
+/* View Sections */
+.view-section {
+    display: none;
+}
+
+.view-section.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Status Pills */
+.status-pill {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 50px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.status-pill.status-pending {
+    background-color: #fffbeb;
+    color: #b45309;
+}
+
+.status-pill.status-success {
+    background-color: #f0fdf4;
+    color: #166534;
+}
+
+.status-pill.status-processing {
+    background-color: #eff6ff;
+    color: #1e40af;
+}
+
+.status-pill.status-cancelled {
+    background-color: #fef2f2;
+    color: #b91c1c;
+}
+
+.payout-destination {
+    display: inline-grid;
+    gap: 2px;
+    color: #0f172a;
+    font-size: 0.82rem;
+}
+
+.payout-destination strong {
+    color: #064e3b;
+    font-size: 0.78rem;
+}
+
+.payout-destination span {
+    font-weight: 800;
+}
+
+.payout-destination small {
+    color: #64748b;
+    font-weight: 700;
+}
+
+.payout-destination.warning {
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: #fffbeb;
+    color: #b45309;
+    font-size: 0.76rem;
+    font-weight: 800;
+}
+
+.verification-summary {
+    display: grid;
+    gap: 2px;
+    color: #064e3b;
+}
+
+.verification-summary strong {
+    font-size: 0.82rem;
+}
+
+.verification-summary span {
+    color: #087443;
+    font-size: 0.8rem;
+    font-weight: 900;
+}
+
+.verification-summary small {
+    color: #64748b;
+    font-size: 0.72rem;
+    font-weight: 700;
+}
+
+.verification-summary.warning {
+    display: inline-grid;
+    padding: 8px 10px;
+    border-radius: 12px;
+    background: #fffbeb;
+    color: #92400e;
+}
+
+.verification-summary.warning span {
+    color: #b45309;
+}
+
+/* KPI Cards */
+.kpi-card {
+    background: white;
+    border-radius: 20px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+}
+
+/* Custom Marker */
+.custom-marker {
+    background: #0f172a;
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 3px solid #10b981;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+/* Mobile styles */
+.mobile-header {
+    display: none;
+    height: 70px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 999;
+}
+
+@media (max-width: 992px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+
+    .sidebar.active {
+        transform: translateX(0);
+    }
+
+    .main-container {
+        margin-left: 0;
+        width: 100%;
+        padding: 100px 24px 40px;
+    }
+
+    .mobile-header {
+        display: flex;
+    }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+
+    .sidebar {
+    transition: transform 0.3s ease;
+    }
+
+    .sidebar-item {
+    transition: background-color 0.2s ease, color .2s, border-color .2s, transform .2s;
+    }
+
+    .view-section {
+    animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .kpi-card {
+    transition: transform 0.2s ease;
+    }
+
+    .kpi-card:hover {
+    transform: translateY(-2px);
+    }
+}

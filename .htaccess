@@ -1,0 +1,8 @@
+RewriteEngine On
+RewriteRule ^(?:app|uploads|db_init|internal|cmd|scripts|\.git|\.codex|\.agents|\.aws)(?:/|$) - [F,NC]
+<FilesMatch "(?i)^(?:\.|.*\.(?:exe|log|sql)$)">
+    Require all denied
+</FilesMatch>
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php?request=$1 [QSA,L]

@@ -1,0 +1,2 @@
+@layer portalLegacy, portalDefaults;
+@import url('collector.css') layer(portalLegacy);

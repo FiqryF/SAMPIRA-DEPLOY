@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Administrator | SAMPIRA</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="/assets/css/admin.css">
+    <link rel="stylesheet" href="/assets/css/portal-system.css">
+    <link rel="stylesheet" href="/assets/css/portal-controls.css">
+    <script src="/assets/js/portal-session.js?v=phase1-final" defer></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/sweetalert2@11.26.25/dist/sweetalert2.all.min.js" integrity="sha384-nLoOnA/BDh8A/jxqtckg4DumuCGOBYUnNJLZdQz/zfYNp3wcjGSoWTAzgko06G/2" crossorigin="anonymous"></script>
+    <script src="/assets/js/admin.js?v=phase1-final" defer></script>
+    <script src="/assets/js/reward-payments.js?v=phase2" defer></script>
+    <link rel="icon" href="/assets/img/sampira-mark.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/assets/css/sampira.css?v=phase6b-live">
+    <script type="module" src="/assets/js/operations.js?v=phase6b"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/portal-design.css?v=roles-1">
+</head>
+<body class="sp-portal sp-console sp-system">
+    <aside class="sp-system-sidebar"><a class="sp-brand" href="/home"><img src="/assets/img/sampira-mark.svg" width="36" height="36" alt=""><span>SAMPIRA<small>Administrator</small></span></a><nav class="sp-system-nav" aria-label="Navigasi Administrator">
+            <a href="#sp-system-metrics">Ringkasan</a><a href="#content-view">Pengumuman</a><a href="#reward-payments-title">Pembayaran Reward</a>
+        </nav><p class="sp-system-scope">Administrasi operasional<br>Pengumuman dan pembayaran</p></aside>
+<main class="container sp-system-main" id="sp-system-main">
+        <header class="sp-system-header"><div><p class="sp-kicker">Portal Administrator</p><h1>Kontrol operasional SAMPIRA</h1></div>
+
+        <form action="/logout" method="post">
+            <button class="btn btn-primary" type="submit">Keluar</button>
+        </form>
+        </header>
+
+        <section class="sp-panel" id="sp-system-metrics" aria-labelledby="sp-metrics-title">
+    <p class="sp-kicker">Ringkasan sistem</p><h2 id="sp-metrics-title">Aktivitas penjemputan dan reward</h2>
+    <p role="status">Memuat ringkasan…</p>
+    <dl class="sp-metric-grid"><div><dt>Total penjemputan</dt><dd data-metric="total_pickups" >—</dd></div><div><dt>Menunggu petugas</dt><dd data-metric="pending_verifications" >—</dd></div><div><dt>Berat terverifikasi (kg)</dt><dd data-metric="total_weight" >—</dd></div><div><dt>Akun petugas aktif</dt><dd data-metric="collectors_online" >—</dd></div><div><dt>Reward menunggu pembayaran</dt><dd data-metric="total_reward_pending" data-currency>—</dd></div><div><dt>Reward dibayar</dt><dd data-metric="total_reward_paid" data-currency>—</dd></div></dl>
+</section>
+            <div id="content-view" class="view-section active">
+            <div class="page-header">
+                <div>
+                    <span class="portal-eyebrow">CMS Internal</span>
+                    <h2>Pusat Pengumuman Portal</h2>
+                    <p>Terbitkan informasi operasional untuk Warga dan Petugas tanpa mengubah landing page.</p>
+                </div>
+                <span class="cms-header-badge"><i class="fas fa-tower-broadcast"></i> Pengumuman per peran</span>
+            </div>
+
+            <div class="cms-layout">
+                <section class="panel-card cms-list-panel">
+                    <div class="panel-heading-compact">
+                        <div>
+                            <span class="portal-eyebrow">Publikasi</span>
+                            <h3>Daftar Pengumuman</h3>
+                        </div>
+                        <span class="cms-count" id="announcement-count">0 konten</span>
+                    </div>
+                    <div id="announcement-admin-list" class="cms-announcement-list">
+                        <div class="portal-empty-state">Memuat pengumuman...</div>
+                    </div>
+                </section>
+
+                <section class="panel-card cms-editor-panel">
+                    <div class="panel-heading-compact">
+                        <div>
+                            <span class="portal-eyebrow">Konten baru</span>
+                            <h3>Buat Pengumuman</h3>
+                        </div>
+                        <i class="fas fa-pen-to-square"></i>
+                    </div>
+
+                    <form id="announcement-form" class="cms-form">
+                        <div class="input-field">
+                            <label for="announcement-title">Judul pengumuman</label>
+                            <input id="announcement-title" type="text" maxlength="120" placeholder="Contoh: Jadwal pickup akhir pekan" required>
+                        </div>
+                        <div class="input-field">
+                            <label for="announcement-target">Target portal</label>
+                            <select id="announcement-target" required>
+                                <option value="all">Semua peran</option>
+                                <option value="user">Warga</option>
+                                <option value="petugas">Petugas</option>
+                            </select>
+                        </div>
+                        <div class="input-field">
+                            <label for="announcement-message">Isi informasi</label>
+                            <textarea id="announcement-message" maxlength="1000" rows="6" placeholder="Tulis informasi yang singkat dan dapat ditindaklanjuti." required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary cms-publish-btn">
+                            <i class="fas fa-paper-plane"></i> Terbitkan Pengumuman
+                        </button>
+                    </form>
+                </section>
+            </div>
+        </div>
+
+        <section class="panel-card sp-payments" id="system-payments" aria-labelledby="reward-payments-title">
+            <h2 id="reward-payments-title">Pencatatan Pembayaran Reward</h2>
+            <p>Cocokkan transfer eksternal dengan kewajiban dan bukti sebelum mencatat pembayaran.</p>
+            <output id="reward-payment-status"></output>
+            <ul id="reward-payment-list"></ul>
+            <form id="reward-payment-form" class="cms-form" hidden>
+                <label for="reward-pickup-id">Penjemputan</label>
+                <select name="pickup_id" id="reward-pickup-id" required></select>
+                <label for="reward-payment-amount">Nominal yang dibayar (Rp)</label>
+                <input name="amount" id="reward-payment-amount" type="number" min="0.01" step="0.01" required>
+                <label for="reward-payment-reference">Referensi transfer</label>
+                <input name="reference" id="reward-payment-reference" minlength="6" maxlength="100" required>
+                <label for="reward-payment-proof">Bukti pembayaran (JPG, PNG, WEBP)</label>
+                <input name="proof" id="reward-payment-proof" type="file" accept="image/jpeg,image/png,image/webp" required>
+                <label for="reward-payment-confirm"><input id="reward-payment-confirm" type="checkbox" required> Saya telah memeriksa nominal, penerima, dan bukti pembayaran eksternal.</label>
+                <button class="btn btn-primary" type="submit">Catat pembayaran</button>
+            </form>
+        </section>
+    </main>
+</body>
+</html>

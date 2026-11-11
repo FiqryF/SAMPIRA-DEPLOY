@@ -1,0 +1,110 @@
+.location-panel {
+    --location-green: #126048;
+    --location-ink: #173d34;
+    display: grid;
+    gap: .65rem;
+    min-width: 0;
+    padding: clamp(.75rem, 2vw, 1.1rem);
+    border: 1px solid #c8ddd2;
+    border-radius: .85rem;
+    background: #f3faf5;
+    color: var(--location-ink);
+    font-size: .9rem;
+    line-height: 1.5;
+    text-align: left;
+    overflow-wrap: anywhere;
+}
+.location-panel h4,
+.location-panel p { margin: 0; }
+.location-panel h4 { font-size: 1.05rem; font-weight: 800; }
+.location-map {
+    z-index: 0;
+    height: clamp(12rem, 40vh, 19rem);
+    border: 1px solid #a9c6b6;
+    border-radius: .6rem;
+    background-color: #e5f2eb;
+    background-image: linear-gradient(#a9c6b655 1px, transparent 1px), linear-gradient(90deg, #a9c6b655 1px, transparent 1px);
+    background-size: 24px 24px;
+}
+.location-map[hidden] { display: none; }
+.location-map-tools,
+.location-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .45rem .7rem; }
+.location-map-tools:has(button[hidden]):has(.location-status:empty) { display: none; }
+.location-coordinate-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .6rem;
+}
+.location-coordinate-grid label { display: grid; gap: .2rem; font-weight: 700; }
+.location-coordinate-grid input {
+    width: 100%;
+    min-width: 0;
+    min-height: 44px;
+    padding: .45rem .55rem;
+    border: 1px solid #8eb6a4;
+    border-radius: .45rem;
+    background: white;
+    color: #173d34;
+    font: 1rem ui-monospace, monospace;
+}
+.location-coordinate-readout { font-variant-numeric: tabular-nums; font-weight: 700; }
+.location-status, .location-privacy { color: #36564c; font-size: .85rem; }
+.location-panel .location-action {
+    min-height: 44px;
+    max-width: 100%;
+    padding: .45rem .75rem;
+    border: 1px solid #8eb6a4;
+    border-radius: .5rem;
+    background: white;
+    color: var(--location-ink);
+    cursor: pointer;
+    font: inherit;
+    font-weight: 750;
+    white-space: normal;
+}
+.location-panel .location-action.primary { color: white; background: var(--location-green); border-color: var(--location-green); }
+.location-panel .location-action:disabled { opacity: .65; cursor: default; }
+.location-panel :is(button, input, a, [tabindex]):focus-visible { outline: 3px solid #155b88; outline-offset: 2px; }
+.location-pin {
+    display: grid;
+    place-items: center;
+    border: 2px solid white;
+    border-radius: 50% 50% 50% .2rem;
+    background: #126048;
+    box-shadow: 0 2px 5px #173d3477;
+    color: white;
+    font: bold 1rem ui-monospace, monospace;
+}
+.location-pin-A { background: #155b88; }
+#pickup-location-picker, #mission-location, #user-tracking-location { margin-block: .85rem; }
+@media (max-width: 390px) {
+    .location-map { height: 13rem; }
+    .location-actions > .location-action { flex: 1 1 100%; }
+}
+
+/* Shared Phase 8 status markers. Icons and labels carry meaning alongside color. */
+.sp-status-tone-waiting { --map-color:#946b13; }
+.sp-status-tone-accepted { --map-color:#286596; }
+.sp-status-tone-progress { --map-color:#77539e; }
+.sp-status-tone-complete { --map-color:#287044; }
+.sp-status-tone-rejected { --map-color:#a43d3d; }
+.sp-status-tone-revision { --map-color:#af591c; }
+.sp-status-tone-neutral { --map-color:#5f6c64; }
+.leaflet-marker-icon.sp-status-pin { display:grid; place-items:center; border:2px solid white; border-radius:50% 50% 50% 5px; background:var(--map-color,#5f6c64); color:white; box-shadow:0 1px 4px #182c2340; }
+.sp-status-pin svg { width:19px; height:19px; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
+.sp-status-legend { display:flex; flex-wrap:wrap; gap:7px 16px; list-style:none; margin:10px 0 0; padding:0; color:#4b6459; font-size:.77rem; }
+.sp-status-legend li { display:flex; align-items:center; gap:6px; }
+.sp-status-dot { display:inline-block; flex-shrink:0; width:9px; height:9px; border-radius:50%; background:var(--map-color); }
+.sp-pin-count { position:absolute; top:-6px; right:-7px; min-width:17px; padding:1px 3px; border-radius:10px; background:#fff; color:#182c23; font:700 10px/1.4 Inter,system-ui,sans-serif; box-shadow:0 1px 3px #182c2330; }
+.sp-map-popup { max-width:calc(100vw - 115px); font:13px/1.5 Inter,system-ui,sans-serif; color:#182c23; }
+.sp-map-popup :is(p,small,strong) { overflow-wrap:anywhere; }
+.sp-map-popup .sp-map-open { min-height:44px; }
+.location-panel { --location-green:#174c3c; --location-ink:#182c23; background:#fff; border-color:#d4e1d8; border-radius:14px; }
+.location-panel .location-map { height:clamp(240px,36vh,350px); background:#eaf3eb; background-image:none; border-color:#d4e1d8; }
+.location-coordinate-grid input { border-color:#acbdb3; font-size:.9rem; }
+.location-panel :focus-visible { outline-color:#963d10; }
+.location-pin-T { background:#174c3c; }
+.location-panel .location-action { border-radius:8px; transition:background-color 170ms ease; }
+@media (prefers-reduced-motion:reduce) {
+    .location-panel .location-action { transition:none; }
+}

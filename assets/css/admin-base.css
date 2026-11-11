@@ -1,0 +1,3 @@
+@layer portalLegacy, portalDefaults;
+@import url('style.css') layer(portalLegacy);
+@import url('admin.css') layer(portalLegacy);

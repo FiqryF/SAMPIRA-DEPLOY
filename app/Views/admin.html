@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin | SAMPIRA</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="/assets/css/facility-reports.css?v=phase4b">
+    <script src="/assets/js/portal-session.js?v=phase5b" defer></script>
+    <link rel="stylesheet" href="/assets/css/facility-handling.css?v=phase4b">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha384-sHL9NAb7lN7rfvG5lfHpm643Xkcjzp4jFvuavGOndn6pjVqS6ny56CAt3nsEVT4H" crossorigin="anonymous">
+    <link rel="stylesheet" href="/assets/css/location-map.css?v=phase8">
+    <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH" crossorigin="anonymous"></script>
+    <script type="module" src="/assets/js/facility-reports.js?v=phase8"></script>
+    <link rel="icon" href="/assets/img/sampira-mark.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/assets/css/sampira.css?v=phase6b-live">
+    <link rel="stylesheet" href="/assets/css/admin-workspace.css?v=roles-1">
+    <script type="module" src="/assets/js/education.js?v=admin-6b4"></script>
+    <script type="module" src="/assets/js/operations.js?v=phase8"></script>
+    <script type="module" src="/assets/js/admin-workspace.js?v=admin-6b4-refined3"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/portal-design.css?v=roles-1">
+</head>
+<body class="sp-portal facility-admin-page sp-console sp-admin">
+    <a class="sp-admin-skip" href="#admin-content">Lewati ke isi</a>
+    <main class="facility-admin-main" aria-label="Portal Admin">
+        <aside class="sp-admin-sidebar">
+            <div class="sp-admin-brand-row">
+                <a class="sp-brand" href="/home"><img src="/assets/img/sampira-mark.svg" width="38" height="38" alt=""><span>SAMPIRA<small>Ruang Admin</small></span></a>
+                <button type="button" class="facility-button" id="admin-menu-toggle" aria-controls="admin-sidebar-body" aria-expanded="false">Menu</button>
+            </div>
+            <div id="admin-sidebar-body">
+                <nav class="handling-nav sp-admin-nav" aria-label="Navigasi Admin">
+                    <button type="button" class="facility-button" aria-controls="admin-overview" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10l9-7 9 7v10H3z M9 20v-6h6v6"/></svg>Ringkasan</button>
+                    <button type="button" class="facility-button" data-open-verification aria-controls="admin-report-verification" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18H6z M9 12l2 2 4-4"/></svg>Verifikasi Laporan</button>
+                    <button type="button" class="facility-button" data-open-handling aria-controls="admin-facility-handling" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h18v13H3z M8 7V4h8v3 M3 12h18"/></svg>Penanganan Laporan</button>
+                    <button type="button" class="facility-button" aria-controls="admin-operation-map" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 0 1 16 0z M12 7v6 M9 10h6"/></svg>Monitoring Peta</button>
+                    <button type="button" class="facility-button" aria-controls="education-cms" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6v15M3 4c4 0 7 0 9 2 2-2 5-2 9-2v15c-4 0-7 0-9 2-2-2-5-2-9-2z"/></svg>Artikel Edukasi</button>
+                </nav>
+                <div class="sp-admin-account">
+                    <form action="/logout" method="post"><button class="facility-button" type="submit">Keluar</button></form>
+                </div>
+            </div>
+        </aside>
+        <div class="sp-console-content" id="admin-content" tabindex="-1">
+        <div class="sp-admin-breadcrumb">Portal Admin <span aria-hidden="true">/</span> <strong id="admin-current-view">Ringkasan</strong></div>
+        <section id="admin-overview" aria-labelledby="admin-overview-title">
+            <header class="sp-admin-heading"><p class="sp-kicker">Operasional fasilitas</p><h1 id="admin-overview-title">Ringkasan operasional</h1><p>Pantau antrean verifikasi dan tindak lanjut laporan warga.</p></header>
+            <section class="sp-admin-shortcuts" aria-labelledby="admin-shortcuts-title">
+                    <h2 id="admin-shortcuts-title">Lanjutkan pekerjaan</h2>
+                    <button type="button" class="sp-button sp-button--quiet" data-admin-go="admin-operation-map"><span><strong>Monitoring Peta</strong><small>Lihat sebaran laporan fasilitas.</small></span><span aria-hidden="true">→</span></button>
+                    <button type="button" class="sp-button sp-button--quiet" data-admin-go="admin-facility-handling"><span><strong>Penanganan Laporan</strong><small>Kelola penugasan dan validasi hasil.</small></span><span aria-hidden="true">→</span></button>
+                </section><dl class="sp-metric-grid sp-admin-metrics" aria-label="Cuplikan antrean">
+                <div><span aria-hidden="true" class="sp-admin-metric-mark"><svg viewBox="0 0 24 24"><path d="M6 3h12v18H6z M9 8h6 M9 12h6 M9 16h3"/></svg></span><dt>Menunggu verifikasi</dt><dd data-overview-status="pending">—</dd></div>
+                <div><span aria-hidden="true" class="sp-admin-metric-mark"><svg viewBox="0 0 24 24"><circle cx="9" cy="7" r="3"/><path d="M3 20v-2a6 6 0 0 1 11-3 M18 11v8 M14 15h8"/></svg></span><dt>Menunggu penugasan</dt><dd data-overview-status="approved">—</dd></div>
+                <div><span aria-hidden="true" class="sp-admin-metric-mark"><svg viewBox="0 0 24 24"><path d="M3 7h18v13H3z M8 7V4h8v3 M3 12h18"/></svg></span><dt>Dalam penanganan</dt><dd data-overview-status="handling_in_progress">—</dd></div>
+                <div><span aria-hidden="true" class="sp-admin-metric-mark"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg></span><dt>Menunggu validasi</dt><dd data-overview-status="resolution_submitted">—</dd></div>
+            </dl>
+            <div class="sp-admin-overview-meta">
+                <p role="status" class="sp-admin-overview-status">Memuat cuplikan antrean…</p>
+                <button class="sp-button sp-button--quiet" type="button" data-overview-retry hidden>Coba lagi</button>
+            </div>
+            <div class="sp-admin-overview-layout">
+                <section class="sp-panel sp-admin-recent" aria-labelledby="admin-recent-title">
+                    <div class="sp-section-heading"><h2 id="admin-recent-title">Laporan terbaru</h2><button type="button" class="sp-button sp-button--quiet" data-admin-go="admin-report-verification">Buka antrean</button></div>
+                    <div class="sp-table-wrap" role="region" aria-label="Tabel laporan terbaru" tabindex="0" hidden>
+                        <table><thead><tr><th scope="col">Laporan</th><th scope="col">Verifikasi</th><th scope="col">Aksi</th></tr></thead><tbody id="admin-recent-reports"></tbody></table>
+                    </div>
+                    <p id="admin-recent-state" class="sp-admin-state">Memuat laporan terbaru…</p>
+                </section>
+
+            </div>
+        </section>
+        <section id="admin-report-verification" data-facility-reports="admin" aria-labelledby="facility-heading" hidden>
+            <noscript>Aktifkan JavaScript untuk membuka antrean laporan fasilitas.</noscript>
+        </section>
+        <section id="admin-facility-handling" data-facility-handling="admin" hidden></section>
+        <section id="admin-operation-map" data-operation-map="admin" aria-labelledby="admin-map-title" hidden>
+<header class="sp-admin-heading"><p class="sp-kicker">Operasional fasilitas</p>
+<h2 id="admin-map-title" data-map-heading></h2>
+<p data-map-intro></p></header>
+<form class="sp-filter" id="admin-map-filters" data-operation-filter aria-label="Filter lokasi">
+    <label>Kategori fasilitas<select name="category"></select></label>
+    <label>Status<select name="status"></select></label>
+    <button class="sp-button" type="submit">Terapkan</button>
+    <button class="sp-button sp-button--quiet" type="reset">Reset filter</button>
+</form>
+<div class="sp-map-layout">
+    <div class="sp-admin-map-frame">
+        <div class="sp-map-canvas" data-map-canvas aria-label="Peta lokasi fasilitas"></div>
+        <p data-map-feedback class="sp-note" aria-live="polite" hidden></p>
+    </div>
+    <div class="sp-admin-map-results">
+        <h3>Daftar lokasi</h3>
+        <p role="status" data-state="loading">Memuat lokasi…</p>
+        <ul class="sp-map-list"></ul>
+        <button class="sp-button sp-button--quiet" type="submit" form="admin-map-filters" data-map-retry hidden>Coba lagi</button>
+        <button class="sp-button sp-button--quiet" type="button" data-more hidden>Muat lagi</button>
+    </div>
+</div></section>
+        <section id="education-cms" class="sp-panel" hidden aria-labelledby="education-cms-title">
+    <p class="sp-kicker">Pusat Edukasi</p>
+    <div class="sp-section-heading"><h2 id="education-cms-title">Kelola Artikel Edukasi</h2><button class="sp-button" id="education-add" type="button" disabled>Buat artikel</button></div>
+    <p>Siapkan draf, tinjau sumber, lalu terbitkan untuk publik.</p>
+    <form id="education-filters" class="sp-filter">
+        <label>Cari artikel<input type="search" name="q" maxlength="100"></label>
+        <label>Kategori<select name="category"><option value="">Semua kategori</option></select></label>
+        <label>Status<select name="status"><option value="">Semua status</option><option value="draft">Draf</option><option value="published">Terbit</option><option value="archived">Arsip</option></select></label>
+        <button class="sp-button" type="submit">Terapkan</button>
+    </form>
+    <p role="status"></p>
+    <div class="sp-table-wrap" tabindex="0" role="region" aria-label="Daftar artikel edukasi"><table><thead><tr><th scope="col">Judul</th><th scope="col">Kategori</th><th scope="col">Status</th><th scope="col">Diperbarui</th><th scope="col">Aksi</th></tr></thead><tbody></tbody></table></div>
+    <div class="sp-pager">
+        <button class="sp-button sp-button--quiet" data-education-page="-1" type="button" disabled>Sebelumnya</button>
+        <button class="sp-button sp-button--quiet" data-education-page="1" type="button" disabled>Berikutnya</button>
+        <button class="sp-button sp-button--quiet" id="education-retry" type="button">Muat ulang</button>
+    </div>
+    <dialog aria-labelledby="education-editor-title">
+        <div class="sp-section-heading"><h3 id="education-editor-title">Buat draf</h3><button class="sp-button sp-button--quiet" type="button" id="education-close">Tutup</button></div>
+        <form id="education-editor" class="sp-editor">
+            <label>Judul<input name="title" minlength="3" maxlength="120" required></label>
+            <label>Slug<input name="slug" minlength="3" maxlength="120" pattern="[a-z0-9]+(?:-[a-z0-9]+)*" aria-describedby="slug-hint" required><small id="slug-hint">Gunakan huruf kecil, angka, dan tanda hubung. Contoh: panduan-pilah</small></label>
+            <label>Kategori<select name="category" required><option value="">Pilih kategori</option></select></label>
+            <label>Ringkasan<textarea name="summary" rows="2" minlength="10" maxlength="320" required></textarea></label>
+            <label>Isi artikel<textarea name="body" rows="7" minlength="20" maxlength="12000" required></textarea></label>
+            <label>Sumber (opsional)<textarea name="sources" rows="2" aria-describedby="source-hint"></textarea><small id="source-hint">Satu URL HTTPS per baris. Maksimal delapan sumber.</small></label>
+            <details class="sp-admin-article-preview"><summary>Pratinjau teks artikel</summary><h4 data-preview-title></h4><p data-preview-summary></p><p data-preview-body></p></details>
+            <p role="status"></p>
+            <div class="sp-pager">
+                <button class="sp-button" type="submit">Simpan draf</button>
+                <button class="sp-button" type="button" data-publication="published" hidden>Terbitkan</button>
+                <button class="sp-button sp-button--quiet" type="button" data-publication="archived" hidden>Arsipkan</button>
+            </div>
+            <div id="education-confirmation" class="sp-confirm" hidden><p></p><button type="button" class="sp-button">Konfirmasi</button></div>
+        </form>
+    </dialog>
+</section>
+        </div>
+    </main>
+</body>
+</html>

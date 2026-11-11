@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login & Register - LogistiKita Professional</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha384-iw3OoTErCYJJB9mCa8LNS2hbsQ7M3C0EpIsO/H5+EGAkPGc6rk+V8i04oW/K5xq0" crossorigin="anonymous">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="assets/css/style.css?v=20261029-quality5">
+
+    <style>
+        body.auth-page.split-layout {
+            display: flex;
+            min-height: 100vh;
+            margin: 0;
+            background: var(--white);
+            overflow: hidden;
+        }
+
+        .auth-banner {
+            flex: 1;
+            background-image: url('https://images.unsplash.com/photo-1586528116311-ad8ed7c50840?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80');
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            display: flex;
+            align-items: flex-end;
+            padding: 60px;
+            color: white;
+        }
+
+        .banner-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to top, rgba(15, 23, 42, 0.9) 0%, rgba(15, 23, 42, 0.2) 100%);
+            z-index: 1;
+        }
+
+        .banner-content {
+            position: relative;
+            z-index: 2;
+            max-width: 500px;
+        }
+
+        .banner-content h1 {
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-bottom: 16px;
+            line-height: 1.2;
+        }
+
+        .banner-content p {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+        }
+
+        .auth-content {
+            width: 100%;
+            max-width: 550px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 40px;
+            background: var(--white);
+            position: relative;
+            overflow-y: auto;
+            height: 100vh;
+        }
+
+        .auth-card-split {
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        /* Adjust back to home link positioning */
+        .back-to-home {
+            position: absolute;
+            top: 40px;
+            left: 40px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: color 0.3s;
+        }
+
+        .back-to-home:hover {
+            color: var(--brand-primary);
+        }
+
+        /* Overrides for the form inside split layout */
+        .auth-header .logo {
+            color: var(--brand-dark);
+        }
+
+        .auth-header .logo i {
+            color: var(--brand-primary);
+        }
+
+        @media (max-width: 900px) {
+            .auth-banner {
+                display: none;
+            }
+            .auth-content {
+                max-width: 100%;
+                padding: 30px 20px;
+            }
+            .back-to-home {
+                top: 20px;
+                left: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body class="auth-page split-layout">
+
+    <!-- Left Banner -->
+    <div class="auth-banner">
+        <div class="banner-overlay"></div>
+        <div class="banner-content">
+            <h1>Solusi Logistik<br>Premium & Terpercaya</h1>
+            <p>Kelola pengiriman barang Anda dengan cepat, aman, dan mudah dilacak secara real-time di seluruh pelosok Nusantara.</p>
+        </div>
+    </div>
+
+    <!-- Right Form Content -->
+    <div class="auth-content">
+        <a href="home" class="back-to-home">
+            <i class="fas fa-arrow-left"></i>
+            <span>Kembali</span>
+        </a>
+
+        <div class="auth-card-split">
+            <div class="auth-header">
+                <a href="" class="logo" style="justify-content: center; margin-bottom: 24px; color: var(--brand-dark);">
+                    <i class="fas fa-cube" style="color: var(--brand-primary);"></i>
+                    <span>Logisti<b>Kita</b></span>
+                </a>
+                <h2 id="auth-title">Selamat Datang Kembali</h2>
+                <p id="auth-subtitle" style="color: var(--text-secondary);">Masuk untuk mengelola pengiriman Anda</p>
+            </div>
+
+            <div class="auth-tabs" style="margin-bottom: 30px;">
+                <button class="auth-tab active" data-target="login">Login</button>
+                <button class="auth-tab" data-target="register">Daftar</button>
+            </div>
+
+            <div class="auth-body">
+                <!-- Login Form -->
+                <form id="login-form" class="auth-form active">
+                    <div class="input-field" style="margin-bottom: 24px;">
+                        <label for="login-email" style="font-weight: 700; color: var(--text-primary);">Email</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" id="login-email" placeholder="nama@email.com" required>
+                        </div>
+                    </div>
+                    <div class="input-field" style="margin-bottom: 32px;">
+                        <label for="login-password" style="font-weight: 700; color: var(--text-primary);">Kata Sandi</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="login-password" placeholder="••••••••" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 14px; font-size: 1rem;">Masuk Sekarang</button>
+                </form>
+
+                <!-- Register Form -->
+                <form id="register-form" class="auth-form">
+                    <div class="input-field" style="margin-bottom: 20px;">
+                        <label for="register-name" style="font-weight: 700; color: var(--text-primary);">Nama Lengkap</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-user"></i>
+                            <input type="text" id="register-name" placeholder="Nama Lengkap Anda" required>
+                        </div>
+                    </div>
+                    <div class="input-field" style="margin-bottom: 20px;">
+                        <label for="register-email" style="font-weight: 700; color: var(--text-primary);">Email</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" id="register-email" placeholder="nama@email.com" required>
+                        </div>
+                    </div>
+                    <div class="input-field" style="margin-bottom: 32px;">
+                        <label for="register-password" style="font-weight: 700; color: var(--text-primary);">Kata Sandi Baru</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="register-password" placeholder="Minimal 8 karakter" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 14px; font-size: 1rem;">Buat Akun</button>
+                </form>
+            </div>
+
+            <div class="auth-footer" style="margin-top: 30px; text-align: center;">
+                <p id="auth-footer-text" style="color: var(--text-secondary);">Lupa kata sandi? <a href="#" style="color: var(--brand-primary); font-weight: 700;">Klik di sini</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const tabs = document.querySelectorAll('.auth-tab');
+        const forms = document.querySelectorAll('.auth-form');
+        const title = document.getElementById('auth-title');
+        const subtitle = document.getElementById('auth-subtitle');
+        const footerText = document.getElementById('auth-footer-text');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const target = tab.dataset.target;
+
+                // Active Tab
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+
+                // Active Form
+                forms.forEach(f => f.classList.remove('active'));
+                document.getElementById(`${target}-form`).classList.add('active');
+
+                // Update Content
+                if (target === 'login') {
+                    title.innerText = "Selamat Datang Kembali";
+                    subtitle.innerText = "Masuk untuk mengelola pengiriman Anda";
+                    footerText.innerHTML = 'Lupa kata sandi? <a href="#">Klik di sini</a>';
+                } else {
+                    title.innerText = "Bergabung Sekarang";
+                    subtitle.innerText = "Nikmati kemudahan pengiriman logistik terbaik";
+                    footerText.innerHTML = 'Sudah punya akun? <a href="#" onclick="switchTab(\'login\')">Masuk di sini</a>';
+                }
+            });
+        });
+
+        function switchTab(target) {
+            const tab = document.querySelector(`.auth-tab[data-target="${target}"]`);
+            if (tab) tab.click();
+        }
+
+        // Login Submit
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            fetch('api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-SAMPIRA-Portal': '1' },
+                body: JSON.stringify({ email, password })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert('Login berhasil! Selamat datang, ' + data.data.name);
+
+                    // Redirect based on role
+                    const destinations = {user: 'dashboard', petugas: 'petugas', admin: 'admin', administrator: 'administrator'};
+                    window.location.href = destinations[data.data.role] || 'login';
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(err => alert('Gagal terhubung ke server.'));
+        });
+
+        // Register Submit
+        document.getElementById('register-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('register-name').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+
+            fetch('api/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-SAMPIRA-Portal': '1' },
+                body: JSON.stringify({ name, email, password }) // Default register as user
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert('Registrasi berhasil! Silakan login.');
+                    switchTab('login');
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(err => alert('Gagal terhubung ke server.'));
+        });
+    </script>
+</body>
+
+</html>

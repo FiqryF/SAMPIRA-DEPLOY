@@ -1,0 +1,98 @@
+.handling-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    margin-bottom: 1rem;
+}
+
+.handling-nav [aria-pressed="true"] {
+    background: #126048;
+    border-color: #126048;
+    color: #fff;
+}
+
+.handling-nav [aria-pressed="true"]:hover:enabled {
+    background: #0b4935;
+}
+
+[data-facility-handling] :focus-visible {
+    outline: 2px solid #9d6d21;
+    outline-offset: 3px;
+}
+
+.handling-public {
+    border-top: 1px solid var(--facility-line);
+    padding-top: .85rem;
+    margin-top: .85rem;
+}
+
+.handling-status-grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
+}
+
+.handling-status-grid > div {
+    border-inline-start: 2px solid #adc6a6;
+    padding-inline-start: .55rem;
+}
+
+.handling-actions {
+    justify-content: flex-start;
+}
+
+.handling-timeline .handling-event {
+    margin-bottom: .75rem;
+}
+
+.handling-event-fields {
+    display: grid;
+    gap: .4rem;
+    margin: .5rem 0;
+}
+
+.handling-event-fields dt {
+    font-weight: 700;
+}
+
+.handling-event-fields dd {
+    margin: 0;
+    white-space: pre-wrap;
+}
+
+.handling-photo-frame {
+    margin-block: .35rem;
+}
+
+.handling-dialog form {
+    overflow-wrap: anywhere;
+}
+
+.handling-card .facility-card-foot {
+    align-items: flex-end;
+}
+
+.handling-badge[data-status="completed"] {
+    background: #e3f1e4;
+    color: #215b3b;
+}
+
+.handling-badge[data-status="resolution_revision_required"] {
+    background: #fff1d8;
+    color: #754d0b;
+}
+
+@media (max-width: 390px) {
+    .handling-nav {
+        padding-inline: .5rem;
+    }
+
+    .role-collector .bottom-nav .nav-item {
+        flex: 1 1 0;
+        min-width: 0;
+        padding-inline: .1rem;
+        font-size: .65rem;
+    }
+
+    .handling-dialog .facility-actions > button {
+        flex: 1 1 auto;
+    }
+}

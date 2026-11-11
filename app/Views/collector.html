@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="sampira-routing-url" content="">
+    <meta name="sampira-routing-profile" content="driving">
+    <title>Petugas | SAMPIRA</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha384-iw3OoTErCYJJB9mCa8LNS2hbsQ7M3C0EpIsO/H5+EGAkPGc6rk+V8i04oW/K5xq0" crossorigin="anonymous">
+
+    <!-- Leaflet Maps -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha384-sHL9NAb7lN7rfvG5lfHpm643Xkcjzp4jFvuavGOndn6pjVqS6ny56CAt3nsEVT4H" crossorigin="anonymous" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH" crossorigin="anonymous"></script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="assets/css/collector-base.css?v=quality4">
+    <link rel="stylesheet" href="/assets/css/location-map.css?v=phase8">
+    <link rel="stylesheet" href="assets/css/portal-controls.css?v=20261029-quality5">
+    <script src="/assets/js/portal-session.js?v=phase5b"></script>
+    <link rel="stylesheet" href="/assets/css/facility-reports.css?v=phase4b">
+    <link rel="stylesheet" href="/assets/css/facility-handling.css?v=phase4b">
+    <script type="module" src="/assets/js/facility-handling.js?v=phase8"></script>
+    <link rel="icon" href="/assets/img/sampira-mark.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/assets/css/sampira.css?v=phase6b-live">
+    <script type="module" src="/assets/js/operations.js?v=phase8"></script>
+<link rel="stylesheet" href="/assets/css/portal-design.css?v=roles-1">
+</head>
+
+<body class="sp-portal portal-page role-collector">
+
+    <!-- Sidebar (Desktop) -->
+    <aside class="sidebar">
+        <a href="home" class="sidebar-logo">
+            <img src="/assets/img/sampira-mark.svg" width="34" height="34" alt="">
+            <span>SAMPIRA<small>Operasional Petugas</small></span>
+        </a>
+        <div class="sidebar-nav">
+            <button type="button" class="sidebar-item active" onclick="switchView('dashboard', this)"><i class="fas fa-house-chimney"></i> Dashboard</button>
+            <button type="button" class="sidebar-item" onclick="openActiveMission()"><i class="fas fa-route"></i> Pickup Aktif</button>
+            <button type="button" class="sidebar-item" data-collector-view="operations" onclick="switchView('operations', this)"><i class="fas fa-map" aria-hidden="true"></i> Peta Operasional</button>
+            <button type="button" class="sidebar-item" data-open-handling aria-controls="view-facility" onclick="switchView('facility', this)"><i class="fas fa-clipboard-list" aria-hidden="true"></i> Tugas Fasilitas</button>
+            <button type="button" class="sidebar-item" onclick="switchView('history', this)"><i class="fas fa-list-check"></i> Riwayat Misi</button>
+            <button type="button" class="sidebar-item" onclick="switchView('earnings', this)"><i class="fas fa-wallet"></i> Komisi</button>
+            <button type="button" class="sidebar-item" onclick="switchView('profile', this)"><i class="fas fa-user-circle"></i> Profil</button>
+
+<button type="button" class="sidebar-item " onclick="logoutCollector()"><i class="fas fa-sign-out-alt"></i> Keluar</button>
+        </div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <main class="main-workspace">
+
+        <!-- VIEW: DASHBOARD -->
+        <div id="view-dashboard" class="view-section active">
+            <header class="desktop-header">
+                <div class="header-left">
+                    <h1>Operasional Petugas</h1>
+                    <p id="desktop-greeting">Selamat bertugas, Petugas. Siap menjemput kontribusi penyelamat bumi?</p>
+                </div>
+                <div >
+                    <span class="sp-kicker">Portal Petugas</span>
+                </div>
+            </header>
+
+            <header class="mobile-header">
+                <div class="sp-field-mobile-bar">
+                    <div class="sp-field-identity">
+                        <div class="avatar-circle " id="mobile-avatar">EC</div>
+                        <div>
+                            <div id="mobile-name" >Petugas</div>
+                            <div >Petugas SAMPIRA</div>
+                        </div>
+                    </div>
+                    <button type="button" class="sp-button sp-button--quiet" onclick="switchView('profile')">Profil</button>
+                </div>
+            </header>
+            <div class="sp-dashboard-state" id="collector-data-state" hidden>
+                <p id="collector-load-status" role="status"></p>
+                <button class="sp-button sp-button--quiet" id="collector-retry" type="button" hidden>Coba lagi</button>
+            </div>
+
+            <!-- KPI Row -->
+            <div class="kpi-row ">
+                <div class="kpi-card ">
+                    <div class="kpi-icon "><i class="fas fa-weight-hanging"></i></div>
+                    <div>
+                        <span >Sampah Terkumpul</span>
+                        <h3 id="stat-packages" >0 KG</h3>
+                    </div>
+                </div>
+                <div class="kpi-card ">
+                    <div class="kpi-icon "><i class="fas fa-sack-dollar"></i></div>
+                    <div>
+                        <span >Estimasi Komisi</span>
+                        <h3 id="stat-profit" >Rp 0</h3>
+                    </div>
+                </div>
+                <div class="kpi-card ">
+                    <div class="kpi-icon "><i class="fas fa-star"></i></div>
+                    <div>
+                        <span >Penjemputan Aktif</span>
+                        <h3 id="stat-active-tasks" >—</h3>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <!-- Main Map and Open Pickups Grid -->
+            <div class="layout-grid ">
+
+                <!-- Available open pickups list -->
+                <div class="queue-panel ">
+                    <h3 >Antrean Penjemputan Bandung</h3>
+                    <p >Ambil tugas penjemputan sampah di daerah Bandung.</p>
+                    <div class="task-list " id="upcoming-task-list">
+                        <div >Memuat daftar pickup...</div>
+                    </div>
+                </div>
+<aside class="sp-field-support"><section class="sp-panel sp-field-shortcut">
+                    <p class="sp-kicker">Peta dan rute</p>
+                    <h2>Tujuan tugas lapangan</h2>
+                    <p>Tinjau titik penjemputan dan fasilitas yang ditugaskan. Detail misi memuat alamat dan opsi navigasi.</p>
+                    <div class="sp-pager"><button class="sp-button" type="button" onclick="switchView('operations')">Buka Peta Operasional</button>
+                    <button class="sp-button sp-button--quiet" type="button" onclick="openActiveMission()">Buka Detail Lokasi Penjemputan</button></div>
+                </section><section class="portal-announcement-section collector-announcement-section " id="collector-announcement-section">
+                <div class="portal-section-heading">
+                    <div>
+                        <span class="portal-eyebrow">Briefing operasional</span>
+                        <h3>Informasi untuk Petugas</h3>
+                    </div>
+                    <i class="fas fa-bullhorn"></i>
+                </div>
+                <div id="collector-announcement-list" class="portal-announcement-list"></div>
+            </section></aside>
+            </div>
+        </div>
+
+        <!-- VIEW: ACTIVE MISSION -->
+        <div id="view-active-mission" class="view-section">
+            <div class="collector-view-heading">
+                <div>
+                    <span class="collector-eyebrow">Operasional lapangan</span>
+                    <h2>Rincian Penjemputan Aktif</h2>
+                    <p>Pastikan alamat, barang, dan status misi sudah sesuai sebelum melanjutkan perjalanan.</p>
+                </div>
+                <span class="collector-duty-badge"><i class="fas fa-signal"></i> Misi aktif</span>
+            </div>
+
+            <div class="enterprise-card active-mission-card" id="active-mission-card">
+                <div class="mission-card-header">
+                    <div class="mission-identity">
+                        <div class="mission-icon">
+                            <i class="fas fa-truck-pickup"></i>
+                        </div>
+                        <div>
+                            <div class="mission-label">Nomor tracking</div>
+                            <div class="mission-tracking" id="mission-resi">-</div>
+                        </div>
+                    </div>
+                    <div class="mission-status-wrap">
+                        <span class="mission-label">Status saat ini</span>
+                        <span class="mission-status-badge" id="mission-status">-</span>
+                    </div>
+                </div>
+
+                <div class="mission-progress" id="mission-progress" aria-label="Progres penjemputan">
+                    <div class="mission-progress-step" data-status="pickup">
+                        <span><i class="fas fa-box"></i></span>
+                        <strong>Diambil</strong>
+                    </div>
+                    <div class="mission-progress-step" data-status="transit">
+                        <span><i class="fas fa-truck-fast"></i></span>
+                        <strong>Menuju hub</strong>
+                    </div>
+                    <div class="mission-progress-step" data-status="arrived">
+                        <span><i class="fas fa-warehouse"></i></span>
+                        <strong>Tiba di hub</strong>
+                    </div>
+                </div>
+
+                <div class="mission-information-grid">
+                    <section class="mission-information-block mission-address-block">
+                        <div class="mission-block-icon"><i class="fas fa-location-dot"></i></div>
+                        <div>
+                            <span class="mission-label">Alamat penjemputan</span>
+                            <div class="mission-destination" id="mission-dest">Pilih tugas penjemputan dari Dashboard</div>
+                        </div>
+                    </section>
+                    <section class="mission-information-block">
+                        <div class="mission-block-icon"><i class="fas fa-box-open"></i></div>
+                        <div class="mission-detail-content">
+                            <span class="mission-label">Barang dan kontak donor</span>
+                            <div id="mission-details">-</div>
+                        </div>
+                    </section>
+                </div>
+
+                <div id="mission-location" aria-live="polite"></div>
+                <div class="mission-actions">
+                    <button type="button" class="collector-action-btn primary" id="mission-btn">
+                        <i class="fas fa-circle-check"></i>
+                        <span>Perbarui status misi</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW: HISTORY -->
+        <div id="view-history" class="view-section">
+            <h2 >Riwayat Misi Penjemputan</h2>
+            <div class="enterprise-card ">
+                <table >
+                    <thead>
+                        <tr >
+                            <th >NO. TRACKING</th>
+                            <th >TANGGAL</th>
+                            <th >KOMISI ANDA</th>
+                            <th >STATUS</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-table-body">
+                        <tr>
+                            <td colspan="4" >Memuat riwayat...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- VIEW: EARNINGS -->
+        <div id="view-earnings" class="view-section">
+            <h2 >Dompet Petugas</h2>
+            <div class="balance-card ">
+                <div >TOTAL KOMISI DIDAPAT</div>
+                <h2 id="earnings-total" >Rp 0</h2>
+                <p class="sp-note">Pencairan komisi belum tersedia.</p>
+            </div>
+        </div>
+
+        <!-- VIEW: PROFILE -->
+        <div id="view-profile" class="view-section">
+            <h2 >Profil Petugas</h2>
+            <div class="enterprise-card ">
+                <div class="profile-header ">
+                    <div class="avatar-circle " id="profile-avatar-large">C</div>
+                    <h2 id="profile-name" >Petugas</h2>
+                    <p >Petugas lapangan SAMPIRA</p>
+                </div>
+                <div class="info-grid ">
+                    <div class="info-box ">
+                        <span >EMAIL AKUN</span>
+                        <p ><span id="collector-profile-email">—</span></p>
+                    </div>
+                    <div class="info-box ">
+                        <span >PERAN</span>
+                        <p >Petugas lapangan</p>
+                    </div>
+                </div>
+                <button type="button" class="sp-button sp-button--quiet" onclick="switchView('earnings')">Lihat komisi</button>
+<button class="btn-primary " onclick="logoutCollector()">
+                    <i class="fas fa-sign-out-alt"></i> Keluar Akun
+                </button>
+            </div>
+        </div>
+
+        <section id="view-facility" class="view-section" data-facility-handling="petugas" aria-label="Tugas fasilitas"></section>
+    <section id="view-operations" class="view-section sp-panel" data-operation-map="petugas"><p class="sp-kicker">Operasional lapangan</p>
+<h2 data-map-heading></h2>
+<p data-map-intro></p>
+<details class="sp-map-origin"><summary>Atur titik awal Petugas</summary>
+<form class="sp-filter" data-map-origin aria-label="Titik awal Petugas">
+    <label>Latitude awal<input name="lat" type="number" step="any" min="-90" max="90" required></label>
+    <label>Longitude awal<input name="lon" type="number" step="any" min="-180" max="180" required></label>
+    <button class="sp-button" type="submit">Simpan titik awal</button>
+    <button class="sp-button sp-button--quiet" type="button" data-use-gps>Gunakan Lokasi Saya</button>
+    <button class="sp-button sp-button--quiet" type="button" data-clear-origin>Hapus titik awal</button>
+    <output aria-live="polite"></output>
+</form>
+</details>
+<form class="sp-filter" data-operation-filter aria-label="Filter titik">
+    <label>Jenis atau kategori<select name="category"></select></label>
+    <label>Status<select name="status"></select></label>
+    <button class="sp-button" type="submit">Terapkan</button>
+    <button class="sp-button sp-button--quiet" type="reset">Reset filter</button>
+</form>
+<p class="sp-note">Peta jalan dimuat dari OpenStreetMap. Daftar alamat tetap tersedia jika peta tidak dapat dimuat.</p>
+<div class="sp-map-layout">
+    <div class="sp-map-canvas" data-map-canvas aria-label="Peta lokasi tugas"></div>
+    <div>
+        <p role="status"></p>
+        <ul class="sp-map-list"></ul>
+        <button class="sp-button sp-button--quiet" type="button" data-more hidden>Muat lagi</button>
+    </div>
+</div></section>
+    </main>
+
+    <!-- Bottom Navigation (Mobile) -->
+    <nav class="bottom-nav" aria-label="Navigasi Petugas">
+        <button type="button" class="nav-item active" onclick="switchView('dashboard', this)"><i class="fas fa-house"></i><span>Beranda</span></button>
+        <button type="button" class="nav-item" onclick="openActiveMission()"><i class="fas fa-route"></i><span>Misi</span></button>
+        <button type="button" class="nav-item" data-open-handling aria-label="Tugas Fasilitas" aria-controls="view-facility" onclick="switchView('facility', this)"><i class="fas fa-clipboard-list" aria-hidden="true"></i><span>Fasilitas</span></button>
+        <button type="button" class="nav-item" onclick="switchView('history', this)"><i class="fas fa-list-check"></i><span>Riwayat</span></button>
+        <button type="button" class="nav-item" data-collector-view="operations" onclick="switchView('operations', this)"><i class="fas fa-map" aria-hidden="true"></i><span>Peta</span></button>
+        <button type="button" class="nav-item" onclick="switchView('profile', this)"><i class="fas fa-user-circle"></i><span>Profil</span></button>
+    </nav>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.26.25/dist/sweetalert2.all.min.js" integrity="sha384-nLoOnA/BDh8A/jxqtckg4DumuCGOBYUnNJLZdQz/zfYNp3wcjGSoWTAzgko06G/2" crossorigin="anonymous"></script>
+    <script src="assets/js/portal-announcements.js?v=phase1-final"></script>
+    <script src="assets/js/collector.js?v=phase8"></script>
+</body>
+
+</html>
