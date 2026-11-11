@@ -24,12 +24,14 @@ type EducationFilter struct {
 	Limit    int
 }
 
-const educationSummaryColumns = "id, slug, title, summary, category, published_at"
+const educationSummaryColumns = "id, slug, title, summary, category, published_at, photos_json"
 const educationBodyColumns = ", body, source_urls"
 const educationAuditColumns = ", status, version, created_by, updated_by, created_at, updated_at"
 
+const educationSelectPrefix = "SELECT "
+
 func educationSummaryFields(item *models.EducationSummary) []any {
-	return []any{&item.ID, &item.Slug, &item.Title, &item.Summary, &item.Category, &item.PublishedAt}
+	return []any{&item.ID, &item.Slug, &item.Title, &item.Summary, &item.Category, &item.PublishedAt, &item.Photos}
 }
 
 func educationAuditFields(item *models.EducationAudit) []any {
@@ -62,7 +64,7 @@ func educationListQuery(filter EducationFilter, public bool) (string, []any) {
 		where = append(where, "(title LIKE ? ESCAPE '!' OR summary LIKE ? ESCAPE '!')")
 		args = append(args, pattern, pattern)
 	}
-	query := "SELECT " + columns + " FROM education_articles"
+	query := educationSelectPrefix + columns + " FROM education_articles"
 	if len(where) > 0 {
 		query += " WHERE " + strings.Join(where, " AND ")
 	}
@@ -106,7 +108,7 @@ func (r Education) ListManaged(ctx context.Context, filter EducationFilter) ([]m
 func (r Education) Published(ctx context.Context, slug string) (models.EducationArticle, error) {
 	var item models.EducationArticle
 	var sources []byte
-	row := r.DB.QueryRowContext(ctx, "SELECT "+educationSummaryColumns+educationBodyColumns+
+	row := r.DB.QueryRowContext(ctx, educationSelectPrefix+educationSummaryColumns+educationBodyColumns+
 		" FROM education_articles WHERE slug = ? AND status = 'published'", slug)
 	if err := row.Scan(append(educationSummaryFields(&item.EducationSummary), &item.Body, &sources)...); err != nil {
 		return item, err
@@ -122,7 +124,7 @@ type educationQueryer interface {
 func managedEducation(ctx context.Context, db educationQueryer, id int) (models.EducationManagedArticle, error) {
 	var item models.EducationManagedArticle
 	var sources []byte
-	row := db.QueryRowContext(ctx, "SELECT "+educationSummaryColumns+educationBodyColumns+educationAuditColumns+
+	row := db.QueryRowContext(ctx, educationSelectPrefix+educationSummaryColumns+educationBodyColumns+educationAuditColumns+
 		" FROM education_articles WHERE id = ?", id)
 	fields := append(educationSummaryFields(&item.EducationSummary), &item.Body, &sources)
 	if err := row.Scan(append(fields, educationAuditFields(&item.EducationAudit)...)...); err != nil {

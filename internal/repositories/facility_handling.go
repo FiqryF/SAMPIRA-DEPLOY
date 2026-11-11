@@ -11,6 +11,7 @@ import (
 var ErrHandlingRole = errors.New("facility handling role denied")
 var ErrHandlingOfficer = errors.New("facility officer must be active")
 var ErrHandlingEvidence = errors.New("facility evidence does not belong to current assignment")
+var ErrHandlingPhotoSize = errors.New("facility evidence exceeds database packet capacity")
 
 type FacilityHandling struct {
 	DB *sql.DB
@@ -88,6 +89,17 @@ func (s FacilityHandling) Apply(ctx context.Context, reportID int, actor models.
 	next := models.NextHandlingStatus(state.status, cmd.Action)
 	if next == "" {
 		return models.FacilityHandlingSummary{}, ErrFacilityConflict
+	}
+	if len(cmd.Photo) > 0 {
+		var packetLimit int64
+		if err := tx.QueryRowContext(ctx, "SELECT @@max_allowed_packet").Scan(&packetLimit); err != nil {
+			return models.FacilityHandlingSummary{}, err
+		}
+		// Reserve room for statement and text fields before writing any state.
+		// Sending a larger BLOB can close the MySQL connection altogether.
+		if int64(len(cmd.Photo)) > packetLimit-(64<<10) {
+			return models.FacilityHandlingSummary{}, ErrHandlingPhotoSize
+		}
 	}
 	if state.version == 0 {
 		_, err = tx.ExecContext(ctx, `INSERT INTO facility_handling

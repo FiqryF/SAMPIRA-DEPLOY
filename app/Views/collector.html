@@ -24,20 +24,27 @@
     <link rel="stylesheet" href="assets/css/collector-base.css?v=quality4">
     <link rel="stylesheet" href="/assets/css/location-map.css?v=phase8">
     <link rel="stylesheet" href="assets/css/portal-controls.css?v=20261029-quality5">
-    <script src="/assets/js/portal-session.js?v=phase5b"></script>
+    <script src="/assets/js/portal-session.js?v=session-dialog-2"></script>
     <link rel="stylesheet" href="/assets/css/facility-reports.css?v=phase4b">
-    <link rel="stylesheet" href="/assets/css/facility-handling.css?v=phase4b">
-    <script type="module" src="/assets/js/facility-handling.js?v=phase8"></script>
+    <link rel="stylesheet" href="/assets/css/facility-handling.css?v=facility-simple-1">
+    <script type="module" src="/assets/js/facility-handling.js?v=facility-simple-1"></script>
     <link rel="icon" href="/assets/img/sampira-mark.svg" type="image/svg+xml">
     <link rel="stylesheet" href="/assets/css/sampira.css?v=phase6b-live">
-    <script type="module" src="/assets/js/operations.js?v=phase8"></script>
+    <script type="module" src="/assets/js/operations.js?v=collector-overview-1"></script>
 <link rel="stylesheet" href="/assets/css/portal-design.css?v=roles-1">
+<link rel="stylesheet" href="/assets/css/contributions.css?v=phase9b">
+<script type="module" src="/assets/js/contributions.js?v=collector-overview-1"></script>
+<link rel="stylesheet" href="/assets/css/collector-overview.css?v=overview-1">
+<link rel="stylesheet" href="/assets/css/collector-tasks.css?v=tasks-2">
+<link rel="stylesheet" href="/assets/css/collector-sections.css?v=multi-category-11">
+<link rel="stylesheet" href="/assets/css/facility-community.css?v=community-13">
+    <link rel="stylesheet" href="/assets/css/session-dialog.css?v=1">
 </head>
 
 <body class="sp-portal portal-page role-collector">
 
     <!-- Sidebar (Desktop) -->
-    <aside class="sidebar">
+    <aside class="sidebar" aria-label="Navigasi Petugas">
         <a href="home" class="sidebar-logo">
             <img src="/assets/img/sampira-mark.svg" width="34" height="34" alt="">
             <span>SAMPIRA<small>Operasional Petugas</small></span>
@@ -82,8 +89,13 @@
                     <button type="button" class="sp-button sp-button--quiet" onclick="switchView('profile')">Profil</button>
                 </div>
             </header>
+            <section class="collector-welcome" aria-labelledby="collector-welcome-title">
+                <div><span class="collector-welcome-label">Tim Lapangan Bandung</span><h2 id="collector-welcome-title">Tugas lapangan, lebih terarah.</h2><p>Tinjau antrean penjemputan warga dan kelola penanganan fasilitas dari satu tempat.</p></div>
+                <button type="button" class="sp-button sp-button--quiet" id="collector-refresh"><i class="fas fa-rotate" aria-hidden="true"></i> Perbarui Data</button>
+            </section>
+            <section class="p9 collector-summary" data-p9-analytics="petugas" data-collector-summary></section>
             <div class="sp-dashboard-state" id="collector-data-state" hidden>
-                <p id="collector-load-status" role="status"></p>
+                <output id="collector-load-status" aria-live="polite"></output>
                 <button class="sp-button sp-button--quiet" id="collector-retry" type="button" hidden>Coba lagi</button>
             </div>
 
@@ -93,21 +105,21 @@
                     <div class="kpi-icon "><i class="fas fa-weight-hanging"></i></div>
                     <div>
                         <span >Sampah Terkumpul</span>
-                        <h3 id="stat-packages" >0 KG</h3>
+                        <h3 id="stat-packages" >—</h3><small>Berat akhir penjemputan selesai</small>
                     </div>
                 </div>
                 <div class="kpi-card ">
                     <div class="kpi-icon "><i class="fas fa-sack-dollar"></i></div>
                     <div>
                         <span >Estimasi Komisi</span>
-                        <h3 id="stat-profit" >Rp 0</h3>
+                        <h3 id="stat-profit" >—</h3><small>Nominal komisi belum tersedia</small>
                     </div>
                 </div>
                 <div class="kpi-card ">
                     <div class="kpi-icon "><i class="fas fa-star"></i></div>
                     <div>
                         <span >Penjemputan Aktif</span>
-                        <h3 id="stat-active-tasks" >—</h3>
+                        <h3 id="stat-active-tasks" >—</h3><small>Pickup, transit, atau menunggu hub</small>
                     </div>
                 </div>
             </div>
@@ -119,17 +131,16 @@
 
                 <!-- Available open pickups list -->
                 <div class="queue-panel ">
-                    <h3 >Antrean Penjemputan Bandung</h3>
-                    <p >Ambil tugas penjemputan sampah di daerah Bandung.</p>
+                    <div class="collector-queue-heading"><div><h3>Antrean Penjemputan Bandung</h3><p>Kelola tugas Anda dan ambil penjemputan yang tersedia.</p></div><span id="collector-queue-count" aria-live="polite">—</span></div>
                     <div class="task-list " id="upcoming-task-list">
                         <div >Memuat daftar pickup...</div>
                     </div>
                 </div>
-<aside class="sp-field-support"><section class="sp-panel sp-field-shortcut">
+<aside class="sp-field-support" aria-label="Dukungan lapangan"><section class="sp-panel sp-field-shortcut">
                     <p class="sp-kicker">Peta dan rute</p>
                     <h2>Tujuan tugas lapangan</h2>
                     <p>Tinjau titik penjemputan dan fasilitas yang ditugaskan. Detail misi memuat alamat dan opsi navigasi.</p>
-                    <div class="sp-pager"><button class="sp-button" type="button" onclick="switchView('operations')">Buka Peta Operasional</button>
+                    <div class="sp-pager"><button class="sp-button" type="button" onclick="switchView('operations')"><i class="fas fa-map" aria-hidden="true"></i> Buka Peta Operasional</button>
                     <button class="sp-button sp-button--quiet" type="button" onclick="openActiveMission()">Buka Detail Lokasi Penjemputan</button></div>
                 </section><section class="portal-announcement-section collector-announcement-section " id="collector-announcement-section">
                 <div class="portal-section-heading">
@@ -162,7 +173,8 @@
                             <i class="fas fa-truck-pickup"></i>
                         </div>
                         <div>
-                            <div class="mission-label">Nomor tracking</div>
+                            <div class="mission-label">Misi penjemputan</div>
+                            <h3 id="mission-title">Memuat rincian tugas…</h3>
                             <div class="mission-tracking" id="mission-resi">-</div>
                         </div>
                     </div>
@@ -172,10 +184,11 @@
                     </div>
                 </div>
 
+                <section class="mission-progress-panel" aria-label="Alur langkah petugas"><p class="mission-label">Alur penjemputan</p>
                 <div class="mission-progress" id="mission-progress" aria-label="Progres penjemputan">
                     <div class="mission-progress-step" data-status="pickup">
                         <span><i class="fas fa-box"></i></span>
-                        <strong>Diambil</strong>
+                        <strong>Siap dijemput</strong>
                     </div>
                     <div class="mission-progress-step" data-status="transit">
                         <span><i class="fas fa-truck-fast"></i></span>
@@ -185,27 +198,29 @@
                         <span><i class="fas fa-warehouse"></i></span>
                         <strong>Tiba di hub</strong>
                     </div>
-                </div>
+                </div></section>
 
                 <div class="mission-information-grid">
                     <section class="mission-information-block mission-address-block">
-                        <div class="mission-block-icon"><i class="fas fa-location-dot"></i></div>
-                        <div>
-                            <span class="mission-label">Alamat penjemputan</span>
-                            <div class="mission-destination" id="mission-dest">Pilih tugas penjemputan dari Dashboard</div>
+                        <div class="mission-address-content">
+                            <div class="mission-address-heading"><div class="mission-block-icon"><i class="fas fa-location-dot" aria-hidden="true"></i></div><h3 class="mission-section-title">Alamat penjemputan warga</h3></div>
+                            <div class="mission-address-data"><div class="mission-destination" id="mission-dest">Pilih tugas penjemputan dari Dashboard</div><p id="mission-coordinates"></p></div>
+                            <div id="mission-route-action"></div>
                         </div>
                     </section>
                     <section class="mission-information-block">
                         <div class="mission-block-icon"><i class="fas fa-box-open"></i></div>
                         <div class="mission-detail-content">
-                            <span class="mission-label">Barang dan kontak donor</span>
+                            <h3 class="mission-section-title">Detail barang &amp; donor</h3>
                             <div id="mission-details">-</div>
+                            <a class="collector-contact-link sp-button sp-button--quiet" id="mission-contact" target="_blank" rel="noopener noreferrer" hidden><i class="fab fa-whatsapp" aria-hidden="true"></i> Hubungi Warga via WhatsApp</a>
                         </div>
                     </section>
                 </div>
 
-                <div id="mission-location" aria-live="polite"></div>
+                <section class="mission-map-panel" aria-label="Peta lokasi penjemputan"><div class="mission-map-heading"><div><h3><i class="far fa-map" aria-hidden="true"></i> Peta Rute Lokasi Penjemputan</h3><p id="mission-map-destination"></p></div><div id="mission-map-gps"></div></div><div id="mission-location" aria-live="polite"></div></section>
                 <div class="mission-actions">
+                    <div class="mission-action-copy"><i class="fas fa-circle-info" aria-hidden="true"></i><div><span class="mission-label">Langkah selanjutnya</span><p id="mission-instruction">Pilih tugas untuk melihat tindakan berikutnya.</p></div></div>
                     <button type="button" class="collector-action-btn primary" id="mission-btn">
                         <i class="fas fa-circle-check"></i>
                         <span>Perbarui status misi</span>
@@ -216,15 +231,15 @@
 
         <!-- VIEW: HISTORY -->
         <div id="view-history" class="view-section">
-            <h2 >Riwayat Misi Penjemputan</h2>
-            <div class="enterprise-card ">
+            <header class="collector-view-heading"><div><span class="collector-eyebrow">Catatan pekerjaan</span><h2>Riwayat Misi</h2><p>Penjemputan yang telah Anda selesaikan beserta berat akhirnya.</p></div><span class="collector-count" id="collector-history-count">—</span></header>
+            <div class="enterprise-card collector-history-table">
                 <table >
                     <thead>
                         <tr >
-                            <th >NO. TRACKING</th>
-                            <th >TANGGAL</th>
-                            <th >KOMISI ANDA</th>
-                            <th >STATUS</th>
+                            <th scope="col">Penjemputan</th>
+                            <th scope="col">Waktu</th>
+                            <th scope="col">Berat akhir</th>
+                            <th scope="col">Status</th>
                         </tr>
                     </thead>
                     <tbody id="history-table-body">
@@ -238,18 +253,15 @@
 
         <!-- VIEW: EARNINGS -->
         <div id="view-earnings" class="view-section">
-            <h2 >Dompet Petugas</h2>
-            <div class="balance-card ">
-                <div >TOTAL KOMISI DIDAPAT</div>
-                <h2 id="earnings-total" >Rp 0</h2>
-                <p class="sp-note">Pencairan komisi belum tersedia.</p>
-            </div>
+            <header class="collector-view-heading"><div><span class="collector-eyebrow">Penghasilan lapangan</span><h2>Komisi Petugas</h2><p>Informasi komisi dan ringkasan pekerjaan Anda.</p></div></header>
+            <div class="collector-earnings-layout"><section class="balance-card"><span class="collector-earnings-icon"><i class="fas fa-coins" aria-hidden="true"></i></span><p>Total komisi tercatat</p><h2 id="earnings-total">—</h2><span class="collector-earnings-tag">Nominal belum tersedia</span><p class="collector-earnings-note">Informasi nominal dan pencairan komisi belum tersedia. Hubungi pengelola untuk informasi lebih lanjut.</p></section>
+            <section class="collector-work-summary"><h3>Ringkasan pekerjaan</h3><dl><div><dt>Penjemputan selesai</dt><dd id="earnings-completed-count">—</dd></div><div><dt>Berat akhir terkumpul</dt><dd id="earnings-weight">—</dd></div></dl><button type="button" class="sp-button sp-button--quiet" onclick="switchView('history')">Lihat Riwayat Misi <i class="fas fa-arrow-right" aria-hidden="true"></i></button></section></div>
         </div>
 
         <!-- VIEW: PROFILE -->
         <div id="view-profile" class="view-section">
-            <h2 >Profil Petugas</h2>
-            <div class="enterprise-card ">
+            <header class="collector-view-heading"><div><span class="collector-eyebrow">Akun Anda</span><h2>Profil Petugas</h2><p>Identitas akun yang digunakan untuk tugas lapangan.</p></div></header>
+            <div class="enterprise-card collector-profile-card">
                 <div class="profile-header ">
                     <div class="avatar-circle " id="profile-avatar-large">C</div>
                     <h2 id="profile-name" >Petugas</h2>
@@ -257,50 +269,50 @@
                 </div>
                 <div class="info-grid ">
                     <div class="info-box ">
-                        <span >EMAIL AKUN</span>
+                        <span >Email akun</span>
                         <p ><span id="collector-profile-email">—</span></p>
                     </div>
                     <div class="info-box ">
-                        <span >PERAN</span>
+                        <span >Peran akun</span>
                         <p >Petugas lapangan</p>
                     </div>
                 </div>
-                <button type="button" class="sp-button sp-button--quiet" onclick="switchView('earnings')">Lihat komisi</button>
+                <div class="collector-profile-actions"><button type="button" class="sp-button sp-button--quiet" onclick="switchView('history')">Riwayat Misi</button><button type="button" class="sp-button sp-button--quiet" onclick="switchView('earnings')">Lihat Komisi</button>
 <button class="btn-primary " onclick="logoutCollector()">
                     <i class="fas fa-sign-out-alt"></i> Keluar Akun
-                </button>
+                </button></div>
             </div>
         </div>
 
         <section id="view-facility" class="view-section" data-facility-handling="petugas" aria-label="Tugas fasilitas"></section>
-    <section id="view-operations" class="view-section sp-panel" data-operation-map="petugas"><p class="sp-kicker">Operasional lapangan</p>
-<h2 data-map-heading></h2>
-<p data-map-intro></p>
-<details class="sp-map-origin"><summary>Atur titik awal Petugas</summary>
+    <section id="view-operations" class="view-section sp-panel collector-map-only" data-operation-map="petugas" aria-label="Peta operasional Petugas"><p class="sp-kicker" hidden>Operasional lapangan</p>
+<h2 data-map-heading hidden>Operasional Lapangan</h2>
+<p data-map-intro hidden></p>
+<details class="sp-map-origin" hidden><summary>Atur titik awal Petugas</summary>
 <form class="sp-filter" data-map-origin aria-label="Titik awal Petugas">
-    <label>Latitude awal<input name="lat" type="number" step="any" min="-90" max="90" required></label>
-    <label>Longitude awal<input name="lon" type="number" step="any" min="-180" max="180" required></label>
+    <label for="collector-origin-lat">Latitude awal</label><input id="collector-origin-lat" name="lat" type="number" step="any" min="-90" max="90" required>
+    <label for="collector-origin-lon">Longitude awal</label><input id="collector-origin-lon" name="lon" type="number" step="any" min="-180" max="180" required>
     <button class="sp-button" type="submit">Simpan titik awal</button>
     <button class="sp-button sp-button--quiet" type="button" data-use-gps>Gunakan Lokasi Saya</button>
     <button class="sp-button sp-button--quiet" type="button" data-clear-origin>Hapus titik awal</button>
     <output aria-live="polite"></output>
 </form>
 </details>
-<form class="sp-filter" data-operation-filter aria-label="Filter titik">
-    <label>Jenis atau kategori<select name="category"></select></label>
-    <label>Status<select name="status"></select></label>
+<form class="sp-filter" data-operation-filter aria-label="Filter titik" hidden>
+    <label for="collector-filter-cat">Jenis atau kategori</label><select id="collector-filter-cat" name="category"></select>
+    <label for="collector-filter-status">Status</label><select id="collector-filter-status" name="status"></select>
     <button class="sp-button" type="submit">Terapkan</button>
     <button class="sp-button sp-button--quiet" type="reset">Reset filter</button>
 </form>
-<p class="sp-note">Peta jalan dimuat dari OpenStreetMap. Daftar alamat tetap tersedia jika peta tidak dapat dimuat.</p>
+<p class="sp-note" hidden>Peta jalan dimuat dari OpenStreetMap.</p>
 <div class="sp-map-layout">
     <div class="sp-map-canvas" data-map-canvas aria-label="Peta lokasi tugas"></div>
     <div>
-        <p role="status"></p>
-        <ul class="sp-map-list"></ul>
+        <output aria-live="polite"></output>
+        <ul class="sp-map-list" hidden></ul>
         <button class="sp-button sp-button--quiet" type="button" data-more hidden>Muat lagi</button>
     </div>
-</div></section>
+</div><footer class="collector-map-legend" data-map-legend><h3>Legenda peta</h3><div class="collector-map-types"><span><i class="fas fa-truck" aria-hidden="true"></i> Penjemputan sampah</span><span><i class="fas fa-building" aria-hidden="true"></i> Tugas fasilitas</span></div></footer></section>
     </main>
 
     <!-- Bottom Navigation (Mobile) -->
@@ -315,7 +327,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.26.25/dist/sweetalert2.all.min.js" integrity="sha384-nLoOnA/BDh8A/jxqtckg4DumuCGOBYUnNJLZdQz/zfYNp3wcjGSoWTAzgko06G/2" crossorigin="anonymous"></script>
     <script src="assets/js/portal-announcements.js?v=phase1-final"></script>
-    <script src="assets/js/collector.js?v=phase8"></script>
+    <script src="assets/js/collector.js?v=logout-confirm-1"></script>
 </body>
 
 </html>

@@ -41,6 +41,8 @@ func (a *App) handlingSession(w http.ResponseWriter, r *http.Request, roles ...s
 func handlingFailure(w http.ResponseWriter, err error) {
 	var dbError *mysql.MySQLError
 	switch {
+	case errors.Is(err, repositories.ErrHandlingPhotoSize):
+		(&apiProblem{"Foto melebihi kapasitas penyimpanan. Gunakan foto lebih kecil atau muat ulang halaman agar foto dioptimalkan sebelum dikirim.", http.StatusRequestEntityTooLarge}).write(w)
 	case errors.Is(err, repositories.ErrHandlingRole):
 		(&apiProblem{"Akses penanganan fasilitas ditolak.", http.StatusForbidden}).write(w)
 	case errors.Is(err, repositories.ErrHandlingOfficer):

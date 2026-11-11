@@ -1,0 +1,63 @@
+/* Petugas dashboard body only. Header/sidebar and mission workflows keep their existing styles. */
+body.sp-portal.role-collector #view-dashboard { --co-green:#174c3c; --co-dark:#103d2f; --co-soft:#eaf3eb; --co-line:#d4e1d8; --co-muted:#4b6459; }
+body.sp-portal.role-collector #view-dashboard .collector-welcome:where(:not([hidden])) { display:flex; align-items:center; justify-content:space-between; gap:24px; padding:28px 30px; margin-bottom:26px; border:1px solid #285a46; border-radius:18px; background:var(--co-dark); color:#fff; }
+body.sp-portal.role-collector #view-dashboard .collector-welcome-label:where(:not([hidden])) { display:inline-block; padding:5px 10px; margin-bottom:14px; border:1px solid #ffffff24; border-radius:7px; color:#d8eddf; background:#205440; font-size:11px; font-weight:600; }
+body.sp-portal.role-collector #view-dashboard .collector-welcome h2 { margin:0 0 10px; font-size:clamp(23px,2.5vw,30px); line-height:1.25; color:#fff; }
+body.sp-portal.role-collector #view-dashboard .collector-welcome p { max-width:62ch; margin:0; color:#d1e5d9; font-size:13px; line-height:1.7; }
+body.sp-portal.role-collector #view-dashboard .collector-welcome .sp-button:where(:not([hidden])) { flex-shrink:0; display:flex; align-items:center; gap:8px; background:#fff; border-color:#fff; color:var(--co-dark); font-size:12px; }
+body.sp-portal.role-collector #view-dashboard .collector-summary { margin:0 0 24px; padding:0; border:0; background:none; box-shadow:none; }
+body.sp-portal.role-collector #view-dashboard .collector-summary-heading:where(:not([hidden])) { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:16px; }
+body.sp-portal.role-collector #view-dashboard .collector-summary-heading h2 { margin:0 0 5px; font-size:16px; }
+body.sp-portal.role-collector #view-dashboard .collector-summary-heading p { margin:0; color:var(--co-muted); font-size:11px; }
+body.sp-portal.role-collector #view-dashboard .collector-summary-heading button { font-size:11px; padding:8px 12px; min-height:34px; background:#fff; color:var(--co-green); }
+body.sp-portal.role-collector #view-dashboard .collector-summary-grid:where(:not([hidden])) { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; }
+body.sp-portal.role-collector #view-dashboard .collector-summary-card:where(:not([hidden])) { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; padding:20px; border:1px solid var(--co-line); border-radius:15px; background:#fff; min-width:0; box-shadow:0 2px 5px #103d2f03; }
+body.sp-portal.role-collector #view-dashboard .collector-summary-card h3 { margin:0 0 14px; font-size:11px; line-height:1.5; letter-spacing:0; color:var(--co-muted); font-weight:600; }
+body.sp-portal.role-collector #view-dashboard .collector-summary-card strong:where(:not([hidden])) { display:block; color:var(--co-dark); font-size:30px; line-height:1; font-variant-numeric:tabular-nums; }
+body.sp-portal.role-collector #view-dashboard .collector-summary-card p { margin:10px 0 0; font-size:10px; line-height:1.5; color:var(--co-muted); }
+body.sp-portal.role-collector #view-dashboard .collector-summary-icon:where(:not([hidden])) { display:grid; place-items:center; flex-shrink:0; width:34px; height:34px; border-radius:10px; background:#eaf3eb; color:var(--co-green); }
+body.sp-portal.role-collector #view-dashboard .collector-summary-card.amber .collector-summary-icon { color:#92530b; background:#fff4df; }
+body.sp-portal.role-collector #view-dashboard .collector-summary-card.blue .collector-summary-icon { color:#24628a; background:#eaf4fc; }
+body.sp-portal.role-collector #view-dashboard .collector-summary .p9-state { padding:0; margin:12px 0 0; color:var(--co-muted); font-size:10px; background:none; border:0; }
+body.sp-portal.role-collector #view-dashboard .kpi-row { margin:0 0 26px; padding:22px 8px; background:#fff; border:1px solid var(--co-line); border-radius:15px; }
+body.sp-portal.role-collector #view-dashboard .kpi-card { align-items:flex-start; padding:0 20px; }
+body.sp-portal.role-collector #view-dashboard .kpi-icon { flex-shrink:0; }
+body.sp-portal.role-collector #view-dashboard .kpi-card span { font-size:11px; color:var(--co-muted); }
+body.sp-portal.role-collector #view-dashboard .kpi-card h3 { margin:8px 0; font-size:22px; color:var(--co-dark); }
+body.sp-portal.role-collector #view-dashboard .kpi-card small:where(:not([hidden])) { display:block; font-size:10px; line-height:1.5; }
+body.sp-portal.role-collector #view-dashboard .layout-grid { grid-template-columns:minmax(0,1.8fr) minmax(260px,1fr); gap:22px; }
+body.sp-portal.role-collector #view-dashboard .queue-panel { padding:24px; border:1px solid var(--co-line); border-radius:16px; background:#fff; min-width:0; box-shadow:none; }
+body.sp-portal.role-collector #view-dashboard .collector-queue-heading:where(:not([hidden])) { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; padding-bottom:20px; margin-bottom:8px; border-bottom:1px solid #edf2ee; }
+body.sp-portal.role-collector #view-dashboard .collector-queue-heading h3 { font-size:16px; margin:0 0 8px; line-height:1.4; }
+body.sp-portal.role-collector #view-dashboard .collector-queue-heading p { font-size:12px; color:var(--co-muted); margin:0; line-height:1.6; }
+body.sp-portal.role-collector #view-dashboard #collector-queue-count { white-space:nowrap; padding:6px 10px; background:var(--co-soft); color:var(--co-green); border-radius:7px; font-size:11px; font-weight:700; }
+body.sp-portal.role-collector #view-dashboard .task-list { gap:0; }
+body.sp-portal.role-collector #view-dashboard .task-item { padding:20px 0; gap:14px; }
+body.sp-portal.role-collector #view-dashboard .collector-queue-empty:where(:not([hidden])) { display:grid; justify-items:center; text-align:center; padding:40px 16px; gap:12px; }
+body.sp-portal.role-collector #view-dashboard .collector-queue-empty>i:where(:not([hidden])) { display:grid; place-items:center; width:48px; height:48px; background:var(--co-soft); color:#537363; border-radius:50%; font-size:20px; }
+body.sp-portal.role-collector #view-dashboard .collector-queue-empty strong { font-size:13px; }
+body.sp-portal.role-collector #view-dashboard .collector-queue-empty p { max-width:40ch; font-size:12px; line-height:1.6; color:var(--co-muted); }
+body.sp-portal.role-collector #view-dashboard .sp-field-shortcut { padding:24px; border:1px solid var(--co-line); background:#edf5ee; border-radius:16px; }
+body.sp-portal.role-collector #view-dashboard .sp-field-shortcut h2 { font-size:20px; line-height:1.35; }
+body.sp-portal.role-collector #view-dashboard .sp-field-shortcut>p { font-size:12px; line-height:1.75; }
+body.sp-portal.role-collector #view-dashboard .sp-field-shortcut .sp-button:where(:not([hidden])) { display:flex; align-items:center; justify-content:center; gap:8px; width:100%; font-size:11px; min-height:42px; white-space:normal; line-height:1.5; }
+body.sp-portal.role-collector #view-dashboard .collector-announcement-section { border-color:var(--co-line); border-radius:16px; background:#fff; }
+@media(max-width:1200px) {
+ body.sp-portal.role-collector #view-dashboard .collector-summary-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+ body.sp-portal.role-collector #view-dashboard .layout-grid { grid-template-columns:1fr; }
+ body.sp-portal.role-collector #view-dashboard .sp-field-support { grid-template-columns:1fr 1fr; }
+}
+@media(max-width:600px) {
+ body.sp-portal.role-collector #view-dashboard .collector-welcome { flex-direction:column; align-items:flex-start; padding:24px; gap:20px; }
+ body.sp-portal.role-collector #view-dashboard .collector-welcome .sp-button { width:100%; justify-content:center; }
+ body.sp-portal.role-collector #view-dashboard .collector-summary-heading { align-items:flex-start; }
+ body.sp-portal.role-collector #view-dashboard .collector-summary-card { padding:16px; gap:6px; }
+ body.sp-portal.role-collector #view-dashboard .collector-summary-icon { width:28px; height:28px; font-size:12px; }
+ body.sp-portal.role-collector #view-dashboard .collector-summary-card strong { font-size:26px; }
+ body.sp-portal.role-collector #view-dashboard .kpi-row:where(:not([hidden])) { display:grid; grid-template-columns:1fr; padding:0 20px; }
+ body.sp-portal.role-collector #view-dashboard .kpi-card { padding:20px 0; border-right:0; border-bottom:1px solid var(--co-line); }
+ body.sp-portal.role-collector #view-dashboard .sp-field-support { grid-template-columns:1fr; }
+ body.sp-portal.role-collector #view-dashboard .collector-queue-heading { flex-direction:column; }
+ body.sp-portal.role-collector #view-dashboard .queue-panel { padding:20px; }
+ body.sp-portal.role-collector #view-dashboard .task-item { flex-wrap:wrap; }
+}

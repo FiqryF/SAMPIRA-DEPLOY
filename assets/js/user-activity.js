@@ -130,6 +130,12 @@ function describe(items) {
     status.textContent = notices.join(" ");
 }
 
+function emptyActivityMessage() {
+    if (pickupState === "loading" || reportState === "loading") return "Memuat aktivitas…";
+    if (pickupState === "error" || reportState === "error") return "Aktivitas belum dapat dimuat.";
+    return "Belum ada aktivitas.";
+}
+
 function render() {
     if (closed) return;
     const items = records();
@@ -138,10 +144,10 @@ function render() {
         item.append(card(record, false));
         return item;
     });
-    recent.replaceChildren(...(items.length ? rows :
-        [element("li", pickupState === "loading" || reportState === "loading" ? "Memuat aktivitas…" :
-            pickupState === "error" || reportState === "error" ? "Aktivitas belum dapat dimuat." : "Belum ada aktivitas.")]));
-    reportCount.textContent = reportState === "ready" ? String(reports.length) + (cursor ? "+" : "") : "—";
+    recent.replaceChildren(...(items.length ? rows : [element("li", emptyActivityMessage())]));
+    let countText = String(reports.length);
+    if (cursor) countText += "+";
+    reportCount.textContent = reportState === "ready" ? countText : "—";
     reportCount.closest("div").querySelector("dt").textContent = cursor ? "Laporan dimuat" : "Laporan fasilitas";
     reportCount.title = cursor ? 'Jumlah laporan yang dimuat; masih ada halaman berikutnya.' : 'Jumlah laporan yang sudah dimuat.';
     setupMap();
@@ -230,15 +236,15 @@ window.addEventListener("sampira:user-pickups", event => {
 window.addEventListener("sampira:user-pickups-failed", () => { pickupState = "error"; pickups=[]; render(); });
 window.addEventListener("sampira:session-ended", clear);
 window.addEventListener("pagehide", clear);
-window.addEventListener("sampira:user-view", event => {
+window.addEventListener("sampira:user-view", async event => {
     if (event.detail !== "beranda" || closed) return;
     render();
-    loadReports();
+    await loadReports();
 });
-window.addEventListener('focus',() => {
-    if (!closed && !document.hidden && home.classList.contains('active')) void loadReports();
+window.addEventListener('focus',async () => {
+    if (!closed && !document.hidden && home.classList.contains('active')) await loadReports();
 });
-more.addEventListener("click", () => loadReports(true));
+more.addEventListener("click", async () => { await loadReports(true); });
 mapLegend(canvas.closest('.sp-own-map-panel'));
 render();
-loadReports();
+await loadReports();

@@ -1,7 +1,7 @@
 import {base, request} from './facility-api.js?v=phase5b';
-import {adminTable, categories, element, options} from './facility-report-ui.js?v=admin-6b4';
-import {button, handlingCard, handlingEvent, handlingStatuses, handlingSummary} from './facility-handling-ui.js?v=admin-6b4';
-import {handlingActions, openHandlingForm} from './facility-handling-form.js?v=phase4b';
+import {adminTable, categories, element, options} from './facility-report-ui.js?v=facility-simple-1';
+import {button, handlingCard, handlingEvent, handlingStatuses, handlingSummary} from './facility-handling-ui.js?v=facility-simple-1';
+import {handlingActions, openHandlingForm} from './facility-handling-form.js?v=facility-simple-1';
 import {mountLocationDetail} from './location-map.js?v=phase8';
 
 const listPath = base + '/handling';
@@ -15,7 +15,7 @@ function message(error) {
     case 403: return 'Akun atau asal permintaan tidak diizinkan.';
     case 404: return 'Data penanganan tidak tersedia untuk akun ini.';
     case 409: return 'Versi atau status berubah. Tinjau detail terbaru sebelum mengirim lagi.';
-    case 413: return 'Ukuran kiriman terlalu besar.';
+    case 413: return error.message || 'Ukuran kiriman terlalu besar. Pilih foto yang lebih kecil.';
     case 415: return 'Format kiriman tidak didukung.';
     default: return 'Layanan penanganan gagal merespons. Periksa kondisi terbaru sebelum mencoba lagi.';
     }
@@ -126,6 +126,7 @@ function workspace(root) {
     const back = button('Kembali ke daftar', () => showList());
     detailTop.append(detailHeading, back, refresh);
     const detailBody = element('div', undefined, 'facility-stack');
+    if(admin)detailBody.classList.add('admin-handling-detail-body');
     detailView.append(detailTop, detailBody);
 
     const filters = element('div', undefined, 'facility-filters');
@@ -140,7 +141,6 @@ function workspace(root) {
     }
     const statusFilter = filter('Status penanganan', handlingStatuses, 'Semua status');
     const categoryFilter = filter('Kategori', categories, 'Semua kategori');
-    if (admin) statusFilter.value = 'approved';
     const listStatus = element('output', '', 'facility-muted');
     const cards = element(admin ? 'tbody' : 'ul', undefined, 'facility-cards');
     const queue = admin ? adminTable('Tabel penanganan laporan', ['Laporan', 'Penanganan', 'Penugasan', 'Koordinasi', 'Diperbarui', 'Aksi'], cards) : cards;
@@ -149,6 +149,15 @@ function workspace(root) {
     const toolbar = element('div', undefined, 'facility-toolbar');
     toolbar.append(filters, reload);
     listView.append(element('h3', admin ? 'Antrean dan monitoring' : 'Daftar tugas saya'), toolbar, listStatus, queue, more);
+    if (!admin) {
+        heading.textContent = 'Tugas Fasilitas Kebersihan';
+        listView.classList.add('collector-facility-list');
+        detailView.classList.add('collector-facility-detail');
+        detailBody.classList.add('collector-facility-detail-body');
+        header.append(reload);
+        toolbar.replaceChildren(filters, listStatus);
+        listView.replaceChildren(toolbar, queue, more);
+    }
     root.append(header, notice, errorBox, listView, detailView);
 
     let listSequence = 0;
@@ -206,26 +215,12 @@ function workspace(root) {
         void loadList();
     }
 
-    async function openDetail(id, navigation) {
-        if (!Number.isSafeInteger(id) || id < 1) return;
-        selected = id;
-        const sequence = ++detailSequence;
-        detailView.hidden = false;
-        listView.hidden = true;
-        detailHeading.focus();
-        const status = element('output', 'Memuat detail penanganan…', 'facility-muted');
-        disposeLocation?.();
-        detailBody.replaceChildren(status);
-        refresh.disabled = true;
-        try {
-            const report = await request(detailPath(id));
-            if (sequence !== detailSequence) return;
-            const history = historyPanel(report, role, error => {
-                handleReadError(error, errorBox);
-                if (error.status === 404 || error.status === 403) showList();
-            });
+    function detailActions(report, history, id) {
             const actions = element('div', undefined, 'facility-actions handling-actions');
-            for (const config of handlingActions(report, role)) actions.append(button(config.title, () => {
+            const extras = element('details', undefined, 'facility-extra-actions');
+            extras.append(element('summary', 'Opsi lainnya'));
+            const extraActions = element('div', undefined, 'facility-actions'); extras.append(extraActions);
+            for (const config of handlingActions(report, role)) (config.secondary ? extraActions : actions).append(button(config.title, () => {
                 openHandlingForm(root, report, config, history.events, async (endpoint, payload, close) => {
                     notice.textContent = errorBox.textContent = '';
                     try {
@@ -247,8 +242,46 @@ function workspace(root) {
                     }
                 }, () => sessionEnded(errorBox));
             }, true));
+            if (extraActions.childElementCount) actions.append(extras);
+            return actions;
+    }
+
+    async function openDetail(id, navigation) {
+        if (!Number.isSafeInteger(id) || id < 1) return;
+        selected = id;
+        const sequence = ++detailSequence;
+        detailView.hidden = false;
+        listView.hidden = true;
+        detailHeading.focus();
+        const status = element('output', 'Memuat detail penanganan…', 'facility-muted');
+        disposeLocation?.();
+        detailBody.replaceChildren(status);
+        refresh.disabled = true;
+        try {
+            const report = await request(detailPath(id));
+            if (sequence !== detailSequence) return;
+            const history = historyPanel(report, role, error => {
+                handleReadError(error, errorBox);
+                if (error.status === 404 || error.status === 403) showList();
+            });
+            const actions = detailActions(report, history, id);
             const location = element('div');
-            detailBody.replaceChildren(handlingSummary(report, role), location, actions, history.root);
+            if (admin) {
+                const mapGroup=element('details',undefined,'admin-detail-group');mapGroup.append(element('summary','Lokasi fasilitas'),location);
+                const historyGroup=element('details',undefined,'admin-detail-group');historyGroup.append(element('summary','Riwayat penanganan'),history.root);
+                actions.classList.add('admin-handling-actions');
+                detailBody.replaceChildren(handlingSummary(report,role),actions,mapGroup,historyGroup);
+            }
+            else {
+                const mapGroup = element('details', undefined, 'collector-detail-group');
+                mapGroup.append(element('summary','Lihat lokasi di peta'),location);
+                mapGroup.open = Boolean(navigation);
+                const historyGroup = element('details', undefined, 'collector-detail-group collector-history-group');
+                historyGroup.append(element('summary','Riwayat penanganan'),history.root);
+                actions.hidden = !actions.children.length;
+                if (actions.children.length) actions.prepend(element('h4','Tindakan petugas'));
+                detailBody.replaceChildren(handlingSummary(report,role),actions,mapGroup,historyGroup);
+            }
             disposeLocation = mountLocationDetail(location, {
                 title: 'Titik lokasi fasilitas', point: report, address: report.address, reported: true, autoTiles: true, kind:'facility',
                 navigation: admin ? null : {...navigation, authorize, recheck: true}
@@ -283,6 +316,14 @@ function workspace(root) {
         } finally { if (sequence === detailSequence) refresh.disabled = false; }
     }
 
+    function refreshVisible() {
+        if (redirecting || document.hidden || !root.getClientRects().length || document.querySelector('.handling-dialog[open]')) return;
+        // Another role may have updated this report while this tab was inactive.
+        if (selected) void openDetail(selected);
+        else void loadList();
+    }
+    window.addEventListener('focus', refreshVisible);
+    document.addEventListener('visibilitychange', refreshVisible);
     window.addEventListener('sampira:handling-detail', event => {
         if (root.getClientRects().length) void openDetail(event.detail.id, event.detail.navigation);
     });

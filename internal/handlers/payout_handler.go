@@ -17,6 +17,15 @@ func (a *App) EstimateRewardHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	data := httpx.RequestData(r)
+	if data["items"] != "" {
+		items, _, weight, reward, fee, err := pricePickupItems(r.Context(), a.DB, data["items"])
+		if err != nil {
+			(&apiProblem{err.Error(), 400}).write(w)
+			return
+		}
+		httpx.SendResponse(w, "success", "Estimasi per kategori berhasil dihitung.", map[string]any{"items": items, "weight_kg": weight, "total_estimate": reward, "processing_fee": fee, "net_estimate": netReward(reward, fee), "co2_saved": services.CO2Saved(weight)}, 200)
+		return
+	}
 	categoryName := strings.TrimSpace(data["category"])
 	weightStr := data["weight_kg"]
 	if categoryName == "" || weightStr == "" {
@@ -68,24 +77,12 @@ func (a *App) VerifyPickupHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := httpx.RequestData(r)
-	pickupID, err := strconv.Atoi(data["pickup_id"])
-	if err != nil || pickupID <= 0 {
-		httpx.SendResponse(w, "error", "pickup_id tidak valid.", nil, http.StatusBadRequest)
+	input, problem := readPickupVerificationInput(data)
+	if problem != nil {
+		problem.write(w)
 		return
 	}
-	finalWeight, err := pickupWeight(data["final_weight_kg"])
-	if err != nil {
-		httpx.SendResponse(w, "error", "Berat final harus berupa angka positif.", nil, http.StatusBadRequest)
-		return
-	}
-	notes := strings.TrimSpace(data["verification_notes"])
-	if len(notes) > 2000 {
-		httpx.SendResponse(w, "error", "Catatan penimbangan terlalu panjang.", nil, http.StatusBadRequest)
-		return
-	}
-	if notes == "" {
-		notes = "Berat aktual dicatat oleh Petugas di hub."
-	}
+	pickupID, finalWeight, notes := input.id, input.weight, input.notes
 
 	tx, err := a.DB.Begin()
 	if err != nil {
@@ -94,42 +91,25 @@ func (a *App) VerifyPickupHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer tx.Rollback()
 
-	var pickupStatus string
-	var assignee sql.NullInt64
-	var verifiedAt sql.NullTime
-	var legacyPayment bool
-	var rewardPerKg, processingFeePerKg float64
-	err = tx.QueryRow(`SELECT p.status, p.collector_id, p.verified_at, (p.is_processed OR EXISTS(SELECT 1 FROM transactions t WHERE t.pickup_id=p.id)), c.reward_per_kg, c.processing_fee_per_kg
-		FROM pickups p
-		LEFT JOIN waste_categories c ON p.category_id = c.id
-		WHERE p.id = ? FOR UPDATE`, pickupID).Scan(&pickupStatus, &assignee, &verifiedAt, &legacyPayment, &rewardPerKg, &processingFeePerKg)
-	if err == sql.ErrNoRows {
-		httpx.SendResponse(w, "error", "Data penjemputan tidak ditemukan.", nil, http.StatusNotFound)
-		return
-	} else if err != nil {
-		httpx.SendResponse(w, "error", "Kesalahan database.", nil, http.StatusInternalServerError)
+	checked, problem := a.loadPickupVerification(tx, pickupID, user)
+	if problem != nil {
+		problem.write(w)
 		return
 	}
-	if !ownsPickupStatus(user, assignee) {
-		httpx.SendResponse(w, "error", "Akses tugas ditolak.", nil, http.StatusForbidden)
-		return
-	}
-	if verifiedAt.Valid || legacyPayment {
-		httpx.SendResponse(w, "error", "Berat aktual sudah tercatat atau terdapat transaksi historis.", nil, http.StatusConflict)
-		return
-	}
-	if pickupStatus != models.StatusArrived {
-		httpx.SendResponse(w, "error", "Verifikasi berat final hanya dapat dilakukan setelah sampah tiba di hub.", nil, http.StatusBadRequest)
-		return
-	}
+	categoryItems, rewardPerKg, processingFeePerKg := checked.categoryItems, checked.rewardPerKg, checked.processingFeePerKg
 
 	finalReward := rewardValue(rewardPerKg, finalWeight)
 	finalFee := rewardValue(processingFeePerKg, finalWeight)
-	amount := netReward(finalReward, finalFee)
-	paymentStatus := "pending"
-	if amount == 0 {
-		paymentStatus = "not_due"
+	if categoryItems.Valid {
+		reward, fee, problem := saveVerifiedCategoryItems(r, tx, pickupID, categoryItems, data["items"], finalWeight)
+		if problem != nil {
+			problem.write(w)
+			return
+		}
+		finalReward, finalFee = reward, fee
 	}
+	amount := netReward(finalReward, finalFee)
+	paymentStatus := newRewardStatus(amount)
 
 	_, err = tx.Exec(`UPDATE pickups
 		SET final_weight_kg = ?, final_eco_reward = ?, final_processing_fee = ?, verification_notes = ?, verified_at = NOW(), status = 'completed'
@@ -167,4 +147,84 @@ func (a *App) VerifyPickupHandler(w http.ResponseWriter, r *http.Request) {
 		"payment_status":       paymentStatus,
 		"verification_notes":   notes,
 	}, http.StatusOK)
+}
+
+type pickupVerification struct {
+	categoryItems                   sql.NullString
+	rewardPerKg, processingFeePerKg float64
+}
+
+func (a *App) loadPickupVerification(tx *sql.Tx, pickupID int, user *models.TokenPayload) (pickupVerification, *apiProblem) {
+	var categoryItems sql.NullString
+	var pickupStatus string
+	var assignee sql.NullInt64
+	var verifiedAt sql.NullTime
+	var legacyPayment bool
+	var rewardPerKg, processingFeePerKg float64
+	err := tx.QueryRow(`SELECT p.status, p.collector_id, p.verified_at, (p.is_processed OR EXISTS(SELECT 1 FROM transactions t WHERE t.pickup_id=p.id)), c.reward_per_kg, c.processing_fee_per_kg, p.category_items
+		FROM pickups p
+		LEFT JOIN waste_categories c ON p.category_id = c.id
+		WHERE p.id = ? FOR UPDATE`, pickupID).Scan(&pickupStatus, &assignee, &verifiedAt, &legacyPayment, &rewardPerKg, &processingFeePerKg, &categoryItems)
+	if err == sql.ErrNoRows {
+		return pickupVerification{}, &apiProblem{"Data penjemputan tidak ditemukan.", http.StatusNotFound}
+	} else if err != nil {
+		return pickupVerification{}, &apiProblem{"Kesalahan database.", http.StatusInternalServerError}
+	}
+	if !ownsPickupStatus(user, assignee) {
+		return pickupVerification{}, &apiProblem{"Akses tugas ditolak.", http.StatusForbidden}
+	}
+	if verifiedAt.Valid || legacyPayment {
+		return pickupVerification{}, &apiProblem{"Berat aktual sudah tercatat atau terdapat transaksi historis.", http.StatusConflict}
+	}
+	if pickupStatus != models.StatusArrived {
+		return pickupVerification{}, &apiProblem{"Verifikasi berat final hanya dapat dilakukan setelah sampah tiba di hub.", http.StatusBadRequest}
+	}
+
+	return pickupVerification{categoryItems: categoryItems, rewardPerKg: rewardPerKg, processingFeePerKg: processingFeePerKg}, nil
+}
+
+func saveVerifiedCategoryItems(r *http.Request, tx *sql.Tx, pickupID int, categoryItems sql.NullString, submitted string, finalWeight float64) (float64, float64, *apiProblem) {
+
+	raw, reward, fee, err := verifyPickupItems(r.Context(), tx, categoryItems, submitted, finalWeight)
+	if err != nil {
+		return 0, 0, &apiProblem{"Berat per kategori tidak valid atau tidak sesuai pengajuan. Periksa jumlah berat dan kategori.", 400}
+	}
+	if _, err = tx.ExecContext(r.Context(), "UPDATE pickups SET category_items=? WHERE id=?", raw, pickupID); err != nil {
+		return 0, 0, &apiProblem{"Gagal menyimpan rincian penimbangan.", 500}
+	}
+
+	return reward, fee, nil
+}
+
+func newRewardStatus(amount float64) string {
+	if amount == 0 {
+		return "not_due"
+	}
+	return "pending"
+}
+
+type pickupVerificationInput struct {
+	id     int
+	weight float64
+	notes  string
+}
+
+func readPickupVerificationInput(data map[string]string) (pickupVerificationInput, *apiProblem) {
+	pickupID, err := strconv.Atoi(data["pickup_id"])
+	if err != nil || pickupID <= 0 {
+		return pickupVerificationInput{}, &apiProblem{"pickup_id tidak valid.", http.StatusBadRequest}
+	}
+	finalWeight, err := pickupWeight(data["final_weight_kg"])
+	if err != nil {
+		return pickupVerificationInput{}, &apiProblem{"Berat final harus berupa angka positif.", http.StatusBadRequest}
+	}
+	notes := strings.TrimSpace(data["verification_notes"])
+	if len(notes) > 2000 {
+		return pickupVerificationInput{}, &apiProblem{"Catatan penimbangan terlalu panjang.", http.StatusBadRequest}
+	}
+	if notes == "" {
+		notes = "Berat aktual dicatat oleh Petugas di hub."
+	}
+
+	return pickupVerificationInput{pickupID, finalWeight, notes}, nil
 }

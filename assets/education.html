@@ -6,32 +6,32 @@
     <title>Pusat Edukasi Lingkungan | SAMPIRA</title>
     <link rel="icon" href="/assets/img/sampira-mark.svg" type="image/svg+xml">
     <link rel="stylesheet" href="/assets/css/sampira.css?v=phase6b-live">
-    <script type="module" src="/assets/js/education.js?v=phase6b"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/education-public.css?v=education-unified-19">
+    <link rel="stylesheet" href="/assets/css/education-photos.css?v=maps-reader-9">
+    <script type="module" src="/assets/js/education.js?v=education-unified-19"></script>
 </head>
-<body class="sp-public">
+<body class="sp-public education-public">
     <a class="sp-skip" href="#education-reader">Lewati ke konten</a>
-    <header class="sp-public-header">
-        <a class="sp-brand" href="/home"><img src="/assets/img/sampira-mark.svg" width="28" height="28" alt=""> SAMPIRA</a>
-        <nav aria-label="Navigasi utama"><a href="/home">Beranda</a><a href="/assets/education.html" aria-current="page">Edukasi</a><a href="/login">Masuk</a></nav>
-    </header>
     <main id="education-reader" class="sp-public-container">
+        <a id="education-back" class="education-back" href="/home" aria-label="Kembali ke beranda" title="Kembali ke beranda"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m12 5-7 7 7 7M5 12h15"/></svg></a>
         <div class="sp-education-hero">
-            <p class="sp-kicker">Belajar dari rumah</p>
-            <h1>Pusat Edukasi Lingkungan</h1>
-            <p>Panduan memilah, mengurangi, dan mengelola sampah sehari-hari.</p>
+            <p class="sp-kicker">Pusat edukasi SAMPIRA</p>
+            <h1>Pusat Edukasi</h1>
+            <p>Temukan panduan memilah, mengurangi, dan mengelola sampah. Mulai kebiasaan baik dari rumah Anda.</p>
         </div>
         <form class="sp-filter">
             <label>Cari artikel<input type="search" name="q" maxlength="100" placeholder="Contoh: memilah sampah"></label>
             <label>Kategori<select name="category"><option value="">Semua kategori</option></select></label>
             <button class="sp-button" type="submit">Cari</button>
-            <a class="sp-button sp-button--quiet" href="/assets/education.html">Bersihkan</a>
+            <a class="sp-button sp-button--quiet" href="/assets/education.html?ui=education-unified-19">Bersihkan</a>
         </form>
         <p role="status">Memuat artikel…</p>
         <div id="education-results" class="sp-card-grid"></div>
         <nav class="sp-pager" aria-label="Halaman artikel">
-            <a class="sp-button sp-button--quiet" id="education-prev" hidden>Sebelumnya</a>
-            <a class="sp-button" id="education-next" hidden>Berikutnya</a>
-            <a href="/assets/education.html">Daftar artikel</a>
+            <a class="education-page" id="education-prev" aria-label="Halaman sebelumnya" aria-disabled="true" tabindex="-1"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg></a>
+            <span id="education-pages"></span>
+            <a class="education-page" id="education-next" aria-label="Halaman berikutnya" aria-disabled="true" tabindex="-1"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></a>
         </nav>
     </main>
     <footer class="sp-public-footer">SAMPIRA · Layanan pengelolaan sampah</footer>

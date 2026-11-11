@@ -22,41 +22,7 @@ func (a *App) PickupStatusGetHandler(w http.ResponseWriter, r *http.Request) {
 
 	queryType := r.URL.Query().Get("type")
 	if queryType == "stats" {
-		if user.Role != models.RoleAdministrator {
-			httpx.SendResponse(w, "error", "Akses statistik ditolak.", nil, http.StatusForbidden)
-			return
-		}
-		var totalPickups int
-		var pendingVerifications int
-		var totalWeight float64
-		var historicalRewardRecorded float64
-		var totalRewardPending float64
-		var totalRewardPaid float64
-		var collectorsOnline int
-
-		err := a.DB.QueryRow(`SELECT COUNT(*),
-   COUNT(CASE WHEN status = 'pending' THEN 1 END),
-   COALESCE(SUM(CASE WHEN EXISTS(SELECT 1 FROM pickup_rewards r WHERE r.pickup_id=pickups.id) THEN final_weight_kg END),0),
-   COALESCE(SUM(CASE WHEN is_processed THEN final_eco_reward - final_processing_fee END), 0),
-   (SELECT COALESCE(SUM(amount),0) FROM pickup_rewards WHERE status='pending'),
- (SELECT COALESCE(SUM(amount),0) FROM pickup_rewards WHERE status='paid'),
-   (SELECT COUNT(*) FROM users WHERE role = ? AND is_active = TRUE)
-   FROM pickups`, models.RolePetugas).Scan(&totalPickups, &pendingVerifications, &totalWeight,
-			&historicalRewardRecorded, &totalRewardPending, &totalRewardPaid, &collectorsOnline)
-		if err != nil {
-			httpx.SendResponse(w, "error", "Gagal mengambil statistik penjemputan.", nil, http.StatusInternalServerError)
-			return
-		}
-
-		httpx.SendResponse(w, "success", "Statistik sampah berhasil diambil.", map[string]interface{}{
-			"total_weight":               totalWeight,
-			"total_reward_paid":          totalRewardPaid,
-			"historical_reward_recorded": historicalRewardRecorded,
-			"total_reward_pending":       totalRewardPending,
-			"total_pickups":              totalPickups,
-			"pending_verifications":      pendingVerifications,
-			"collectors_online":          collectorsOnline,
-		}, http.StatusOK)
+		a.pickupStats(w, user)
 		return
 	}
 
@@ -76,38 +42,10 @@ func (a *App) PickupStatusGetHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer tx.Rollback()
-	var p struct {
-		ID                   int
-		UserID               int
-		CollectorID          *int
-		TrackingNumber       string
-		ItemDesc             *string
-		PickupAddress        *string
-		Latitude, Longitude  *float64
-		ContactPhone         *string
-		WeightKg             *float64
-		FinalWeightKg        *float64
-		FinalEcoReward       *float64
-		FinalProcessingFee   *float64
-		CategoryID           *int
-		EcoReward            *float64
-		ProcessingFee        *float64
-		PhotoURL             *string
-		IsProcessed          bool
-		Status               string
-		CreatedAt            time.Time
-		CategoryName         *string
-		DonorName            *string
-		CollectorName        *string
-		PaymentStatus        *string
-		RewardAmount         *string
-		PaymentReference     *string
-		PaidAt               *time.Time
-		VerifiedAt           *time.Time
-		HasLegacyTransaction bool
-	}
+	var categoryItems sql.NullString
+	var p pickupTrackingRecord
 
-	query := `SELECT p.id, p.user_id, p.collector_id, p.tracking_number, p.item_description, p.pickup_address, p.contact_phone, p.weight_kg, p.category_id, p.eco_reward, p.processing_fee, p.photo_url, p.is_processed, p.status, p.created_at, p.final_weight_kg, p.final_eco_reward, p.final_processing_fee, c.category_name, u.name AS donor_name, col.name AS collector_name, pr.status, pr.amount, pr.reference, pr.paid_at, p.verified_at, EXISTS(SELECT 1 FROM transactions t WHERE t.pickup_id=p.id), p.latitude, p.longitude
+	query := `SELECT p.id, p.user_id, p.collector_id, p.tracking_number, p.item_description, p.pickup_address, p.contact_phone, p.weight_kg, p.category_id, p.eco_reward, p.processing_fee, p.photo_url, p.is_processed, p.status, p.created_at, p.final_weight_kg, p.final_eco_reward, p.final_processing_fee, c.category_name, u.name AS donor_name, col.name AS collector_name, pr.status, pr.amount, pr.reference, pr.paid_at, p.verified_at, EXISTS(SELECT 1 FROM transactions t WHERE t.pickup_id=p.id), p.latitude, p.longitude, p.category_items
 			  FROM pickups p
 			  LEFT JOIN waste_categories c ON p.category_id = c.id
 			  LEFT JOIN users u ON p.user_id = u.id
@@ -120,7 +58,7 @@ func (a *App) PickupStatusGetHandler(w http.ResponseWriter, r *http.Request) {
 		&p.ContactPhone, &p.WeightKg, &p.CategoryID, &p.EcoReward, &p.ProcessingFee,
 		&p.PhotoURL, &p.IsProcessed, &p.Status, &p.CreatedAt, &p.FinalWeightKg, &p.FinalEcoReward, &p.FinalProcessingFee, &p.CategoryName,
 		&p.DonorName, &p.CollectorName, &p.PaymentStatus, &p.RewardAmount, &p.PaymentReference, &p.PaidAt, &p.VerifiedAt, &p.HasLegacyTransaction,
-		&p.Latitude, &p.Longitude,
+		&p.Latitude, &p.Longitude, &categoryItems,
 	)
 	if err == sql.ErrNoRows {
 		httpx.SendResponse(w, "error", "Nomor tracking tidak ditemukan.", nil, http.StatusNotFound)
@@ -141,23 +79,8 @@ func (a *App) PickupStatusGetHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer rows.Close()
-	historyList := make([]map[string]interface{}, 0)
-	for rows.Next() {
-		var id, pickupID int
-		var status string
-		var location, notes *string
-		var updatedAt time.Time
-		var actorID *int
-		if err := rows.Scan(&id, &pickupID, &status, &location, &notes, &updatedAt, &actorID); err != nil {
-			problem.write(w)
-			return
-		}
-		historyList = append(historyList, map[string]interface{}{
-			"id": id, "pickup_id": pickupID, "status": status, "location": location, "notes": notes,
-			"updated_at": updatedAt, "actor_id": actorID,
-		})
-	}
-	if rows.Err() != nil {
+	historyList, historyErr := readPickupTrackingHistory(rows)
+	if historyErr != nil {
 		problem.write(w)
 		return
 	}
@@ -189,23 +112,11 @@ func (a *App) PickupStatusGetHandler(w http.ResponseWriter, r *http.Request) {
 		"collector_name":       p.CollectorName,
 		"history":              historyList,
 	}
-	if p.PaymentStatus != nil {
-		respData["payment_status"] = *p.PaymentStatus
-		respData["reward_amount"] = p.RewardAmount
-		if user.Role == models.RoleUser {
-			respData["payment_reference"] = p.PaymentReference
-			respData["paid_at"] = p.PaidAt
-		}
+	if err := applyPickupItems(respData, categoryItems); err != nil {
+		(&apiProblem{"Gagal membaca rincian kategori.", 500}).write(w)
+		return
 	}
-	if p.PaymentStatus == nil && (p.VerifiedAt != nil || p.HasLegacyTransaction) {
-		respData["payment_status"] = "requires_reconciliation"
-	}
-	if p.DonorName != nil {
-		respData["donor_name"] = *p.DonorName
-	}
-	if p.CollectorName != nil {
-		respData["collector_name"] = *p.CollectorName
-	}
+	projectTrackingPayment(respData, p, user.Role)
 
 	httpx.SendResponse(w, "success", "Data pelacakan ditemukan.", respData, http.StatusOK)
 }
@@ -278,4 +189,119 @@ func (a *App) PickupStatusPostHandler(w http.ResponseWriter, r *http.Request) {
 		"tracking_number": trackingNum,
 		"status":          status,
 	}, http.StatusOK)
+}
+
+func (a *App) pickupStats(w http.ResponseWriter, user *models.TokenPayload) {
+	if user.Role != models.RoleAdministrator {
+		httpx.SendResponse(w, "error", "Akses statistik ditolak.", nil, http.StatusForbidden)
+		return
+	}
+	var totalPickups int
+	var pendingVerifications int
+	var totalWeight float64
+	var historicalRewardRecorded float64
+	var totalRewardPending float64
+	var totalRewardPaid float64
+	var collectorsOnline int
+
+	err := a.DB.QueryRow(`SELECT COUNT(*),
+   COUNT(CASE WHEN status = 'pending' THEN 1 END),
+   COALESCE(SUM(CASE WHEN EXISTS(SELECT 1 FROM pickup_rewards r WHERE r.pickup_id=pickups.id) THEN final_weight_kg END),0),
+   COALESCE(SUM(CASE WHEN is_processed THEN final_eco_reward - final_processing_fee END), 0),
+   (SELECT COALESCE(SUM(amount),0) FROM pickup_rewards WHERE status='pending'),
+ (SELECT COALESCE(SUM(amount),0) FROM pickup_rewards WHERE status='paid'),
+   (SELECT COUNT(*) FROM users WHERE role = ? AND is_active = TRUE)
+   FROM pickups`, models.RolePetugas).Scan(&totalPickups, &pendingVerifications, &totalWeight,
+		&historicalRewardRecorded, &totalRewardPending, &totalRewardPaid, &collectorsOnline)
+	if err != nil {
+		httpx.SendResponse(w, "error", "Gagal mengambil statistik penjemputan.", nil, http.StatusInternalServerError)
+		return
+	}
+
+	httpx.SendResponse(w, "success", "Statistik sampah berhasil diambil.", map[string]interface{}{
+		"total_weight":               totalWeight,
+		"total_reward_paid":          totalRewardPaid,
+		"historical_reward_recorded": historicalRewardRecorded,
+		"total_reward_pending":       totalRewardPending,
+		"total_pickups":              totalPickups,
+		"pending_verifications":      pendingVerifications,
+		"collectors_online":          collectorsOnline,
+	}, http.StatusOK)
+	return
+
+}
+
+type pickupTrackingRecord struct {
+	ID                   int
+	UserID               int
+	CollectorID          *int
+	TrackingNumber       string
+	ItemDesc             *string
+	PickupAddress        *string
+	Latitude, Longitude  *float64
+	ContactPhone         *string
+	WeightKg             *float64
+	FinalWeightKg        *float64
+	FinalEcoReward       *float64
+	FinalProcessingFee   *float64
+	CategoryID           *int
+	EcoReward            *float64
+	ProcessingFee        *float64
+	PhotoURL             *string
+	IsProcessed          bool
+	Status               string
+	CreatedAt            time.Time
+	CategoryName         *string
+	DonorName            *string
+	CollectorName        *string
+	PaymentStatus        *string
+	RewardAmount         *string
+	PaymentReference     *string
+	PaidAt               *time.Time
+	VerifiedAt           *time.Time
+	HasLegacyTransaction bool
+}
+
+func projectTrackingPayment(respData map[string]interface{}, p pickupTrackingRecord, role string) {
+	if p.PaymentStatus != nil {
+		respData["payment_status"] = *p.PaymentStatus
+		respData["reward_amount"] = p.RewardAmount
+		if role == models.RoleUser {
+			respData["payment_reference"] = p.PaymentReference
+			respData["paid_at"] = p.PaidAt
+		}
+	}
+	if p.PaymentStatus == nil && (p.VerifiedAt != nil || p.HasLegacyTransaction) {
+		respData["payment_status"] = "requires_reconciliation"
+	}
+	if p.DonorName != nil {
+		respData["donor_name"] = *p.DonorName
+	}
+	if p.CollectorName != nil {
+		respData["collector_name"] = *p.CollectorName
+	}
+
+}
+
+func readPickupTrackingHistory(rows *sql.Rows) ([]map[string]interface{}, error) {
+	historyList := make([]map[string]interface{}, 0)
+	for rows.Next() {
+		var id, pickupID int
+		var status string
+		var location, notes *string
+		var updatedAt time.Time
+		var actorID *int
+		if err := rows.Scan(&id, &pickupID, &status, &location, &notes, &updatedAt, &actorID); err != nil {
+			return nil, err
+		}
+		historyList = append(historyList, map[string]interface{}{
+			"id": id, "pickup_id": pickupID, "status": status, "location": location, "notes": notes,
+			"updated_at": updatedAt, "actor_id": actorID,
+		})
+	}
+	if rows.Err() != nil {
+		return nil, rows.Err()
+	}
+
+	return historyList, nil
 }

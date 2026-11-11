@@ -100,9 +100,9 @@ async function deleteAnnouncement(id) {
         });
         const result = await response.json();
         if (result.status === 'success') {
-            loadAdminAnnouncements();
+            await loadAdminAnnouncements();
         } else {
-            cmsNotice({ icon: 'error', title: 'Gagal', text: result.message });
+            await cmsNotice({ icon: 'error', title: 'Gagal', text: result.message });
         }
     } catch (error) {
         await cmsNotice({icon: 'error', title: 'Gagal', text: error.message || 'Gagal menghubungi server.'});

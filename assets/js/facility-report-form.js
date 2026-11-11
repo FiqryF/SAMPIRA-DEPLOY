@@ -1,6 +1,5 @@
 import {categories} from './facility-report-ui.js?v=phase4b';
-import {mountLocationPicker} from './location-map.js?v=phase8';
-import {mountLocationSearch} from './location-search.js?v=phase8';
+import {mountLocationPicker} from './location-map.js?v=home-location-14';
 
 const textLengths = {title: [5, 120], description: [10, 3000], address: [5, 300]};
 const categoryIcons = {tps: 'fa-trash-can', collection_site: 'fa-truck', waste_bank: 'fa-recycle', other: 'fa-ellipsis'};
@@ -36,11 +35,11 @@ export function mountReportForm(root) {
                         <h4><i class="far fa-clipboard" aria-hidden="true"></i> Data Laporan</h4>
                         <div class="facility-field"><label for="facility-title">Judul laporan <span class="sp-required" aria-hidden="true">*</span></label>
                             <input id="facility-title" name="title" minlength="5" required aria-describedby="facility-title-help" placeholder="Contoh: TPS penuh dan tidak terawat">
-                            <small id="facility-title-help">5–120 karakter.</small>
+                            <small id="facility-title-help">Tulis masalah utamanya, misalnya “TPS penuh di Jalan Melati”. 5–120 karakter.</small>
                         </div>
                         <div class="facility-field"><label for="facility-description">Deskripsi <span class="sp-required" aria-hidden="true">*</span></label>
                             <textarea id="facility-description" name="description" rows="4" minlength="10" required aria-describedby="facility-description-help" placeholder="Jelaskan kondisi fasilitas dan masalah yang ditemukan."></textarea>
-                            <small id="facility-description-help">10–3.000 karakter.</small>
+                            <small id="facility-description-help">Ceritakan apa yang terjadi dan bagian yang bermasalah. 10–3.000 karakter.</small>
                         </div>
                         <fieldset class="sp-report-categories">
                             <legend><i class="fas fa-layer-group" aria-hidden="true"></i> Kategori Fasilitas <span class="sp-required" aria-hidden="true">*</span></legend>
@@ -51,8 +50,8 @@ export function mountReportForm(root) {
                     <section class="sp-pickup-panel">
                         <h4><i class="fas fa-map-pin" aria-hidden="true"></i> Alamat &amp; Lokasi</h4>
                         <div class="facility-field"><label for="facility-address">Alamat lengkap <span class="sp-required" aria-hidden="true">*</span></label>
-                            <textarea id="facility-address" name="address" rows="2" minlength="5" required aria-describedby="facility-address-help" placeholder="Masukkan alamat lengkap fasilitas."></textarea>
-                            <small id="facility-address-help">5–300 karakter.</small>
+                            <textarea id="facility-address" name="address" rows="2" maxlength="300" minlength="5" required aria-describedby="facility-address-help" placeholder="Alamat terisi otomatis setelah memilih titik di peta."></textarea>
+                            <small id="facility-address-help">Alamat mengikuti titik peta. Periksa dan tambahkan patokan bila perlu.</small>
                         </div>
                         <div class="sp-pickup-photo">
                             <h4><i class="far fa-image" aria-hidden="true"></i> Foto Bukti (Opsional)</h4>
@@ -81,9 +80,8 @@ export function mountReportForm(root) {
     const form = root.querySelector('#facility-form');
     const pickerHost = root.querySelector('#facility-location-picker');
     const picker = mountLocationPicker(pickerHost, {
-        title: 'Titik Lokasi Fasilitas yang Dilaporkan', prefix: 'facility', digits: 6, includeSaved: true
+        title: 'Titik Lokasi Fasilitas yang Dilaporkan', prefix: 'facility', digits: 6, includeSaved: true, compact: true, addressField: form.elements.address
     });
-    mountLocationSearch(root.querySelector('#facility-location-search'), pickerHost, picker, 'facility');
     const preview = root.querySelector('#facility-preview');
     const photoStatus = root.querySelector('#facility-photo-status');
     const fileInput = form.elements.photo;

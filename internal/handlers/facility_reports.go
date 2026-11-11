@@ -17,6 +17,10 @@ const facilityReportsPath = "/api/ecorecycle/facility-reports"
 
 func (a *App) RegisterFacilityReports(mux *http.ServeMux) {
 	mux.HandleFunc("POST "+facilityReportsPath, a.createFacilityReport)
+	mux.HandleFunc("GET "+facilityReportsPath+"/community", a.communityFacilityReports)
+	mux.HandleFunc("GET "+facilityReportsPath+"/community/detail/{id}", a.communityFacilityDetail)
+	mux.HandleFunc("GET "+facilityReportsPath+"/community/photo/{id}", a.communityFacilityPhoto)
+	mux.HandleFunc("POST "+facilityReportsPath+"/{id}/affected", a.confirmFacilityAffected)
 	mux.HandleFunc("GET "+facilityReportsPath, a.listFacilityReports)
 	mux.HandleFunc("GET "+facilityReportsPath+"/{id}", a.facilityDetail)
 	mux.HandleFunc("PUT "+facilityReportsPath+"/{id}", a.reviseFacilityReport)
@@ -147,9 +151,9 @@ func (a *App) verifyFacilityReport(w http.ResponseWriter, r *http.Request) {
 		problem.write(w)
 		return
 	}
-	report, err := a.FacilityReports.Verify(r.Context(), id, session.ID, input.Version, input.Status, input.Note)
+	report, err := a.FacilityReports.VerifyAndAssign(r.Context(), repositories.FacilityReview{ID: id, AdminID: session.ID, Version: input.Version, Status: input.Status, Note: input.Note, PetugasID: input.PetugasID})
 	if err != nil {
-		facilityFailure(w, err)
+		handlingFailure(w, err)
 		return
 	}
 	facilityReportResponse(w, "Verifikasi laporan tercatat.", report, http.StatusOK)

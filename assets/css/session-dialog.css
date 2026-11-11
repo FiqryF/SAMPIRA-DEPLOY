@@ -1,0 +1,18 @@
+dialog.sp-session-dialog {
+    box-sizing:border-box; width:min(420px,calc(100% - 32px)); max-height:calc(100dvh - 32px);
+    margin:auto; padding:32px; overflow:auto; border:1px solid #dbe8df; border-radius:24px;
+    background:#fff; color:#173e30; font-family:Inter,system-ui,sans-serif; text-align:center;
+    box-shadow:0 24px 80px #103d2f26;
+}
+dialog.sp-session-dialog::backdrop { background:rgb(7 32 24 / 55%); backdrop-filter:blur(4px); }
+dialog.sp-session-dialog>img { display:block; margin:0 auto 20px; padding:14px; width:64px; height:64px; box-sizing:border-box; background:#edf6ee; border-radius:20px; }
+dialog.sp-session-dialog>h2 { margin:0 0 12px; font:800 25px/1.3 Manrope,Inter,system-ui,sans-serif; color:#103d2f; overflow-wrap:anywhere; }
+dialog.sp-session-dialog>p { margin:0; font-size:14px; line-height:1.7; color:#52685e; }
+.sp-session-dialog .sp-session-dialog-actions { display:flex; gap:12px; margin-top:28px; }
+.sp-session-dialog .sp-session-dialog-actions>button { flex:1; min-height:46px; padding:12px 16px; border:1px solid #ccdcd2; border-radius:12px; font:600 14px/1.4 Inter,system-ui,sans-serif; cursor:pointer; }
+.sp-session-dialog .sp-session-cancel { background:#fff; color:#234f3e; }
+.sp-session-dialog .sp-session-confirm { background:#103d2f; border-color:#103d2f; color:#fff; }
+.sp-session-dialog .sp-session-confirm:hover { background:#1c5944; }
+.sp-session-dialog .sp-session-cancel:hover { background:#edf6ee; }
+.sp-session-dialog button:focus-visible { outline:3px solid #3ba779; outline-offset:3px; }
+@media(max-width:440px) { dialog.sp-session-dialog { padding:26px 22px; } }

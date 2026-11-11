@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/css/auth-flat.css?v=split-smooth-3">
-    <script src="/assets/js/auth.js?v=transition-cancel-3" defer></script>
+    <script src="/assets/js/auth.js?v=session-welcome-1" defer></script>
 </head>
 <body data-auth-page="login">
     <a class="skip-link" href="#auth-form">Lewati ke formulir</a>
@@ -35,7 +35,7 @@
                 <p>Kelola layanan persampahan dan pantau perkembangannya melalui SAMPIRA.</p>
             </div>
             <noscript><p class="auth-notice">Aktifkan JavaScript untuk masuk.</p></noscript>
-            <p class="sr-only" role="status" id="auth-progress"></p>
+            <output class="sr-only" id="auth-progress"></output>
             <form id="login-form" method="post">
                 <div class="form-field">
                     <label for="login-email">Alamat email</label>

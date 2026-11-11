@@ -1,7 +1,7 @@
 // Keep the landing estimate aligned with the server tariff.
 const menuToggle = document.querySelector('.menu-toggle');
 const mainNav = document.getElementById('main-nav');
-document.querySelector('.site-header').setAttribute('data-menu-ready', '');
+document.querySelector('.site-header').dataset.menuReady = '';
 function closeMenu() {
     mainNav.classList.remove('is-open');
     menuToggle.setAttribute('aria-expanded', 'false');

@@ -85,6 +85,44 @@ func initDB() *sql.DB {
 	return db
 }
 
+func prepareApplicationSchemas(app *handlers.App, db *sql.DB) error {
+	if err := app.Users.EnsureProfileSchema(); err != nil {
+		return fmt.Errorf("Gagal menyiapkan kolom profil payout: %w", err)
+	}
+	if err := app.Users.EnsureSessionSchema(); err != nil {
+		return fmt.Errorf("Gagal menyiapkan sesi: %w", err)
+	}
+	if err := app.Pickups.EnsureVerificationSchema(); err != nil {
+		return fmt.Errorf("Gagal menyiapkan kolom verifikasi penjemputan: %w", err)
+	}
+	if err := app.Pickups.EnsureWorkflowSchema(); err != nil {
+		return fmt.Errorf("Gagal menyiapkan skema pickup Phase 2: %w", err)
+	}
+	if err := app.Announcements.EnsureSchema(); err != nil {
+		return fmt.Errorf("Gagal menyiapkan tabel CMS portal: %w", err)
+	}
+	if err := migrations.ApplyFacilityReports(context.Background(), db); err != nil {
+		return fmt.Errorf("Gagal menyiapkan skema laporan fasilitas: %w", err)
+	}
+	if err := migrations.ApplyFacilityHandling(context.Background(), db); err != nil {
+		return fmt.Errorf("Gagal menyiapkan skema penanganan fasilitas: %w", err)
+	}
+	if err := migrations.ApplyPreciseLocations(context.Background(), db); err != nil {
+		return fmt.Errorf("Gagal menyiapkan skema lokasi penjemputan: %w", err)
+	}
+	if err := migrations.ApplyEducationContent(context.Background(), db); err != nil {
+		return fmt.Errorf("Gagal menyiapkan skema Pusat Edukasi: %w", err)
+	}
+	if err := migrations.ApplyPickupIdempotency(context.Background(), db); err != nil {
+		return fmt.Errorf("Gagal menyiapkan idempotency penjemputan: %w", err)
+	}
+	if err := migrations.ApplyRegistrationUnicode(context.Background(), db); err != nil {
+		return fmt.Errorf("Gagal menyiapkan teks registrasi Unicode: %w", err)
+	}
+
+	return nil
+}
+
 func main() {
 	loadEnv()
 	if len(os.Args) > 1 {
@@ -108,38 +146,8 @@ func main() {
 
 	app := handlers.NewApp(db, authService)
 	app.SecureCookies = os.Getenv("SAMPIRA_SECURE_COOKIE") == "true"
-	if err := app.Users.EnsureProfileSchema(); err != nil {
-		log.Fatalf("Gagal menyiapkan kolom profil payout: %v", err)
-	}
-	if err := app.Users.EnsureSessionSchema(); err != nil {
-		log.Fatalf("Gagal menyiapkan sesi: %v", err)
-	}
-	if err := app.Pickups.EnsureVerificationSchema(); err != nil {
-		log.Fatalf("Gagal menyiapkan kolom verifikasi penjemputan: %v", err)
-	}
-	if err := app.Pickups.EnsureWorkflowSchema(); err != nil {
-		log.Fatalf("Gagal menyiapkan skema pickup Phase 2: %v", err)
-	}
-	if err := app.Announcements.EnsureSchema(); err != nil {
-		log.Fatalf("Gagal menyiapkan tabel CMS portal: %v", err)
-	}
-	if err := migrations.ApplyFacilityReports(context.Background(), db); err != nil {
-		log.Fatalf("Gagal menyiapkan skema laporan fasilitas: %v", err)
-	}
-	if err := migrations.ApplyFacilityHandling(context.Background(), db); err != nil {
-		log.Fatalf("Gagal menyiapkan skema penanganan fasilitas: %v", err)
-	}
-	if err := migrations.ApplyPreciseLocations(context.Background(), db); err != nil {
-		log.Fatalf("Gagal menyiapkan skema lokasi penjemputan: %v", err)
-	}
-	if err := migrations.ApplyEducationContent(context.Background(), db); err != nil {
-		log.Fatalf("Gagal menyiapkan skema Pusat Edukasi: %v", err)
-	}
-	if err := migrations.ApplyPickupIdempotency(context.Background(), db); err != nil {
-		log.Fatalf("Gagal menyiapkan idempotency penjemputan: %v", err)
-	}
-	if err := migrations.ApplyRegistrationUnicode(context.Background(), db); err != nil {
-		log.Fatalf("Gagal menyiapkan teks registrasi Unicode: %v", err)
+	if err := prepareApplicationSchemas(app, db); err != nil {
+		log.Fatal(err)
 	}
 
 	mux := http.NewServeMux()

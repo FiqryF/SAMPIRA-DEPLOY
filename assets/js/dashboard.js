@@ -5,7 +5,9 @@ let monthlyChart = null;
 const categoryConfig = Object.fromEntries(wasteCategories.map(category => [category.name, category]));
 
 const categorySelect = document.getElementById('form-waste-category');
-if (categorySelect) populateWasteOptions(categorySelect, 'Small Gadgets');
+if (categorySelect) { populateWasteOptions(categorySelect, 'Small Gadgets'); }
+let multiCategoryBackendReady=false;
+let selectedPickupItems = new Map([['Small Gadgets',1]]);
 const categoryGrid = document.getElementById('category-helper-grid');
 if (categoryGrid) {
     categoryGrid.replaceChildren();
@@ -71,7 +73,7 @@ function pickupPaymentLabel(item) {
     if (item.reward_amount == null) {
         return item.payment_status === 'requires_reconciliation' ? 'Perlu rekonsiliasi' : 'Belum ditimbang';
     }
-    if (item.payment_status === 'not_due') return 'Tanpa pembayaran';
+    if (item.payment_status === 'not_due') { return 'Tanpa pembayaran'; }
     return item.payment_status === 'paid' ? 'Pembayaran tercatat' : 'Menunggu pembayaran';
 }
 
@@ -79,9 +81,9 @@ function pickupRewardLabel(item) {
     const format = amount => new Intl.NumberFormat('id-ID', {
         style: 'currency', currency: 'IDR', maximumFractionDigits: 2
     }).format(amount);
-    if (item.reward_amount != null) return 'Final ' + format(Number(item.reward_amount));
-    if (item.payment_status === 'requires_reconciliation') return 'Catatan historis';
-    if (item.eco_reward == null) return '—';
+    if (item.reward_amount != null) { return 'Final ' + format(Number(item.reward_amount)); }
+    if (item.payment_status === 'requires_reconciliation') { return 'Catatan historis'; }
+    if (item.eco_reward == null) { return '—'; }
     return 'Estimasi ' + format(Math.max(0, Number(item.eco_reward) - Number(item.processing_fee)));
 }
 
@@ -90,32 +92,12 @@ function getPickupStatusMeta(status) {
 }
 
 function getStatusBadgeClass(status) {
-    if (status === 'pickup') return 'pickup';
-    if (status === 'transit') return 'transit';
-    if (status === 'arrived') return 'arrived';
-    if (status === 'completed') return 'completed';
-    if (status === 'cancelled') return 'cancelled';
+    if (status === 'pickup') { return 'pickup'; }
+    if (status === 'transit') { return 'transit'; }
+    if (status === 'arrived') { return 'arrived'; }
+    if (status === 'completed') { return 'completed'; }
+    if (status === 'cancelled') { return 'cancelled'; }
     return 'pending';
-}
-
-function renderStatusStepper(currentStatus) {
-    const currentIndex = pickupStatusFlow.indexOf(currentStatus);
-    return `
-        <div class="pickup-status-stepper" aria-label="Tahapan status penjemputan">
-            ${pickupStatusFlow.map((status, index) => {
-                const meta = getPickupStatusMeta(status);
-                let stateClass = '';
-                if (index < currentIndex) stateClass = 'done';
-                if (index === currentIndex) stateClass = 'current';
-                return `
-                    <div class="pickup-status-step ${stateClass}">
-                        <span><i class="fas ${meta.icon}"></i></span>
-                        <strong>${meta.label}</strong>
-                    </div>
-                `;
-            }).join('')}
-        </div>
-    `;
 }
 
 // Tab Switching
@@ -126,21 +108,21 @@ const headerMenus = document.querySelectorAll('.sp-header-menu');
 
 for (const menu of headerMenus) {
     menu.addEventListener('keydown', event => {
-        if (event.key !== 'Escape' || !menu.open) return;
+        if (event.key !== 'Escape' || !menu.open) { return; }
         menu.open = false;
         menu.querySelector('summary').focus();
     });
 }
 document.addEventListener('click', event => {
     for (const menu of headerMenus) {
-        if (!menu.contains(event.target) || event.target.closest('[data-sp-user-tab]')) menu.open = false;
+        if (!menu.contains(event.target) || event.target.closest('[data-sp-user-tab]')) { menu.open = false; }
     }
 });
 
 tabs.forEach(tab => {
     tab.addEventListener('click', (e) => {
         e.preventDefault();
-        
+
         tabs.forEach(t => t.classList.remove('active'));
         tab.classList.add('active');
         tabs.forEach(t => t.removeAttribute('aria-current'));
@@ -155,12 +137,12 @@ tabs.forEach(tab => {
         }
         workspaceLabel.textContent = target === 'beranda' ? workspaceLabel.dataset.greeting : tab.textContent.trim();
         panes.forEach(p => p.classList.remove('active'));
-        
+
         const targetPane = document.getElementById(target);
         if (targetPane) {
             targetPane.classList.add('active');
         }
-        if (target !== 'lacak-pickup') resetTracking();
+        if (target !== 'lacak-pickup') { resetTracking(); }
         window.dispatchEvent(new CustomEvent('sampira:user-view', {detail: target}));
         window.scrollTo({top: 0, behavior: 'instant'});
 
@@ -175,97 +157,76 @@ const sidebar = document.getElementById('sidebar');
 const sidebarOverlay = document.getElementById('sidebarOverlay');
 
 function openSidebar() {
-    if (sidebar) sidebar.classList.add('active');
-    if (sidebarOverlay) sidebarOverlay.style.display = 'block';
+    if (sidebar) { sidebar.classList.add('active'); }
+    if (sidebarOverlay) { sidebarOverlay.style.display = 'block'; }
     document.body.style.overflow = 'hidden';
-    if (hamburgerBtn) hamburgerBtn.setAttribute('aria-expanded', 'true');
+    if (hamburgerBtn) { hamburgerBtn.setAttribute('aria-expanded', 'true'); }
 }
 
 function closeSidebar() {
-    if (sidebar) sidebar.classList.remove('active');
-    if (sidebarOverlay) sidebarOverlay.style.display = 'none';
+    if (sidebar) { sidebar.classList.remove('active'); }
+    if (sidebarOverlay) { sidebarOverlay.style.display = 'none'; }
     document.body.style.overflow = '';
-    if (hamburgerBtn) hamburgerBtn.setAttribute('aria-expanded', 'false');
+    if (hamburgerBtn) { hamburgerBtn.setAttribute('aria-expanded', 'false'); }
 }
 
-if (hamburgerBtn) hamburgerBtn.addEventListener('click', openSidebar);
-if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeSidebar);
+if (hamburgerBtn) { hamburgerBtn.addEventListener('click', openSidebar); }
+if (sidebarOverlay) { sidebarOverlay.addEventListener('click', closeSidebar); }
 document.addEventListener('keydown', event => {
     if (event.key === 'Escape' && sidebar?.classList.contains('active')) {
         closeSidebar();
-        if (hamburgerBtn) hamburgerBtn.focus();
+        if (hamburgerBtn) { hamburgerBtn.focus(); }
     }
 });
 
 // Payout Preview Calculation
 
 let previewRequest = 0;
-async function calculateFormPreview() {
-    const categorySelect = document.getElementById('form-waste-category');
-    const weightInput = document.getElementById('form-waste-weight');
-    if (!categorySelect || !weightInput) return;
-    const request = ++previewRequest;
-    const category = categorySelect.value;
-    const weight = weightInput.value;
-    const config = categoryConfig[category] || categoryConfig['Small Gadgets'];
-    document.getElementById('category-handling-note').textContent = config.note;
-    const fields = ['preview-gross-reward', 'preview-fee', 'preview-net-reward', 'preview-carbon'];
-    for (const id of fields) document.getElementById(id).textContent = '—';
-    if (!weight || !weightInput.validity.valid) return;
-    try {
-        const response = await portalFetch('/api/ecorecycle/estimate_reward', {
-            method: 'POST', headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({category, weight_kg: weight})
-        });
-        if (!response.ok || request !== previewRequest) return;
-        const {data} = await response.json();
-        if (request !== previewRequest) return;
-        const currency = new Intl.NumberFormat('id-ID', {style: 'currency', currency: 'IDR', maximumFractionDigits: 2});
-        const values = [currency.format(data.total_estimate), currency.format(data.processing_fee),
-            currency.format(data.net_estimate), Number(data.co2_saved).toFixed(1)];
-        fields.forEach((id,index) => { document.getElementById(id).textContent = values[index]; });
-    } catch {
-        // Leave the placeholder if the server has no valid estimate.
-    }
+function pickupItems(){return [...selectedPickupItems].map(([category,weight])=>({category,weight_kg:Number(weight)}));}
+function renderPickupItems(){
+ const host=document.getElementById('pickup-category-items');if(!host){ return; }
+ host.innerHTML=pickupItems().map(item=>`<label class="pickup-item-weight">${escapePortalHTML(categoryConfig[item.category]?.label||item.category)}<span><input type="number" min="0.01" max="99999.99" step="0.01" required value="${item.weight_kg||''}" data-item-category="${escapePortalHTML(item.category)}" aria-label="Berat ${escapePortalHTML(item.category)}"> kg</span><small data-item-estimate="${escapePortalHTML(item.category)}">Estimasi reward menunggu berat valid.</small></label>`).join('');
+ document.querySelectorAll('.category-helper-card').forEach(card=>{const active=selectedPickupItems.has(card.dataset.category);card.classList.toggle('active',active);card.setAttribute('aria-pressed',String(active));});
+ updatePickupTotal();
+}
+function updatePickupTotal(){
+ const total=pickupItems().reduce((sum,item)=>sum+(Number.isFinite(item.weight_kg)?item.weight_kg:0),0);
+ document.getElementById('form-waste-weight').value=(Math.round(total*100)/100)||'';
+ document.getElementById('form-waste-category').value=pickupItems()[0]?.category||'';
+}
+async function calculateFormPreview(){
+ const request=++previewRequest,fields=['preview-gross-reward','preview-fee','preview-net-reward','preview-carbon'];
+ fields.forEach(id=>document.getElementById(id).textContent='—');
+ const items=pickupItems();if(!items.length||items.some(item=>!Number.isFinite(item.weight_kg)||item.weight_kg<=0||item.weight_kg>99999.99||Math.abs(item.weight_kg*100-Math.round(item.weight_kg*100))>.00001)){ return; }
+ try{
+  const response=await portalFetch('/api/ecorecycle/estimate_reward',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({category:items[0].category,weight_kg:items[0].weight_kg,items:JSON.stringify(items)})});
+  if(!response.ok){ throw new Error('Estimasi belum tersedia'); }const {data}=await response.json();
+  if(request!==previewRequest){ return; }
+  multiCategoryBackendReady=Array.isArray(data.items);
+  const weightInput=document.getElementById('form-waste-weight');weightInput.setCustomValidity(items.length>1&&!multiCategoryBackendReady?'Layanan beberapa kategori belum aktif. Pilih satu kategori atau tunggu aktivasi Backend.':'');
+  if(items.length>1&&!multiCategoryBackendReady){document.getElementById('preview-net-reward').textContent='Layanan beberapa kategori belum aktif';return;}
+  const currency=new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',maximumFractionDigits:2});
+  const values=[currency.format(data.total_estimate),currency.format(data.processing_fee),currency.format(data.net_estimate),Number(data.co2_saved).toFixed(1)];
+  fields.forEach((id,i)=>document.getElementById(id).textContent=values[i]);
+  document.querySelectorAll('[data-item-estimate]').forEach(output=>{const row=data.items?.find(item=>item.category===output.dataset.itemEstimate);output.textContent='Estimasi reward bersih '+currency.format(row?Math.max(0,row.eco_reward-row.processing_fee):data.net_estimate);});
+ }catch{if(request===previewRequest){ document.getElementById('preview-net-reward').textContent='Estimasi belum tersedia'; }}
 }
 
 const formWeight = document.getElementById('form-waste-weight');
 const formCat = document.getElementById('form-waste-category');
 
-if (formWeight) formWeight.addEventListener('input', calculateFormPreview);
+if (formWeight) { formWeight.addEventListener('input', calculateFormPreview); }
 
-function syncCategoryCards(category) {
-    document.querySelectorAll('.category-helper-card').forEach(card => {
-        const selected = card.dataset.category === category;
-        card.classList.toggle('active', selected);
-        card.setAttribute('aria-pressed', String(selected));
-    });
+function syncCategoryCards(category){selectedPickupItems=new Map([[category,Number(formWeight.value)||1]]);renderPickupItems();}
+if(categoryGrid){
+ const hint=document.createElement('p');hint.className='pickup-items-hint';hint.textContent='Pilih satu atau beberapa kategori. Isi estimasi berat masing-masing dalam kg.';categoryGrid.before(hint);
+ const host=document.createElement('div');host.id='pickup-category-items';categoryGrid.after(host);
+ host.addEventListener('input',event=>{if(!event.target.matches('[data-item-category]')){ return; }selectedPickupItems.set(event.target.dataset.itemCategory,Number(event.target.value));updatePickupTotal();void calculateFormPreview();});
+ document.querySelectorAll('.category-helper-card').forEach(card=>card.addEventListener('click',()=>{const category=card.dataset.category;if(selectedPickupItems.has(category)){ selectedPickupItems.delete(category); }else { selectedPickupItems.set(category,Number(card.dataset.weight)||1); }renderPickupItems();void calculateFormPreview();}));
+ formWeight.readOnly=true;renderPickupItems();
 }
+if(formCat){ formCat.addEventListener('change',()=>{syncCategoryCards(formCat.value);void calculateFormPreview();}); }
 
-document.querySelectorAll('.category-helper-card').forEach(card => {
-    card.addEventListener('click', () => {
-        const categorySelect = document.getElementById('form-waste-category');
-        const weightInput = document.getElementById('form-waste-weight');
-        const descriptionInput = document.getElementById('form-item-description');
-
-        if (categorySelect) categorySelect.value = card.dataset.category;
-        if (weightInput) weightInput.value = card.dataset.weight;
-        if (descriptionInput && (descriptionInput.value.trim() === '' || descriptionInput.value === descriptionInput.dataset.suggestedExample)) {
-            descriptionInput.value = card.dataset.example;
-            descriptionInput.dataset.suggestedExample = card.dataset.example;
-        }
-
-        syncCategoryCards(card.dataset.category);
-        calculateFormPreview();
-    });
-});
-
-if (formCat) {
-    formCat.addEventListener('change', () => {
-        syncCategoryCards(formCat.value);
-        calculateFormPreview();
-    });
-}
 
 const photoInput = document.getElementById('form-waste-photo');
 const photoPreviewCard = document.getElementById('photo-preview-card');
@@ -273,9 +234,9 @@ const photoPreviewImg = document.getElementById('photo-preview-img');
 const removePhotoBtn = document.getElementById('remove-photo-btn');
 
 function clearPhotoPreview() {
-    if (photoInput) photoInput.value = '';
-    if (photoPreviewImg) photoPreviewImg.removeAttribute('src');
-    if (photoPreviewCard) photoPreviewCard.style.display = 'none';
+    if (photoInput) { photoInput.value = ''; }
+    if (photoPreviewImg) { photoPreviewImg.removeAttribute('src'); }
+    if (photoPreviewCard) { photoPreviewCard.style.display = 'none'; }
 }
 
 if (photoInput) {
@@ -289,7 +250,7 @@ if (photoInput) {
         const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
         if (!allowedTypes.includes(file.type)) {
             clearPhotoPreview();
-            Swal.fire({
+            void Swal.fire({
                 icon: 'warning',
                 title: 'Format Foto Tidak Sesuai',
                 text: 'Gunakan foto JPG, PNG, atau WEBP.',
@@ -300,7 +261,7 @@ if (photoInput) {
 
         if (file.size > 5 * 1024 * 1024) {
             clearPhotoPreview();
-            Swal.fire({
+            void Swal.fire({
                 icon: 'warning',
                 title: 'Foto Terlalu Besar',
                 text: 'Ukuran foto maksimal 5 MB.',
@@ -316,7 +277,7 @@ if (photoInput) {
     });
 }
 
-if (removePhotoBtn) removePhotoBtn.addEventListener('click', clearPhotoPreview);
+if (removePhotoBtn) { removePhotoBtn.addEventListener('click', clearPhotoPreview); }
 
 // Logout
 function logoutUser() {
@@ -325,9 +286,9 @@ function logoutUser() {
 
 function openTrackingDetail(trackingNumber) {
     const trackInput = document.getElementById('track-number-search');
-    if (trackInput) trackInput.value = trackingNumber;
+    if (trackInput) { trackInput.value = trackingNumber; }
     const trackingTab = document.querySelector('.hub-tab[data-target="lacak-pickup"]');
-    if (trackingTab) trackingTab.click();
+    if (trackingTab) { trackingTab.click(); }
     searchTracking();
 }
 
@@ -335,7 +296,7 @@ function openTrackingDetail(trackingNumber) {
 let loadingPickupEdit = false;
 
 function showPickupEditConflict() {
-    Swal.fire({icon: 'warning', title: 'Pengajuan sudah berubah', text: 'Pengajuan ini sudah tidak bisa diedit. Status terbaru dimuat ulang.'});
+    void Swal.fire({icon: 'warning', title: 'Pengajuan sudah berubah', text: 'Pengajuan ini sudah tidak bisa diedit. Status terbaru dimuat ulang.'});
     void loadDashboardData();
 }
 
@@ -349,18 +310,18 @@ function formatPickupDescription(title, description) {
 }
 
 async function editPendingPickup(trackingNumber) {
-    if (loadingPickupEdit) return;
+    if (loadingPickupEdit) { return; }
     loadingPickupEdit = true;
     let item;
     try {
         const query = new URLSearchParams({tracking_number: trackingNumber});
         const response = await portalFetch('/api/ecorecycle/pickup_status?' + query);
-        if (response.status === 401) return;
+        if (response.status === 401) { return; }
         const {data, message} = await response.json();
-        if (!response.ok || !data) throw new Error(message || 'Detail pickup belum tersedia.');
+        if (!response.ok || !data) { throw new Error(message || 'Detail pickup belum tersedia.'); }
         item = data;
     } catch (error) {
-        Swal.fire({icon: 'error', title: 'Gagal membuka pengajuan', text: error.message});
+        void Swal.fire({icon: 'error', title: 'Gagal membuka pengajuan', text: error.message});
         return;
     } finally {
         loadingPickupEdit = false;
@@ -386,11 +347,12 @@ async function editPendingPickup(trackingNumber) {
                 <label class="swal-form-label">Nomor HP / WhatsApp</label>
                 <input id="edit-contact-phone" class="swal2-input" style="margin:0 0 10px; width:100%;" value="${escapePortalHTML(item.contact_phone || '')}">
                 <label class="swal-form-label">Kategori</label>
-                <select id="edit-category" class="swal2-select" style="margin:0 0 10px; width:100%;">
-                    ${Object.keys(categoryConfig).map(category => `<option value="${category}" ${item.category_name === category ? 'selected' : ''}>${categoryConfig[category].label}</option>`).join('')}
+                <select ${item.items?.length?'hidden':''} id="edit-category" class="swal2-select" style="margin:0 0 10px; width:100%;">
+                    ${Object.keys(categoryConfig).map(category => ("<option value=\"" + String(category) + "\" " + String(item.category_name === category ? 'selected' : '') + ">" + String(categoryConfig[category].label) + "</option>")).join('')}
                 </select>
                 <label class="swal-form-label">Estimasi berat (KG)</label>
-                <input id="edit-weight" type="number" min="0.01" max="99999.99" step="0.01" class="swal2-input" style="margin:0; width:100%;" value="${item.weight_kg || ''}">
+                ${item.items?.length?("<div id=\"edit-category-items\">" + String(item.items.map(row=>("<label>" + String(escapePortalHTML(categoryConfig[row.category]?.label||row.category)) + " (kg)<input type=\"number\" min=\"0.01\" max=\"99999.99\" step=\"0.01\" data-edit-item=\"" + String(escapePortalHTML(row.category)) + "\" value=\"" + String(row.weight_kg) + "\"></label>")).join('')) + "</div>"):''}
+                <input ${item.items?.length?'hidden':''} id="edit-weight" type="number" min="0.01" max="99999.99" step="0.01" class="swal2-input" style="margin:0; width:100%;" value="${item.weight_kg || ''}">
             </div>
         `,
         icon: 'info',
@@ -403,7 +365,7 @@ async function editPendingPickup(trackingNumber) {
             const host = popup.querySelector('#edit-pickup-location');
             try {
                 const {mountLocationPicker} = await locationMaps;
-                if (!editOpen || !host.isConnected) return;
+                if (!editOpen || !host.isConnected) { return; }
                 editPicker = mountLocationPicker(host, {
                     title: 'Titik Lokasi Penjemputan', prefix: 'edit-pickup', digits: 7, saved: item
                 });
@@ -426,6 +388,7 @@ async function editPendingPickup(trackingNumber) {
                 category: document.getElementById('edit-category').value,
                 weight_kg: Number.parseFloat(document.getElementById('edit-weight').value)
             };
+            if(item.items?.length){const items=[...document.querySelectorAll('[data-edit-item]')].map(input=>({category:input.dataset.editItem,weight_kg:Number(input.value)}));if(items.some(row=>!row.weight_kg||row.weight_kg<=0)){Swal.showValidationMessage('Isi berat tiap kategori.');return false;}payload.items=JSON.stringify(items);payload.category=items[0].category;payload.weight_kg=Math.round(items.reduce((sum,row)=>sum+row.weight_kg,0)*100)/100;}
             if (originalTitle && !title) {
                 Swal.showValidationMessage('Isi judul permintaan.');
                 return false;
@@ -443,7 +406,7 @@ async function editPendingPickup(trackingNumber) {
         }
     });
 
-    if (!result.isConfirmed) return;
+    if (!result.isConfirmed) { return; }
     const headers = {'Content-Type': 'application/json'};
 
     portalFetch('api/ecorecycle/update_pickup', {
@@ -454,12 +417,12 @@ async function editPendingPickup(trackingNumber) {
     .then(async res => ({code: res.status, data: await res.json()}))
     .then(({code, data}) => {
         if (data.status === 'success') {
-            Swal.fire({ icon: 'success', title: 'Pengajuan Diperbarui', text: 'Perubahan berhasil disimpan sebelum pickup diambil petugas.', confirmButtonColor: '#10b981' });
-            loadDashboardData();
+            void Swal.fire({ icon: 'success', title: 'Pengajuan Diperbarui', text: 'Perubahan berhasil disimpan sebelum pickup diambil petugas.', confirmButtonColor: '#10b981' });
+            void loadDashboardData();
         } else if (code === 409) {
             showPickupEditConflict();
         } else {
-            Swal.fire({ icon: 'error', title: 'Gagal', text: data.message, confirmButtonColor: '#10b981' });
+            void Swal.fire({ icon: 'error', title: 'Gagal', text: data.message, confirmButtonColor: '#10b981' });
         }
     })
     .catch(() => Swal.fire({ icon: 'error', title: 'Kesalahan', text: 'Gagal menghubungi server.', confirmButtonColor: '#10b981' }));
@@ -479,7 +442,7 @@ async function cancelPendingPickup(trackingNumber) {
         confirmButtonText: 'Ya, Batalkan',
         cancelButtonText: 'Kembali'
     });
-    if (!result.isConfirmed) return;
+    if (!result.isConfirmed) { return; }
 
     const headers = {'Content-Type': 'application/json'};
 
@@ -494,10 +457,10 @@ async function cancelPendingPickup(trackingNumber) {
     .then(res => res.json())
     .then(data => {
         if (data.status === 'success') {
-            Swal.fire({ icon: 'success', title: 'Pengajuan Dibatalkan', text: 'Pickup dibatalkan dan tidak akan masuk antrean petugas.', confirmButtonColor: '#10b981' });
-            loadDashboardData();
+            void Swal.fire({ icon: 'success', title: 'Pengajuan Dibatalkan', text: 'Pickup dibatalkan dan tidak akan masuk antrean petugas.', confirmButtonColor: '#10b981' });
+            void loadDashboardData();
         } else {
-            Swal.fire({ icon: 'error', title: 'Gagal', text: data.message, confirmButtonColor: '#10b981' });
+            void Swal.fire({ icon: 'error', title: 'Gagal', text: data.message, confirmButtonColor: '#10b981' });
         }
     })
     .catch(() => Swal.fire({ icon: 'error', title: 'Kesalahan', text: 'Gagal menghubungi server.', confirmButtonColor: '#10b981' }));
@@ -505,11 +468,11 @@ async function cancelPendingPickup(trackingNumber) {
 
 function setInputValue(id, value) {
     const field = document.getElementById(id);
-    if (field) field.value = value || '';
+    if (field) { field.value = value || ''; }
 }
 
 function populateProfileFields(profile) {
-    if (!profile) return;
+    if (!profile) { return; }
     setInputValue('settings-name', profile.name);
     setInputValue('settings-email', profile.email);
     setInputValue('settings-phone', profile.phone);
@@ -529,6 +492,10 @@ function pickupHistoryTitle(item) {
     return splitPickupDescription(item.item_description || '').title || 'Penjemputan ' + (item.category_name || 'sampah');
 }
 
+function renderTrackingBreakdown(item){            const breakdown=document.getElementById('track-item-breakdown');breakdown.replaceChildren();
+            for(const row of item.items||[]){const line=document.createElement('p');line.textContent=`${categoryConfig[row.category]?.label||row.category} · ${row.final_weight_kg??row.weight_kg} kg · ${row.final_weight_kg==null?'Estimasi':'Terverifikasi'} Rp ${new Intl.NumberFormat('id-ID').format(Math.max(0,(row.final_eco_reward??row.eco_reward)-(row.final_processing_fee??row.processing_fee)))}`;breakdown.append(line);}
+}
+function historyWeight(item,weight){return (item.final_weight_kg==null?'± ':'')+weight+' kg';}
 function renderUserHistoryCard(item) {
     const category = categoryConfig[item.category_name];
     const weight = Number.parseFloat(item.final_weight_kg ?? item.weight_kg);
@@ -541,14 +508,14 @@ function renderUserHistoryCard(item) {
         <li class="sp-history-card">
             <span class="sp-history-thumb" aria-hidden="true">
                 <i class="fas ${category?.icon || 'fa-truck'}"></i>
-                ${photo ? `<img src="${escapePortalHTML(photo)}" alt="" loading="lazy" onerror="this.hidden=true">` : ''}
+                ${photo ? ("<img src=\"" + String(escapePortalHTML(photo)) + "\" alt=\"\" loading=\"lazy\" onerror=\"this.hidden=true\">") : ''}
             </span>
             <div class="sp-history-card-copy">
                 <h3>${escapePortalHTML(pickupHistoryTitle(item))}</h3>
                 <p class="sp-history-reference">${escapePortalHTML(item.tracking_number)}</p>
                 <p class="sp-history-meta">
                     <span><i class="far fa-calendar" aria-hidden="true"></i> ${Number.isFinite(timestamp) ? historyDate.format(timestamp) + ' WIB' : 'Tanggal belum tersedia'}</span>
-                    <span><i class="fas fa-weight-hanging" aria-hidden="true"></i> ${Number.isFinite(weight) ? (item.final_weight_kg == null ? '± ' : '') + weight + ' kg' : '—'}</span>
+                    <span><i class="fas fa-weight-hanging" aria-hidden="true"></i> ${Number.isFinite(weight) ? historyWeight(item,weight) : '—'}</span>
                     <span><i class="fas ${category?.icon || 'fa-tag'}" aria-hidden="true"></i> ${escapePortalHTML(category?.label || item.category_name || '—')}</span>
                 </p>
                 <p class="sp-history-reward">${pickupRewardLabel(item)} · ${pickupPaymentLabel(item)}</p>
@@ -562,7 +529,7 @@ function renderUserHistoryCard(item) {
 }
 
 function renderUserActivePickup(item) {
-    if (['completed', 'cancelled'].includes(item.status)) return '';
+    if (['completed', 'cancelled'].includes(item.status)) { return ''; }
     const weight = Number.parseFloat(item.weight_kg);
     const statusMeta = getPickupStatusMeta(item.status);
     const badgeClass = getStatusBadgeClass(item.status);
@@ -596,8 +563,8 @@ function renderUserActivePickup(item) {
 function summarizeUserPickups(pickups) {
     const summary = {totalWeight: 0, totalCarbon: 0, totalReward: 0, activeCount: 0, completedCount: 0, activeHtml: '', monthlyWeights: {}};
     for (const item of pickups) {
-        if (item.status === 'completed') summary.completedCount++;
-        else if (item.status !== 'cancelled') summary.activeCount++;
+        if (item.status === 'completed') { summary.completedCount++; }
+        else if (item.status !== 'cancelled') { summary.activeCount++; }
         if (item.status === 'completed' && item.final_weight_kg != null) {
             const weight = Number(item.final_weight_kg);
             summary.totalWeight += weight;
@@ -612,7 +579,7 @@ function summarizeUserPickups(pickups) {
                 summary.monthlyWeights[month] = (summary.monthlyWeights[month] || 0) + weight;
             }
         }
-        if (item.payment_status === 'paid') summary.totalReward += Number(item.reward_amount);
+        if (item.payment_status === 'paid') { summary.totalReward += Number(item.reward_amount); }
         summary.activeHtml += renderUserActivePickup(item);
     }
     return summary;
@@ -620,7 +587,7 @@ function summarizeUserPickups(pickups) {
 
 function setDashboardMarkup(id, markup, emptyMarkup) {
     const element = document.getElementById(id);
-    if (element) element.innerHTML = markup || emptyMarkup;
+    if (element) { element.innerHTML = markup || emptyMarkup; }
 }
 
 function showPickupNotification(item) {
@@ -648,7 +615,7 @@ function renderPickupHistory() {
     const pageSize = 5;
     const query = historySearch.value.trim().toLocaleLowerCase('id-ID');
     const matching = pickupHistory.filter(item => Object.entries(historyFilters)
-        .every(([key, filter]) => !filter.value || item[key] === filter.value) &&
+        .every(([key, filter]) => !filter.value || item[key] === filter.value || (key==='category_name' && item.items?.some(row=>row.category===filter.value))) &&
         [pickupHistoryTitle(item), item.tracking_number].some(value => String(value).toLocaleLowerCase('id-ID').includes(query)));
     const direction = historySort.value === 'oldest' ? 1 : -1;
     matching.sort((first, second) => direction * ((Date.parse(first.created_at) || 0) - (Date.parse(second.created_at) || 0)));
@@ -668,7 +635,7 @@ function renderPickupHistory() {
         button.textContent = index + 1;
         button.dataset.page = index;
         button.setAttribute('aria-label', 'Halaman ' + (index + 1));
-        if (index === pickupPage) button.setAttribute('aria-current', 'page');
+        if (index === pickupPage) { button.setAttribute('aria-current', 'page'); }
         historyPages.append(button);
     }
     historyPrev.disabled = pickupPage === 0;
@@ -679,11 +646,11 @@ function resetPickupHistoryPage() {
     pickupPage = 0;
     renderPickupHistory();
 }
-for (const filter of [...Object.values(historyFilters), historySort]) filter.addEventListener('change', resetPickupHistoryPage);
+for (const filter of [...Object.values(historyFilters), historySort]) { filter.addEventListener('change', resetPickupHistoryPage); }
 historySearch.addEventListener('input', resetPickupHistoryPage);
 historyPages.addEventListener('click', event => {
     const page = event.target.closest('[data-page]');
-    if (!page) return;
+    if (!page) { return; }
     pickupPage = Number(page.dataset.page);
     renderPickupHistory();
     historyPages.querySelector('[aria-current=page]')?.focus();
@@ -693,10 +660,8 @@ historyNext.addEventListener('click', () => { pickupPage++; renderPickupHistory(
 
 function renderUserDashboard(pickups) {
     const summary = summarizeUserPickups(pickups);
-    let userLevel = 'Bronze Saver';
-    if (summary.totalWeight >= 15) userLevel = 'Emerald Hero';
-    else if (summary.totalWeight >= 5) userLevel = 'Silver Guardian';
-    document.getElementById('user-display-level').innerText = userLevel;
+    const userLevel = window.sampiraContributionLevel || 'Memuat level…';
+    document.getElementById('user-display-level').textContent = userLevel;
     document.getElementById('profile-avatar').dataset.level = userLevel;
     document.getElementById('metric-total-weight').innerText = summary.totalWeight.toFixed(1);
     document.getElementById('metric-total-carbon').innerText = summary.totalCarbon.toFixed(1);
@@ -710,10 +675,10 @@ function renderUserDashboard(pickups) {
     pickupHistory = pickups;
     for (const [key, filter] of Object.entries(historyFilters)) {
         const selected = filter.value;
-        const values = Array.from(new Set(pickups.map(item => item[key]).filter(Boolean)));
+        const values = Array.from(new Set(pickups.flatMap(item => key==='category_name' && item.items?.length ? item.items.map(row=>row.category) : [item[key]]).filter(Boolean)));
         filter.replaceChildren(filter.options[0], ...values.map(value => new Option(
             key === 'status' ? getPickupStatusMeta(value).label : value, value)));
-        if (values.includes(selected)) filter.value = selected;
+        if (values.includes(selected)) { filter.value = selected; }
     }
     renderPickupHistory();
     window.dispatchEvent(new CustomEvent('sampira:user-pickups', {detail: pickups}));
@@ -746,12 +711,12 @@ async function loadDashboardData() {
     dashboardRetry.hidden = true;
     try {
         const user = await portalUser('user');
-        if (run !== dashboardLoadSequence) return;
-        if (!user) throw new Error('Profile unavailable');
-    
+        if (run !== dashboardLoadSequence) { return; }
+        if (!user) { throw new Error('Profile unavailable'); }
+
         // Set Profile Info
         renderAccountName(user.name);
-    
+
         if (!dashboardProfileLoaded) {
             populateProfileFields(user);
             dashboardProfileLoaded = true;
@@ -761,15 +726,15 @@ async function loadDashboardData() {
         const response = await portalFetch('/api/ecorecycle/list_pickups?type=user', {
             signal:AbortSignal.timeout(15000)
         });
-        if (run !== dashboardLoadSequence) return;
-        if (response.status === 401 || response.status === 403) { logoutUser(); return; }
+        if (run !== dashboardLoadSequence) { return; }
+        if (response.status === 401 || response.status === 403) { logoutPortal(false); return; }
         const data = await response.json();
-        if (run !== dashboardLoadSequence) return;
-        if (!response.ok || data.status !== 'success' || !Array.isArray(data.data)) throw new Error('Pickup data unavailable');
+        if (run !== dashboardLoadSequence) { return; }
+        if (!response.ok || data.status !== 'success' || !Array.isArray(data.data)) { throw new Error('Pickup data unavailable'); }
         renderUserDashboard(data.data);
         dashboardStatus.parentElement.hidden = true;
     } catch {
-        if (run !== dashboardLoadSequence) return;
+        if (run !== dashboardLoadSequence) { return; }
         dashboardStatus.textContent = 'Data penjemputan belum dapat dimuat. Coba lagi.';
         dashboardRetry.hidden = false;
         pickupHistory=[];
@@ -792,10 +757,10 @@ async function loadDashboardData() {
 dashboardRetry.addEventListener('click',loadDashboardData);
 window.addEventListener('sampira:session-ended',() => {dashboardLoadSequence++;});
 window.addEventListener('sampira:user-view',event => {
-    if (event.detail === 'beranda') void loadDashboardData();
+    if (event.detail === 'beranda') { void loadDashboardData(); }
 });
 window.addEventListener('focus',() => {
-    if (document.getElementById('beranda').classList.contains('active') && !document.hidden) void loadDashboardData();
+    if (document.getElementById('beranda').classList.contains('active') && !document.hidden) { void loadDashboardData(); }
 });
 
 // 5. Submit New Pickup Form
@@ -806,19 +771,15 @@ if (pickupForm) {
     const submit = pickupForm.querySelector('button[type="submit"]');
     const host = document.getElementById('pickup-location-picker');
     const requestTitle = document.getElementById('form-request-title');
-    locationMaps.then(({mountLocationPicker}) => {
-        picker = mountLocationPicker(host, {title: 'Titik Lokasi Penjemputan', prefix: 'pickup', digits: 7});
-        import('/assets/js/location-search.js?v=phase8').then(({mountLocationSearch}) => {
-            mountLocationSearch(document.getElementById('pickup-location-search'), host, picker, 'pickup');
-        }).catch(() => {
-            document.getElementById('pickup-location-search').textContent = 'Pencarian belum tersedia.';
-        });
-    }).catch(() => {
-        host.textContent = 'Peta belum tersedia. Kamu dapat mengirim alamat lengkap saja.';
-    });
+    document.addEventListener('DOMContentLoaded', async () => {
+      try { const {mountLocationPicker}=await locationMaps;
+        picker = mountLocationPicker(host, {title: 'Titik Lokasi Penjemputan', prefix: 'pickup', digits: 7, compact: true, addressField: document.getElementById('form-pickup-address')});
+      } catch { host.textContent='Peta belum tersedia. Kamu dapat mengirim alamat lengkap saja.'; }
+    },{once:true});
     pickupForm.addEventListener('submit', function (e) {
         e.preventDefault();
-        if (submit.disabled) return;
+        if (submit.disabled) { return; }
+        if(pickupItems().length>1&&!multiCategoryBackendReady){void Swal.fire({icon:'warning',title:'Layanan beberapa kategori belum siap',text:'Tunggu estimasi berhasil atau aktivasi Backend terbaru.'});return;}
         const btn = submit;
         const originalHtml = btn.innerHTML;
 
@@ -834,12 +795,12 @@ if (pickupForm) {
         }
         const itemDescription = formatPickupDescription(title, description);
         if (new TextEncoder().encode(itemDescription).length > 2000) {
-            Swal.fire({icon: 'warning', title: 'Deskripsi terlalu panjang', text: 'Persingkat judul atau deskripsi sampah.'});
+            void Swal.fire({icon: 'warning', title: 'Deskripsi terlalu panjang', text: 'Persingkat judul atau deskripsi sampah.'});
             return;
         }
 
         if (!/^(\+62|62|0)8\d{8,13}$/.test(phone.replace(/[\s-]/g, ''))) {
-            Swal.fire({
+            void Swal.fire({
                 icon: 'warning',
                 title: 'Nomor Kontak Belum Valid',
                 text: 'Masukkan nomor WhatsApp Indonesia yang aktif.',
@@ -849,7 +810,7 @@ if (pickupForm) {
         }
 
         if (address.length < 15 || description.length < 10 || !weight || weight <= 0) {
-            Swal.fire({
+            void Swal.fire({
                 icon: 'warning',
                 title: 'Data Belum Lengkap',
                 text: 'Pastikan alamat, deskripsi barang, dan berat sudah diisi dengan benar.',
@@ -859,7 +820,7 @@ if (pickupForm) {
         }
 
         const fields = picker ? picker.fields() : {};
-        if (!fields) return;
+        if (!fields) { return; }
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
         btn.disabled = true;
 
@@ -869,15 +830,16 @@ if (pickupForm) {
         formData.append('contact_phone', phone);
         formData.append('weight_kg', weight);
         formData.append('category', document.getElementById('form-waste-category').value);
-        for (const [key, value] of Object.entries(fields)) formData.set(key, value);
+        formData.append('items',JSON.stringify(pickupItems()));
+        for (const [key, value] of Object.entries(fields)) { formData.set(key, value); }
 
         const photoInput = document.getElementById('form-waste-photo');
-        if (photoInput && photoInput.files.length > 0) {
+        if (photoInput?.files?.length > 0) {
             formData.append('photo', photoInput.files[0]);
         }
         const signature = JSON.stringify([...formData].filter(([name]) => name !== 'photo'));
         const photo = photoInput?.files[0] || null;
-        if (!pendingRequest || pendingRequest.signature !== signature || pendingRequest.photo !== photo) {
+        if (pendingRequest?.signature !== signature || pendingRequest.photo !== photo) {
             pendingRequest = {signature, photo, key: crypto.randomUUID()};
         }
 
@@ -902,16 +864,16 @@ if (pickupForm) {
                     btn.innerHTML = originalHtml;
                     btn.disabled = false;
                     clearPhotoPreview();
-                    syncCategoryCards('Small Gadgets');
-                    calculateFormPreview();
-                    loadDashboardData();
+                    selectedPickupItems=new Map([['Small Gadgets',1]]);renderPickupItems();
+                    void calculateFormPreview();
+                    void loadDashboardData();
                     const trackInput = document.getElementById('track-number-search');
-                    if (trackInput) trackInput.value = data.data.tracking_number;
+                    if (trackInput) { trackInput.value = data.data.tracking_number; }
                     document.querySelector('.hub-tab[data-target="lacak-pickup"]').click();
                     searchTracking();
                 });
             } else {
-                Swal.fire({
+                void Swal.fire({
                     icon: 'error',
                     title: 'Gagal',
                     text: data.message,
@@ -921,8 +883,8 @@ if (pickupForm) {
                 btn.disabled = false;
             }
         })
-        .catch(err => {
-            Swal.fire({
+        .catch(() => {
+            void Swal.fire({
                 icon: 'error',
                 title: 'Kesalahan',
                 text: 'Gagal menghubungi server.',
@@ -961,8 +923,8 @@ function resetTracking() {
 function searchTracking() {
     const input = document.getElementById('track-number-search');
     const container = document.getElementById('tracking-timeline-container');
-    
-    if (!input || !container) return;
+
+    if (!input || !container) { return; }
     const trackingNum = input.value.trim();
 
     if (trackingNum === '') {
@@ -981,18 +943,19 @@ function searchTracking() {
         method: 'GET', signal:AbortSignal.any([trackingController.signal,AbortSignal.timeout(15000)])
     })
     .then(async response => ({ok:response.ok,data:await response.json()}))
-    .then(({ok,data}) => {
-        if (sequence !== trackingSequence) return;
+    .then(async ({ok,data}) => {
+        if (sequence !== trackingSequence) { return; }
         if (ok && data.status === 'success') {
             const item = data.data;
             const history = item.history || [];
-            showPickupOnUserMap(item);
+            await showPickupOnUserMap(item);
+            if (sequence !== trackingSequence) return;
 
             document.getElementById('track-disp-number').innerText = item.tracking_number;
             const requestTitle = document.getElementById('track-disp-title');
             requestTitle.textContent = splitPickupDescription(item.item_description || '').title;
             requestTitle.hidden = !requestTitle.textContent;
-            
+
             const statusMeta = getPickupStatusMeta(item.status);
             const badgeClass = getStatusBadgeClass(item.status);
 
@@ -1003,13 +966,14 @@ function searchTracking() {
             document.getElementById('track-disp-detail').innerText = `${item.category_name} • Estimasi ${item.weight_kg} KG` +
                 (item.final_weight_kg == null ? "" : ` • Aktual ${item.final_weight_kg} KG`);
 
+            renderTrackingBreakdown(item);
             document.getElementById('track-disp-reward').textContent = [
                 pickupRewardLabel(item), pickupPaymentLabel(item), item.payment_reference ? 'Ref. ' + item.payment_reference : ''
             ].filter(Boolean).join(' • ');
 
             // Populate Timeline
             const timelineList = document.getElementById('track-timeline-list');
-            timelineList.innerHTML = renderStatusStepper(item.status);
+            timelineList.innerHTML = '<h3 class="ref-detail-history-title">Perkembangan permintaan</h3>';
 
             if (history.length === 0) {
                 timelineList.innerHTML += '<p style="color:var(--text-secondary);">Belum ada log pelacakan.</p>';
@@ -1018,7 +982,7 @@ function searchTracking() {
                     const dateObj = new Date(log.updated_at);
                     const timeStr = `${dateObj.getDate()} ${dateObj.toLocaleString('id-ID', { month: 'short' })} ${dateObj.getFullYear()}, ${String(dateObj.getHours()).padStart(2, '0')}:${String(dateObj.getMinutes()).padStart(2, '0')}`;
                     const logMeta = getPickupStatusMeta(log.status);
-                    
+
                     timelineList.innerHTML += `
                         <div class="timeline-node">
                             <div class="timeline-node-dot"></div>
@@ -1038,17 +1002,17 @@ function searchTracking() {
             `;
 
             container.style.display = 'block';
-            trackingFeedback.textContent='Detail penjemputan siap.';
+            trackingFeedback.textContent='';
         } else {
             trackingFeedback.textContent='Detail belum tersedia. Periksa nomor tracking dan akses akun Anda.';
         }
     })
-    .catch(err => {
-        if (sequence !== trackingSequence) return;
+    .catch(() => {
+        if (sequence !== trackingSequence) { return; }
         trackingFeedback.textContent='Detail penjemputan gagal dimuat. Coba lagi.';
     })
     .finally(() => {
-        if (sequence === trackingSequence) trackingSubmit.disabled=false;
+        if (sequence === trackingSequence) { trackingSubmit.disabled=false; }
     });
 }
 
@@ -1068,7 +1032,7 @@ if (settingsForm) {
         };
 
         if (!payload.name) {
-            Swal.fire({
+            void Swal.fire({
                 icon: 'warning',
                 title: 'Nama Belum Diisi',
                 text: 'Nama lengkap wajib diisi.',
@@ -1078,7 +1042,7 @@ if (settingsForm) {
         }
 
         if (payload.payout_method && payload.payout_method !== 'cash' && (!payload.payout_account_name || !payload.payout_account_number)) {
-            Swal.fire({
+            void Swal.fire({
                 icon: 'warning',
                 title: 'Data Payout Belum Lengkap',
                 text: 'Isi nama penerima dan nomor rekening/e-wallet untuk metode payout non-tunai.',
@@ -1104,14 +1068,14 @@ if (settingsForm) {
             if (data.status === 'success') {
                 populateProfileFields(data.data);
                 renderAccountName(data.data.name);
-                Swal.fire({
+                void Swal.fire({
                     icon: 'success',
                     title: 'Profil Disimpan',
                     text: 'Data tujuan pembayaran tersimpan di profil Anda.',
                     confirmButtonColor: '#10b981'
                 });
             } else {
-                Swal.fire({
+                void Swal.fire({
                     icon: 'error',
                     title: 'Gagal',
                     text: data.message,
@@ -1119,8 +1083,8 @@ if (settingsForm) {
                 });
             }
         })
-        .catch(err => {
-            Swal.fire({
+        .catch(() => {
+            void Swal.fire({
                 icon: 'error',
                 title: 'Kesalahan',
                 text: 'Gagal menghubungi server.',
@@ -1137,9 +1101,9 @@ if (settingsForm) {
 // 8. Render Chart.js
 function renderChart(monthlyWeights) {
     const ctx = document.getElementById('monthlyWasteChart');
-    if (!ctx) return;
+    if (!ctx) { return; }
 
-    const months = Object.keys(monthlyWeights).sort();
+    const months = Object.keys(monthlyWeights).sort((a,b)=>a.localeCompare(b));
     const labels = months.map(month => new Date(month+'-01T00:00:00+07:00')
         .toLocaleString('id-ID',{month:'short',year:'numeric',timeZone:'Asia/Jakarta'}));
     const weights = months.map(month => monthlyWeights[month]);
@@ -1155,7 +1119,7 @@ function renderChart(monthlyWeights) {
     emptyMessage.textContent = labels.length
         ? 'Grafik kontribusi tidak dapat dimuat.'
         : 'Grafik akan tampil setelah berat penjemputan diverifikasi.';
-    if (!hasChart) return;
+    if (!hasChart) { return; }
 
     monthlyChart = new Chart(ctx, {
         type: 'bar',
@@ -1192,7 +1156,7 @@ function renderChart(monthlyWeights) {
 
 // Init
 document.addEventListener('DOMContentLoaded', () => {
-    loadDashboardData();
+    void loadDashboardData();
     syncCategoryCards(formCat ? formCat.value : 'Small Gadgets');
-    calculateFormPreview();
+    void calculateFormPreview();
 });

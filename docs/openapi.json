@@ -1312,7 +1312,7 @@
             }
           }
         },
-        "parameters": [
+        "parameters": [{"name": "X-Expected-Point-Cost", "in": "header", "required": false, "description": "Biaya poin yang dikonfirmasi User. Diperiksa dengan lock transaksi; berbeda menjadi 409 tanpa debit. Retry yang sudah berhasil mengembalikan receipt asli. UI Phase 9B selalu mengirim header ini.", "schema": {"type": "integer", "minimum": 1, "maximum": 1000000000}},
           {
             "name": "id",
             "in": "path",
@@ -1568,7 +1568,7 @@
           "Contributions Phase 9"
         ],
         "summary": "Statistik sesuai scope sesi",
-        "description": "Role: user, petugas, admin, administrator. Tanpa query. User: pickups, completed_pickups, verified_weight_kg, cash_reward, cash_paid, points_balance, lifetime_points, facility_reports, redemptions. Petugas: assigned_pickups, completed_pickups, in_progress_pickups, active_facility_tasks, completed_facility_tasks. Admin: reports, pending_verification, approved_reports, awaiting_assignment, assigned, awaiting_validation, completed. Administrator: accounts, active_accounts, pickups, completed_pickups, facility_reports, cash_pending, cash_paid, legacy_transactions, active_vouchers, voucher_redemptions, points_balance. role dan snapshot selalu ada. Tidak mengandung koordinat/alamat privat; live counts dapat berubah antar-query.",
+        "description": "Role: user, petugas, admin, administrator. Tanpa query. User: pickups, completed_pickups, verified_weight_kg, cash_reward, cash_paid, points_balance, lifetime_points, facility_reports, redemptions. Petugas: assigned_pickups, completed_pickups, in_progress_pickups, active_facility_tasks, completed_facility_tasks. Admin: reports, pending_verification, approved_reports, awaiting_assignment, assigned, handling_in_progress, awaiting_validation, completed. Administrator: accounts, active_accounts, pickups, completed_pickups, facility_reports, cash_pending, cash_paid, legacy_transactions, active_vouchers, voucher_redemptions, points_balance. role dan snapshot selalu ada. Tidak mengandung koordinat/alamat privat; live counts dapat berubah antar-query.",
         "security": [
           {
             "bearerAuth": []
@@ -4053,7 +4053,7 @@
       "post": {
         "tags": ["Reward"],
         "summary": "Catat pembayaran eksternal yang diverifikasi",
-        "description": "Hanya Administrator. Memerlukan multipart, nominal persis, referensi unik, bukti gambar unik, dan konfirmasi verifikasi eksternal. Aplikasi mencatat hasil verifikasi operator.",
+        "description": "Hanya Administrator. Memerlukan multipart, nominal persis, referensi unik, bukti gambar unik, dan konfirmasi verifikasi eksternal. Aplikasi mencatat hasil verifikasi operator, bukan mengirim uang. Bukti maksimal 5 MB dan harus muat dalam max_allowed_packet koneksi transaksi (cadangan 64 KiB); pelanggaran kapasitas mendapat 413 sebelum mutasi. Pembayaran disimpan atomik dengan referensi, digest bukti, paid_by dan paid_at; retry reward paid ditolak 409.",
         "security": [
           {
             "bearerAuth": []
@@ -4116,6 +4116,7 @@
           "409": {
             "description": "Bukti belum disertakan pada permintaan legacy, nominal berbeda, kewajiban tidak pending, atau referensi/bukti sudah digunakan."
           },
+          "413": {"description": "Bukti melebihi batas HTTP, 5 MB, atau kapasitas paket database; tidak ada mutasi pembayaran."},
           "500": {
             "$ref": "#/components/responses/ServerError"
           }

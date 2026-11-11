@@ -57,6 +57,13 @@ func TestFacilityPhotoRequiresDecodableRaster(t *testing.T) {
 	}
 }
 
+func requireFacilityProblem(t *testing.T, problem *apiProblem, status int) {
+	t.Helper()
+	if problem == nil || problem.status != status {
+		t.Fatalf("problem = %v, want status %d", problem, status)
+	}
+}
+
 func TestFacilityVerificationRejectsUntrustedBody(t *testing.T) {
 	cases := []struct {
 		name   string
@@ -77,16 +84,34 @@ func TestFacilityVerificationRejectsUntrustedBody(t *testing.T) {
 			r := httptest.NewRequest(http.MethodPost, "/verification"+tc.query, strings.NewReader(tc.body))
 			r.Header.Set("Content-Type", "application/json")
 			input, problem := readFacilityVerification(httptest.NewRecorder(), r)
-			if tc.status == 0 {
-				if problem != nil {
-					t.Fatalf("unexpected problem: %v", problem)
-				}
-				if input.Status == "revision_required" && (input.Note == nil || *input.Note != "Tambahkan foto") {
-					t.Fatalf("reason was not trimmed: %v", input.Note)
-				}
-			} else if problem == nil || problem.status != tc.status {
-				t.Fatalf("problem = %v, want status %d", problem, tc.status)
+			if tc.status != 0 {
+				requireFacilityProblem(t, problem, tc.status)
+				return
+			}
+			if problem != nil {
+				t.Fatalf("unexpected problem: %v", problem)
+			}
+			if input.Status == "revision_required" && (input.Note == nil || *input.Note != "Tambahkan foto") {
+				t.Fatalf("reason was not trimmed: %v", input.Note)
 			}
 		})
+	}
+}
+
+func TestFacilityCombinedReviewOfficer(t *testing.T) {
+	for _, tc := range []struct {
+		body  string
+		valid bool
+	}{
+		{`{"status":"approved","version":1,"petugas_id":102}`, true},
+		{`{"status":"approved","version":1,"petugas_id":-1}`, false},
+		{`{"status":"rejected","version":1,"petugas_id":102,"note":"Duplikat"}`, false},
+	} {
+		request := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(tc.body))
+		request.Header.Set("Content-Type", "application/json")
+		_, problem := readFacilityVerification(httptest.NewRecorder(), request)
+		if (problem == nil) != tc.valid {
+			t.Errorf("valid=%v body=%s problem=%v", tc.valid, tc.body, problem)
+		}
 	}
 }

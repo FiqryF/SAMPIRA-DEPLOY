@@ -20,14 +20,14 @@ type FacilityReports struct {
 
 const facilityColumns = `r.id,r.tracking_number,r.reporter_id,r.category,r.title,r.description,r.address,
     r.latitude,r.longitude,r.status,r.version,r.reviewed_by,r.reviewed_at,r.verification_note,r.created_at,r.updated_at,
-    EXISTS(SELECT 1 FROM facility_report_photos p WHERE p.report_id=r.id)`
+    EXISTS(SELECT 1 FROM facility_report_photos p WHERE p.report_id=r.id),1+(SELECT COUNT(*) FROM facility_report_affected af WHERE af.report_id=r.id)`
 
 func scanFacility(row interface{ Scan(...any) error }) (models.FacilityReport, error) {
 	var report models.FacilityReport
 	err := row.Scan(&report.ID, &report.TrackingNumber, &report.ReporterID, &report.Category,
 		&report.Title, &report.Description, &report.Address, &report.Latitude, &report.Longitude, &report.Status,
 		&report.Version, &report.ReviewedBy, &report.ReviewedAt, &report.VerificationNote, &report.CreatedAt,
-		&report.UpdatedAt, &report.HasPhoto)
+		&report.UpdatedAt, &report.HasPhoto, &report.AffectedCount)
 	return report, err
 }
 
@@ -147,14 +147,35 @@ func (s FacilityReports) Create(ctx context.Context, reporterID int, key string,
 }
 
 func (s FacilityReports) Revise(ctx context.Context, id, reporterID, version int, input models.FacilityReportInput) (models.FacilityReport, error) {
-	return s.transition(ctx, id, reporterID, reporterID, version, models.FacilityRevisionRequired, models.FacilityPending, nil, &input)
+	return s.transition(ctx, facilityTransition{id: id, ownerID: reporterID, actorID: reporterID, version: version, from: models.FacilityRevisionRequired, to: models.FacilityPending, input: &input})
 }
 
 func (s FacilityReports) Verify(ctx context.Context, id, adminID, version int, status string, note *string) (models.FacilityReport, error) {
-	return s.transition(ctx, id, 0, adminID, version, models.FacilityPending, status, note, nil)
+	return s.transition(ctx, facilityTransition{id: id, actorID: adminID, version: version, from: models.FacilityPending, to: status, note: note})
 }
 
-func (s FacilityReports) transition(ctx context.Context, id, ownerID, actorID, version int, from, to string, note *string, input *models.FacilityReportInput) (models.FacilityReport, error) {
+type FacilityReview struct {
+	ID, AdminID, Version, PetugasID int
+	Status                          string
+	Note                            *string
+}
+
+func (s FacilityReports) VerifyAndAssign(ctx context.Context, review FacilityReview) (models.FacilityReport, error) {
+	return s.transition(ctx, facilityTransition{id: review.ID, actorID: review.AdminID, version: review.Version,
+		from: models.FacilityPending, to: review.Status, note: review.Note, petugasID: review.PetugasID})
+}
+
+type facilityTransition struct {
+	id, ownerID, actorID, version int
+	petugasID                     int
+	from, to                      string
+	note                          *string
+	input                         *models.FacilityReportInput
+}
+
+func (s FacilityReports) transition(ctx context.Context, change facilityTransition) (models.FacilityReport, error) {
+	id, ownerID, actorID, version := change.id, change.ownerID, change.actorID, change.version
+	from, to, note, input := change.from, change.to, change.note, change.input
 	tx, err := s.DB.BeginTx(ctx, nil)
 	if err != nil {
 		return models.FacilityReport{}, err
@@ -178,6 +199,11 @@ func (s FacilityReports) transition(ctx context.Context, id, ownerID, actorID, v
 		if err == nil {
 			err = saveFacilityPhoto(ctx, tx, id, input)
 		}
+		if err == nil {
+			_, err = tx.ExecContext(ctx, "DELETE FROM facility_report_affected WHERE report_id=?", id)
+			message := "Laporan direvisi; konfirmasi terdampak sebelumnya direset."
+			note = &message
+		}
 	} else {
 		_, err = tx.ExecContext(ctx, `UPDATE facility_reports SET status=?,version=version+1,reviewed_by=?,
             reviewed_at=UTC_TIMESTAMP(6),verification_note=?,updated_at=UTC_TIMESTAMP(6) WHERE id=?`,
@@ -185,6 +211,26 @@ func (s FacilityReports) transition(ctx context.Context, id, ownerID, actorID, v
 	}
 	if err != nil {
 		return models.FacilityReport{}, err
+	}
+	if change.petugasID != 0 {
+		if to != models.FacilityApproved {
+			return models.FacilityReport{}, ErrFacilityConflict
+		}
+		active, checkErr := lockHandlingUser(ctx, tx, actorID, models.RoleAdmin)
+		if checkErr != nil {
+			return models.FacilityReport{}, checkErr
+		}
+		if !active {
+			return models.FacilityReport{}, ErrHandlingRole
+		}
+		state := handlingState{status: models.FacilityApproved, coordination: models.CoordinationNotForwarded}
+		if _, err = tx.ExecContext(ctx, `INSERT INTO facility_handling (report_id,status,version,coordination_status,updated_at) VALUES (?,?,0,?,UTC_TIMESTAMP(6))`, id, state.status, state.coordination); err != nil {
+			return models.FacilityReport{}, err
+		}
+		command := models.HandlingCommand{Action: models.HandlingAssign, PetugasID: change.petugasID}
+		if err = updateHandling(ctx, tx, id, actorID, &state, models.HandlingAssigned, command); err != nil {
+			return models.FacilityReport{}, err
+		}
 	}
 	return commitFacility(ctx, tx, id, actorID, &from, note)
 }

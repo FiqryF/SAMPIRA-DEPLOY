@@ -1,0 +1,1 @@
+ALTER TABLE pickups ADD COLUMN IF NOT EXISTS category_items LONGTEXT NULL;

@@ -1,4 +1,4 @@
-const locationMaps = import('/assets/js/location-map.js?v=phase8');
+const locationMaps = import('./location-map.js?v=home-location-14');
 let userLocationSequence = 0;
 let disposeUserLocation;
 
@@ -15,11 +15,11 @@ async function showPickupOnUserMap(pickup) {
     const host = document.getElementById('user-tracking-location');
     try {
         const {mountLocationDetail} = await locationMaps;
-        if (sequence !== userLocationSequence) return;
+        if (sequence !== userLocationSequence) { return; }
         disposeUserLocation = mountLocationDetail(host, {
             title: 'Titik lokasi penjemputan', point: pickup, address: pickup.pickup_address, external: true, autoTiles: true
         });
     } catch {
-        if (sequence === userLocationSequence) host.textContent = pickup.pickup_address || 'Alamat penjemputan belum tersedia.';
+        if (sequence === userLocationSequence) { host.textContent = pickup.pickup_address || 'Alamat penjemputan belum tersedia.'; }
     }
 }

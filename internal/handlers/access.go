@@ -13,6 +13,8 @@ import (
 )
 
 const portalCookie = "sampira_session"
+const accessCacheHeader = "Cache-Control"
+const accessCacheNoStore = "no-store"
 
 var invalidSession = errors.New("Sesi tidak valid atau kedaluwarsa. Silakan login kembali.")
 
@@ -61,7 +63,7 @@ func (a *App) browserSession(r *http.Request) (*models.TokenPayload, error) {
 
 func (a *App) Portal(role, file string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Cache-Control", "no-store")
+		w.Header().Set(accessCacheHeader, accessCacheNoStore)
 		session, err := a.browserSession(r)
 		if err != nil {
 			http.Redirect(w, r, "/login", http.StatusSeeOther)
@@ -94,7 +96,7 @@ func (a *App) LogoutHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	a.setPortalCookie(w, r, "", -1)
-	w.Header().Set("Cache-Control", "no-store")
+	w.Header().Set(accessCacheHeader, accessCacheNoStore)
 	http.Redirect(w, r, "/login", http.StatusSeeOther)
 }
 
@@ -123,7 +125,7 @@ func canReadPickup(session *models.TokenPayload, owner int, assignee *int) bool 
 }
 
 func (a *App) PickupPhotoHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Cache-Control", "no-store")
+	w.Header().Set(accessCacheHeader, accessCacheNoStore)
 	w.Header().Set("X-Content-Type-Options", "nosniff")
 	var session *models.TokenPayload
 	var err error

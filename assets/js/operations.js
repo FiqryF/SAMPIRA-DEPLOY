@@ -27,7 +27,7 @@ if (root) {
     const admin = root.dataset.operationMap === "admin";
     const form = root.querySelector("[data-operation-filter]");
     const list = root.querySelector("ul");
-    const status = root.querySelector("[role=status]");
+    const status = root.querySelector("[role=status], .sp-map-layout output");
     const more = root.querySelector("[data-more]");
     const canvas = root.querySelector("[data-map-canvas]");
     const retry = root.querySelector("[data-map-retry]");
@@ -98,7 +98,9 @@ if (root) {
     function open(item, action) {
         const navigation = { origin, action };
         if (item.type === "pickup") {
-            window.viewActiveMission(item.tracking, navigation);
+            window.viewActiveMission(item.tracking, navigation).catch(() => {
+                feedback.textContent = 'Detail penjemputan belum dapat dibuka. Coba lagi.';
+            });
             return;
         }
         const selector = item.handling ? "[data-open-handling]" : "[data-open-verification]";
@@ -134,24 +136,18 @@ if (root) {
         }));
     }
 
-    function render() {
-        list.replaceChildren();
-        pins?.clearLayers();
-        const points = [];
-        for (const item of loaded) {
-            const label = (item.handling ? handlingStatuses[item.state] : statuses[item.state]) ||
-                { pickup: "Siap dijemput", transit: "Menuju hub", arrived: "Tiba di hub" }[item.state] || "Belum tersedia";
+    function appendLocationRow(item, label, kind) {
             const row = create("li");
             const action = create("button", item.title, "sp-map-open");
             action.type = "button";
             action.addEventListener("click", () => open(item));
-            const kind = item.type === "pickup" ? "Penjemputan" : "Fasilitas";
             row.append(create("small", kind + " · " + label), action, create("p", item.address || "Alamat belum tersedia"));
             if (item.assignment) row.append(create("small", "Penugasan · " + (assignmentStatuses[item.assignment] || item.assignment)));
             if (!item.point) row.append(create("small", "Titik presisi belum tersedia"));
             list.append(row);
-            if (!item.point || !map) continue;
-            points.push(item.point);
+    }
+
+    function addMapMarker(item, label, kind) {
             const pin = statusIcon(item.type,item.appearance,"sp-map-marker sp-map-marker--" + item.type);
             const marker = L.marker(item.point, { icon: pin, alt: kind + " · " + item.title + ' · ' + item.appearance.label,
                 title:item.appearance.label }).addTo(pins);
@@ -190,6 +186,20 @@ if (root) {
                 popup.append(button);
             }
             bindMapPopup(marker,popup);
+    }
+
+    function render() {
+        list.replaceChildren();
+        pins?.clearLayers();
+        const points = [];
+        for (const item of loaded) {
+            const label = (item.handling ? handlingStatuses[item.state] : statuses[item.state]) ||
+                { pickup: "Siap dijemput", transit: "Menuju hub", arrived: "Tiba di hub" }[item.state] || "Belum tersedia";
+            const kind = item.type === "pickup" ? "Penjemputan" : "Fasilitas";
+            appendLocationRow(item, label, kind);
+            if (!item.point || !map) continue;
+            points.push(item.point);
+            addMapMarker(item, label, kind);
         }
         if (points.length) map.fitBounds(points, { padding: [35, 35], maxZoom: 15, animate:false });
         const count = loaded.filter(item => item.point).length;
@@ -199,8 +209,7 @@ if (root) {
         else if (!map && !admin) status.textContent += " Peta tidak tersedia. Gunakan daftar.";
     }
 
-    async function load(append = false) {
-        const run = ++version;
+    function prepareLocationView(append) {
         status.textContent = "Memuat lokasi…";
         if (admin) {
             status.dataset.state = "loading";
@@ -232,6 +241,9 @@ if (root) {
             mapFeedback.hidden = false;
         }
         map?.invalidateSize();
+    }
+
+    function locationQuery(append) {
         const category = form.elements.category.value;
         const selected = form.elements.status.value;
         const [group, value] = selected.split(":");
@@ -242,24 +254,23 @@ if (root) {
         if (cursor !== null) params.set("before_id", cursor);
         if (admin && category) params.set("category", category);
         if (group === "handling" || (!handling && group)) params.set("status", value || group);
-        try {
-            const results = await Promise.allSettled([
-                pickupOnly ? null : request(base + (handling ? "/handling" : "") + "?" + params),
-                withPickups ? getPickups() : []
-            ]);
-            if (run !== version) return;
+        return {params, handling, pickupOnly, withPickups, selected, group, value};
+    }
+
+    async function applyLocationResults(results, query, run, append) {
+        const {handling, selected, group, value} = query;
             const [facilityResult, pickupResult] = results;
             if (admin && facilityResult.status === "rejected") {
                 status.dataset.state = "error";
-                status.textContent = facilityResult.reason.status === 404
-                    ? "Layanan lokasi tidak tersedia di server ini."
-                    : append ? "Lokasi berikutnya gagal dimuat." : "Daftar lokasi gagal dimuat.";
+                status.textContent = append ? "Lokasi berikutnya gagal dimuat." : "Daftar lokasi gagal dimuat.";
+                if (facilityResult.reason.status === 404) status.textContent = "Layanan lokasi tidak tersedia di server ini.";
                 retry.hidden = append;
                 return;
             }
             const page = facilityResult.value;
             const pickups = (pickupResult.value || []).filter(item => !selected || item.state === selected);
-            const source = admin && !handling ? await facilityMapStates(page?.items || [],request,base) : page?.items || [];
+            let source = page?.items || [];
+            if (admin && !handling) source = await facilityMapStates(source,request,base);
             if (run !== version) return;
             const facilities = source.filter(item => group !== "assignment" || item.assignment_status === value)
                 .map(item => facility(item, handling));
@@ -269,6 +280,24 @@ if (root) {
             if (admin) status.dataset.state = loaded.length ? "ready" : "empty";
             const failures = results.filter(result => result.status === "rejected");
             if (failures.length) status.textContent += " Sebagian sumber lokasi gagal dimuat. Terapkan filter untuk mencoba lagi.";
+    }
+
+    async function load(append = false) {
+        const run = ++version;
+        try {
+            prepareLocationView(append);
+            const query = locationQuery(append);
+            const facilityPath = base + (query.handling ? "/handling" : "") + "?" + query.params;
+            const results = await Promise.allSettled([
+                query.pickupOnly ? null : request(facilityPath),
+                query.withPickups ? getPickups() : []
+            ]);
+            if (run !== version) return;
+            await applyLocationResults(results, query, run, append);
+        } catch {
+            if (run !== version) return;
+            status.textContent = "Lokasi gagal dimuat. Periksa koneksi lalu coba lagi.";
+            if (admin) { status.dataset.state = "error"; retry.hidden = false; }
         } finally {
             if (run === version) {
                 more.disabled = false;
@@ -277,10 +306,10 @@ if (root) {
         }
     }
 
-    form.addEventListener("submit", event => { event.preventDefault(); load(); });
-    form.addEventListener("reset", () => requestAnimationFrame(() => load()));
-    more.addEventListener("click", () => load(true));
-    root.addEventListener("sampira:open", () => load());
+    form.addEventListener("submit", async event => { event.preventDefault(); await load(); });
+    form.addEventListener("reset", () => requestAnimationFrame(async () => { await load(); }));
+    more.addEventListener("click", async () => { await load(true); });
+    root.addEventListener("sampira:open", async () => { await load(); });
     function clearMap() {
         ++version;
         loaded = [];
@@ -294,12 +323,12 @@ if (root) {
     root.addEventListener("sampira:close", clearMap);
     window.addEventListener("sampira:session-ended", clearMap);
     window.addEventListener("pagehide", clearMap);
-    window.addEventListener("sampira:collector-view", () => {
-        if (root.classList.contains("active")) load();
+    window.addEventListener("sampira:collector-view", async () => {
+        if (root.classList.contains("active")) await load();
         else clearMap();
     });
-    if (!admin) window.addEventListener("focus", () => {
-        if (root.classList.contains("active") && !document.hidden) load();
+    if (!admin) window.addEventListener("focus", async () => {
+        if (root.classList.contains("active") && !document.hidden) await load();
     });
     document.addEventListener("visibilitychange", () => {
         if (document.hidden && originForm) setOrigin(null);
@@ -309,22 +338,28 @@ if (root) {
     });
     observer.observe(canvas);
     window.addEventListener('pagehide',() => observer.disconnect(),{once:true});
-    mapLegend(root);
+    mapLegend(root.querySelector('[data-map-legend]') || root);
 }
 
 const metrics = document.querySelector("#sp-system-metrics");
 if (metrics) {
-    const message = metrics.querySelector("[role=status]");
+    const message = metrics.querySelector("output, [role=status]");
     const number = new Intl.NumberFormat("id-ID");
     const rupiah = new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 });
-    window.portalFetch("/api/ecorecycle/pickup_status?type=stats")
-        .then(async response => {
-            if (!response.ok) throw new Error("Ringkasan sistem gagal dimuat.");
-            const result = await response.json();
-            for (const field of metrics.querySelectorAll("[data-metric]")) {
-                const value = result.data?.[field.dataset.metric];
-                if (typeof value === "number") field.textContent = (field.hasAttribute("data-currency") ? rupiah : number).format(value);
-            }
-            message.textContent = "";
-        }).catch(error => { message.textContent = error.message; });
+    function refreshSystemMetrics() {
+        for (const field of metrics.querySelectorAll('[data-metric]')) field.textContent = '—';
+        message.textContent = 'Memuat ringkasan…';
+        window.portalFetch("/api/ecorecycle/pickup_status?type=stats")
+            .then(async response => {
+                if (!response.ok) throw new Error("Ringkasan sistem gagal dimuat.");
+                const result = await response.json();
+                for (const field of metrics.querySelectorAll("[data-metric]")) {
+                    const value = result.data?.[field.dataset.metric];
+                    if (typeof value === "number") field.textContent = (field.dataset.currency !== undefined ? rupiah : number).format(value);
+                }
+                message.textContent = "";
+            }).catch(error => { message.textContent = error.message; });
+    }
+    window.addEventListener('sampira:cash-updated', refreshSystemMetrics);
+    refreshSystemMetrics();
 }

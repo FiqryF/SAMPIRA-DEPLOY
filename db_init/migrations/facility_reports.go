@@ -20,6 +20,9 @@ var preciseLocationsDDL string
 //go:embed 005_education_content.sql
 var educationContentDDL string
 
+//go:embed 009_education_photos.sql
+var educationPhotosDDL string
+
 //go:embed 006_pickup_idempotency.sql
 var pickupIdempotencyDDL string
 
@@ -34,8 +37,14 @@ func ApplyContributions(ctx context.Context, db *sql.DB) error {
 }
 
 // ApplyFacilityReports runs additive, individually retryable DDL.
+//go:embed 011_facility_affected.sql
+var facilityAffectedDDL string
+
 func ApplyFacilityReports(ctx context.Context, db *sql.DB) error {
-	return applySQL(ctx, db, facilityReportsDDL)
+	if err := applySQL(ctx, db, facilityReportsDDL); err != nil {
+		return err
+	}
+	return applySQL(ctx, db, facilityAffectedDDL)
 }
 
 func ApplyFacilityHandling(ctx context.Context, db *sql.DB) error {
@@ -47,11 +56,20 @@ func ApplyPreciseLocations(ctx context.Context, db *sql.DB) error {
 }
 
 func ApplyEducationContent(ctx context.Context, db *sql.DB) error {
-	return applySQL(ctx, db, educationContentDDL)
+	if err := applySQL(ctx, db, educationContentDDL); err != nil {
+		return err
+	}
+	return applySQL(ctx, db, educationPhotosDDL)
 }
 
+//go:embed 010_pickup_category_items.sql
+var pickupCategoryItemsDDL string
+
 func ApplyPickupIdempotency(ctx context.Context, db *sql.DB) error {
-	return applySQL(ctx, db, pickupIdempotencyDDL)
+	if err := applySQL(ctx, db, pickupIdempotencyDDL); err != nil {
+		return err
+	}
+	return applySQL(ctx, db, pickupCategoryItemsDDL)
 }
 
 func ApplyRegistrationUnicode(ctx context.Context, db *sql.DB) error {

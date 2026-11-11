@@ -35,11 +35,12 @@ func scanPickupListRow(rows *sql.Rows, queryType string) (map[string]interface{}
 	var rewardAmount *string
 	var hasLegacyTransaction bool
 
+	var categoryItems sql.NullString
 	var scanErr error
 	if queryType == models.RoleUser {
-		scanErr = rows.Scan(&id, &userID, &collectorID, &trackingNumber, &itemDesc, &pickupAddress, &contactPhone, &weightKg, &categoryID, &ecoReward, &processingFee, &photoURL, &isProcessed, &status, &createdAt, &finalWeightKg, &finalEcoReward, &finalProcessingFee, &verificationNotes, &verifiedAt, &categoryName, &paymentStatus, &rewardAmount, &hasLegacyTransaction, &latitude, &longitude)
+		scanErr = rows.Scan(&id, &userID, &collectorID, &trackingNumber, &itemDesc, &pickupAddress, &contactPhone, &weightKg, &categoryID, &ecoReward, &processingFee, &photoURL, &isProcessed, &status, &createdAt, &finalWeightKg, &finalEcoReward, &finalProcessingFee, &verificationNotes, &verifiedAt, &categoryName, &paymentStatus, &rewardAmount, &hasLegacyTransaction, &latitude, &longitude, &categoryItems)
 	} else {
-		scanErr = rows.Scan(&id, &userID, &collectorID, &trackingNumber, &itemDesc, &pickupAddress, &contactPhone, &weightKg, &categoryID, &ecoReward, &processingFee, &photoURL, &isProcessed, &status, &createdAt, &finalWeightKg, &finalEcoReward, &finalProcessingFee, &verificationNotes, &verifiedAt, &categoryName, &paymentStatus, &rewardAmount, &hasLegacyTransaction, &latitude, &longitude, &donorName)
+		scanErr = rows.Scan(&id, &userID, &collectorID, &trackingNumber, &itemDesc, &pickupAddress, &contactPhone, &weightKg, &categoryID, &ecoReward, &processingFee, &photoURL, &isProcessed, &status, &createdAt, &finalWeightKg, &finalEcoReward, &finalProcessingFee, &verificationNotes, &verifiedAt, &categoryName, &paymentStatus, &rewardAmount, &hasLegacyTransaction, &latitude, &longitude, &donorName, &categoryItems)
 	}
 
 	if scanErr != nil {
@@ -84,6 +85,9 @@ func scanPickupListRow(rows *sql.Rows, queryType string) (map[string]interface{}
 	item["payout_account_number"] = ""
 	if queryType == models.RolePetugas && collectorID == nil {
 		item["user_id"] = nil
+	}
+	if err := applyPickupItems(item, categoryItems); err != nil {
+		return nil, err
 	}
 	return item, nil
 }

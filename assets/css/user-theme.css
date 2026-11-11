@@ -1,21 +1,21 @@
 /* User portal: landing palette, quieter surfaces and compact operational maps. */
-body.role-warrior { --portal-sidebar:232px; --sp-radius:14px; font-size:14px; background:#f7f9f5; }
-body.role-warrior .sidebar { padding:28px 16px 20px; background:#fff; border-right:1px solid #d4e1d8; }
+body.role-warrior { --sp-radius:14px; font-size:14px; background:#f7f9f5; --portal-sidebar:240px; }
+body.role-warrior .sidebar { padding:28px 16px 20px; background:#103d2f; border:0; }
 body.role-warrior .sidebar-logo { gap:10px; align-items:center; margin:0 8px 36px; }
 body.role-warrior .sidebar-logo img { width:36px; height:36px; }
-body.role-warrior .sidebar-logo small { max-width:none; margin-top:5px; font:400 .73rem Inter,system-ui,sans-serif; letter-spacing:0; color:#4b6459; }
+body.role-warrior .sidebar-logo small { max-width:none; margin-top:5px; font:400 .73rem Inter,system-ui,sans-serif; letter-spacing:0; color:#4b6459; opacity:.65; }
 body.role-warrior .sp-sidebar-landscape { display:none; }
-body.role-warrior .sidebar-item { min-height:46px; margin:3px 0; padding:12px 10px; gap:9px; border:1px solid transparent; border-radius:8px; font-size:.8rem; font-weight:500; color:#4b6459; }
-body.role-warrior .sidebar-item.active i { color:#fff; }
-body.role-warrior .sidebar-item i { width:20px; text-align:center; }
-body.role-warrior .sidebar-item:hover { background:#f3f7f1; color:#174c3c; }
-body.role-warrior .sidebar-item.active { background:#174c3c; color:#fff; font-weight:600; box-shadow:0 3px 8px #174c3c12; }
-body.role-warrior .user-topbar { min-height:76px; padding:16px clamp(20px,3vw,44px); background:#fff; border-bottom:1px solid #d4e1d8; }
+body.role-warrior .sidebar-item { min-height:46px; margin:3px 0; gap:9px; border:1px solid transparent; border-radius:8px; font-size:.8rem; font-weight:500; color:#c9ddd1; padding:13px 12px; }
+body.role-warrior .sidebar-item.active i { color:#174c3c; }
+body.role-warrior .sidebar-item i { width:20px; text-align:center; color:#b2cdbb; }
+body.role-warrior .sidebar-item:hover { background:#205440; color:#fff; }
+body.role-warrior .sidebar-item.active { font-weight:600; background:#eaf3eb; color:#103d2f; box-shadow:none; }
+body.role-warrior .user-topbar { padding:16px clamp(20px,3vw,44px); border-bottom:1px solid #d4e1d8; min-height:82px; padding-block:15px; background:#fff; }
 body.role-warrior .user-topbar h1 { font-size:1.03rem; letter-spacing:-.02em; }
-body.role-warrior .user-workspace { width:100%; max-width:1440px; margin:0 auto; padding:28px clamp(18px,3vw,44px) 44px; }
+body.role-warrior .user-workspace { width:100%; max-width:1440px; margin:0 auto; padding:28px clamp(18px,3vw,44px) 44px; padding-top:32px; }
 body.role-warrior .sp-welcome-banner { min-height:262px; padding:32px; border:0; border-radius:14px; background:linear-gradient(90deg,#eaf3eb 37%,#eaf3ebed 48%,#eaf3eb00 76%),url('/assets/img/landing-bandung-1280.webp') right 48% / auto 145% no-repeat,#eaf3eb; }
 body.role-warrior .sp-welcome-banner h2 { max-width:18ch; font-size:clamp(1.9rem,3.1vw,2.7rem); line-height:1.12; letter-spacing:-.04em; margin:9px 0 13px; }
-body.role-warrior .sp-welcome-banner h2 span { display:block; color:#174c3c; }
+body.role-warrior .sp-welcome-banner h2 span:where(:not([hidden])) { display:block; color:#174c3c; }
 body.role-warrior .sp-welcome-banner p:not(.sp-kicker) { max-width:41ch; font-size:.87rem; line-height:1.7; }
 body.role-warrior .sp-kicker { color:#34664e; font-size:.67rem; font-weight:600; letter-spacing:.12em; }
 body.role-warrior .sp-workspace-actions { gap:10px; margin-top:21px; }
@@ -65,7 +65,7 @@ body.role-warrior .sp-section-heading .sp-button { min-height:36px; padding:7px 
 body.role-warrior .sp-location-row { padding:14px 0; }
 body.role-warrior .sp-location-record { gap:5px; }
 body.role-warrior .sp-location-detail { min-height:36px; font-size:.78rem; text-decoration:none; padding:0; }
-body.role-warrior :is(.sp-pickup-intro,.sp-history-intro) { margin-bottom:24px; }
+body.role-warrior :is(.sp-pickup-intro,.sp-history-intro) { margin-bottom:24px; padding-bottom:20px; border-bottom:1px solid #d4e1d8; }
 body.role-warrior :is(.sp-pickup-intro,.sp-history-intro) h2 { font-size:1.85rem; margin-bottom:8px; }
 body.role-warrior :is(.sp-pickup-intro,.sp-history-intro) p { font-size:.87rem; }
 body.role-warrior .sp-pickup-panel { padding:24px; margin-bottom:18px; }
@@ -73,15 +73,15 @@ body.role-warrior .sp-pickup-field { margin-top:16px; gap:7px; }
 body.role-warrior .sp-pickup-field label { font-size:.82rem; font-weight:600; }
 body.role-warrior .sp-pickup-field :is(input,textarea),body.role-warrior .sp-settings-fields select { background:#f9fbf7; border-color:#d4e1d8; }
 body.role-warrior .category-helper,body.role-warrior .facility-category-option { border-radius:10px; box-shadow:none; }
-body.role-warrior .sp-history-switch { padding:5px; background:#eaf3eb; border:0; border-radius:10px; }
-body.role-warrior .sp-history-switch button { border:0; border-radius:7px; }
+body.role-warrior .sp-history-switch { border:0; padding:0; background:none; border-radius:0; gap:24px; border-bottom:1px solid #d4e1d8; }
+body.role-warrior .sp-history-switch button { border:0; flex:none; border-radius:0; background:transparent; color:#4b6459; padding:14px 4px; }
 body.role-warrior .sp-workspace-filters { padding:16px; border:1px solid #dce5dc; border-radius:12px; background:#fff; gap:12px; }
 body.role-warrior .sp-workspace-filters label { font-size:.77rem; }
-body.role-warrior .sp-history-card { padding:18px; margin-bottom:12px; box-shadow:0 2px 7px #12352706; border-color:#dce5dc; }
-body.role-warrior .sp-history-card h3 { font-size:1rem; font-weight:700; }
+body.role-warrior .sp-history-card { border:0; border-bottom:1px solid #d4e1d8; border-radius:0; margin:0; padding:20px 16px; box-shadow:none; }
+body.role-warrior .sp-history-card h3 { font-weight:700; font-size:.93rem; }
 body.role-warrior .sp-settings-fields { align-items:start; }
 body.role-warrior .sp-settings-fields .sp-pickup-field { align-content:start; }
-body.role-warrior .sp-settings-form .sp-pickup-panel { padding:24px; }
+body.role-warrior .sp-settings-form .sp-pickup-panel { padding:24px; scroll-margin-top:24px; }
 body.role-warrior .sp-portal-articles article { box-shadow:0 2px 7px #12352706; border-color:#dce5dc; }
 body.role-warrior .user-bottom-nav { border-top:1px solid #d4e1d8; box-shadow:none; background:#fff; }
 @media (max-width:1100px) {
@@ -90,7 +90,7 @@ body.role-warrior .user-bottom-nav { border-top:1px solid #d4e1d8; box-shadow:no
 }
 @media (max-width:767px) {
  body.role-warrior .user-workspace { padding:20px 16px 100px; }
- body.role-warrior .user-topbar { min-height:66px; padding:12px 16px; }
+ body.role-warrior .user-topbar { min-height:72px; padding:12px 16px; }
  body.role-warrior .sp-welcome-banner { min-height:0; padding:24px; background:#eaf3eb; }
  body.role-warrior .sp-welcome-banner h2 { font-size:1.85rem; }
  body.role-warrior .sp-summary-grid { gap:10px; margin:16px 0 20px; }
@@ -112,22 +112,12 @@ body.role-warrior .user-bottom-nav { border-top:1px solid #d4e1d8; box-shadow:no
 @media (prefers-reduced-motion:reduce) { body.role-warrior .sp-button { transition:none; } }
 
 /* Structural redesign: dashboard composition and distinct page layouts. */
-body.role-warrior { --portal-sidebar:240px; }
-body.role-warrior .sidebar { background:#103d2f; border:0; }
 body.role-warrior .sidebar-logo,body.role-warrior .sidebar-logo small { color:#fff; }
-body.role-warrior .sidebar-logo small { opacity:.65; }
-body.role-warrior .sidebar-item { color:#c9ddd1; padding:13px 12px; }
-body.role-warrior .sidebar-item i { color:#b2cdbb; }
-body.role-warrior .sidebar-item:hover { background:#ffffff0d; color:#fff; }
-body.role-warrior .sidebar-item.active { background:#eaf3eb; color:#103d2f; box-shadow:none; }
-body.role-warrior .sidebar-item.active i { color:#174c3c; }
 body.role-warrior .sidebar-footer { border-color:#ffffff20; }
 body.role-warrior .sidebar-footer button { color:#dce9df; }
-body.role-warrior .user-topbar { min-height:72px; }
-body.role-warrior .user-workspace { padding-top:32px; }
-body.role-warrior #beranda .sp-welcome-banner { display:grid; grid-template-columns:minmax(0,1fr); gap:0; min-height:220px; padding:36px; background:#eaf3eb; border:0; border-radius:16px; }
+body.role-warrior #beranda .sp-welcome-banner:where(:not([hidden])) { display:grid; grid-template-columns:minmax(0,1.1fr) minmax(0,1fr); gap:0; padding:0; min-height:300px; background:#edf5eb; overflow:hidden; border:1px solid #dfe9dc; border-radius:18px; }
 body.role-warrior #beranda .sp-welcome-banner::before,body.role-warrior #beranda .sp-welcome-banner::after { display:none; }
-body.role-warrior #beranda .sp-welcome-banner h2 { font-size:clamp(2rem,3.6vw,3.2rem); max-width:27ch; margin:14px 0; }
+body.role-warrior #beranda .sp-welcome-banner h2 { font-size:clamp(1.8rem,2.7vw,2.7rem); line-height:1.15; max-width:22ch; margin:18px 0 14px; letter-spacing:-.045em; }
 body.role-warrior #beranda .sp-welcome-banner p:not(.sp-kicker) { max-width:66ch; }
 body.role-warrior #beranda .sp-hero-legacy-actions { display:none; }
 body.role-warrior #beranda .sp-home-quick { margin:0 0 24px; padding:22px; border:1px solid #d4e1d8; border-radius:14px; background:white; }
@@ -138,73 +128,66 @@ body.role-warrior #beranda .sp-home-quick-grid button { padding:18px; background
 body.role-warrior #beranda .sp-home-quick-grid button:hover { background:#e4f0e5; border-color:#91b29b; }
 body.role-warrior #beranda .sp-home-quick-grid strong { font-size:.9rem; }
 body.role-warrior #beranda .sp-home-quick-grid small { color:#526a5e; font-size:.76rem; }
-body.role-warrior #beranda .sp-summary-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); margin:20px 0; padding:0; background:transparent; border:0; gap:14px; }
-body.role-warrior #beranda .sp-summary-card { display:flex; align-items:flex-start; min-width:0; min-height:112px; border:1px solid #d4e1d8; border-radius:12px; padding:18px; background:white; box-shadow:none; }
+body.role-warrior #beranda .sp-summary-grid:where(:not([hidden])) { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); margin:20px 0; padding:0; background:transparent; border:0; gap:14px; }
+body.role-warrior #beranda .sp-summary-card:where(:not([hidden])) { display:flex; align-items:flex-start; min-width:0; min-height:112px; border:1px solid #d4e1d8; border-radius:12px; padding:18px; background:white; box-shadow:none; }
 body.role-warrior #beranda .sp-summary-card > div { min-width:0; }
 body.role-warrior #beranda .sp-summary-card dt { font-size:.76rem; line-height:1.4; margin:0 0 9px; }
 body.role-warrior #beranda .sp-summary-card dd { margin:0; font-variant-numeric:tabular-nums; overflow-wrap:anywhere; }
 body.role-warrior #beranda #sp-home-latest-status { font-size:1rem; line-height:1.45; }
-body.role-warrior .sp-overview-layout { display:grid; grid-template-columns:minmax(0,1.7fr) minmax(260px,1fr); gap:20px; align-items:stretch; }
+body.role-warrior .sp-overview-layout:where(:not([hidden])) { display:grid; grid-template-columns:minmax(0,1.7fr) minmax(260px,1fr); gap:20px; align-items:stretch; }
 body.role-warrior .sp-overview-layout > section { min-width:0; margin:0; }
-body.role-warrior #beranda #own-location-map { height:320px; }
+body.role-warrior #beranda #own-location-map { height:330px; border-radius:10px; }
 body.role-warrior #beranda .sp-recent-panel { padding:22px; }
 body.role-warrior #beranda .sp-recent-panel .sp-section-heading { align-items:flex-start; flex-wrap:wrap; }
 body.role-warrior #beranda .sp-recent-panel .sp-section-heading h2 { font-size:1.05rem; }
-body.role-warrior #beranda .sp-recent-panel .sp-location-record { display:grid; grid-template-columns:minmax(0,1fr); gap:4px; }
+body.role-warrior #beranda .sp-recent-panel .sp-location-record:where(:not([hidden])) { display:grid; grid-template-columns:minmax(0,1fr); gap:4px; }
 body.role-warrior #beranda .sp-recent-panel .sp-location-record button { grid-column:1; grid-row:auto; justify-self:start; min-height:30px; font-size:.72rem; }
 body.role-warrior #beranda .sp-recent-panel .sp-location-record strong { font-size:.82rem; }
 body.role-warrior #beranda .sp-recent-panel .sp-location-record small { font-size:.7rem; }
 body.role-warrior #beranda .sp-recent-panel .sp-location-row { padding:10px 0; }
 body.role-warrior #beranda .sp-workspace-grid { grid-template-columns:minmax(0,1fr); }
-body.role-warrior .sp-request-fields { display:grid; grid-template-columns:minmax(0,1.2fr) minmax(0,1fr); gap:20px; align-items:start; }
+body.role-warrior .sp-request-fields:where(:not([hidden])) { display:grid; grid-template-columns:minmax(0,1.2fr) minmax(0,1fr); gap:20px; align-items:start; }
 body.role-warrior .sp-request-fields > section { min-width:0; margin:0; }
 body.role-warrior #pickup-request-form .sp-request-fields > section:first-child { grid-row:span 2; }
 body.role-warrior #facility-form .sp-request-fields { margin-top:20px; }
 body.role-warrior #facility-form .sp-request-fields > section { min-height:100%; }
 body.role-warrior #facility-form-view .sp-report-category-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
 body.role-warrior .sp-pickup-controls,body.role-warrior .sp-report-controls { margin-top:22px; padding-top:20px; border-top:1px solid #d4e1d8; }
-body.role-warrior :is(.sp-history-intro,.sp-pickup-intro) { padding-bottom:20px; border-bottom:1px solid #d4e1d8; }
-body.role-warrior .sp-history-switch { padding:0; background:none; border-radius:0; gap:24px; border-bottom:1px solid #d4e1d8; }
-body.role-warrior .sp-history-switch button { flex:none; border-radius:0; background:transparent; color:#4b6459; padding:14px 4px; }
 body.role-warrior .sp-history-switch button[aria-pressed=true] { background:none; color:#174c3c; border-bottom:3px solid #174c3c; }
-body.role-warrior .sp-history-card { border:0; border-bottom:1px solid #d4e1d8; border-radius:0; margin:0; padding:20px 16px; box-shadow:none; }
 body.role-warrior .sp-history-list { background:white; border:1px solid #d4e1d8; border-radius:12px; overflow:hidden; }
 body.role-warrior .sp-history-thumb { width:52px; height:60px; border-radius:8px; }
-body.role-warrior .sp-history-card h3 { font-size:.93rem; }
-body.role-warrior .sp-education-category-grid { display:flex; flex-wrap:wrap; gap:8px; }
-body.role-warrior .sp-education-category-grid button { display:flex; align-items:center; gap:8px; min-height:42px; padding:10px 14px; border-radius:24px; width:auto; }
+body.role-warrior .sp-education-category-grid:where(:not([hidden])) { display:flex; flex-wrap:wrap; gap:8px; }
+body.role-warrior .sp-education-category-grid button:where(:not([hidden])) { display:flex; align-items:center; gap:8px; min-height:42px; padding:10px 14px; border-radius:24px; width:auto; }
 body.role-warrior .sp-education-category-grid button i { font-size:.9rem; }
 body.role-warrior .sp-education-category-grid [aria-pressed=true] { background:#174c3c; color:#fff; border-color:#174c3c; }
 body.role-warrior .sp-education-category-grid [aria-pressed=true] i { color:#fff; }
 body.role-warrior .sp-education-feature { border-radius:16px; background:#eaf3eb; color:#174c3c; min-height:240px; }
 body.role-warrior .sp-education-feature :is(h3,p) { color:#174c3c; }
 body.role-warrior .sp-portal-articles { gap:20px; margin-top:20px; }
-body.role-warrior .sp-portal-articles .sp-article-card { padding:18px; border-radius:12px; border:1px solid #d4e1d8; background:#fff; }
+body.role-warrior .sp-portal-articles .sp-article-card { padding:18px; border:1px solid #d4e1d8; background:#fff; }
 body.role-warrior .sp-education-cover { height:150px; }
-body.role-warrior .sp-settings-layout { display:grid; grid-template-columns:210px minmax(0,1fr); gap:28px; align-items:start; }
-body.role-warrior .sp-settings-nav { position:sticky; top:28px; display:grid; gap:6px; padding:20px 0; border-top:2px solid #174c3c; }
+body.role-warrior .sp-settings-layout:where(:not([hidden])) { display:grid; grid-template-columns:210px minmax(0,1fr); gap:28px; align-items:start; }
+body.role-warrior .sp-settings-nav:where(:not([hidden])) { position:sticky; top:28px; display:grid; gap:6px; padding:20px 0; border-top:2px solid #174c3c; }
 body.role-warrior .sp-settings-nav p { margin-bottom:12px; font-weight:700; }
 body.role-warrior .sp-settings-nav a { padding:10px 12px; border-radius:6px; color:#4b6459; font-size:.8rem; }
 body.role-warrior .sp-settings-nav a:hover { background:#eaf3eb; color:#174c3c; }
 body.role-warrior .sp-settings-form { grid-template-columns:minmax(0,1fr); }
 body.role-warrior .sp-settings-form .sp-settings-fields { grid-template-columns:repeat(2,minmax(0,1fr)); }
-body.role-warrior .sp-settings-form .sp-pickup-panel { scroll-margin-top:24px; }
 @media (max-width:1100px) {
  body.role-warrior #beranda .sp-welcome-banner { grid-template-columns:minmax(0,1fr); gap:24px; }
  body.role-warrior #beranda .sp-home-quick-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
  body.role-warrior .sp-overview-layout { grid-template-columns:minmax(0,1fr); }
- body.role-warrior #beranda .sp-summary-grid { gap:20px 0; }
- body.role-warrior #beranda .sp-summary-card:nth-child(2) { border-right:0; }
+ body.role-warrior #beranda .sp-summary-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+ body.role-warrior #beranda .sp-summary-card:nth-child(2) { border-right:1px solid #d4e1d8; }
  body.role-warrior .sp-settings-layout { grid-template-columns:minmax(0,1fr); gap:12px; }
- body.role-warrior .sp-settings-nav { position:static; display:flex; flex-wrap:wrap; align-items:center; padding:12px 0; }
+ body.role-warrior .sp-settings-nav:where(:not([hidden])) { position:static; display:flex; flex-wrap:wrap; align-items:center; padding:12px 0; }
  body.role-warrior .sp-settings-nav p { margin:0 12px 0 0; }
 }
 @media (max-width:767px) {
- body.role-warrior #beranda .sp-welcome-banner { min-height:0; padding:24px 20px; background:#eaf3eb; }
- body.role-warrior #beranda .sp-welcome-banner h2 { font-size:2rem; }
+ body.role-warrior #beranda .sp-welcome-banner { background:#eaf3eb; grid-template-columns:minmax(0,1fr); padding:0; min-height:0; gap:0; }
  body.role-warrior #beranda .sp-home-quick { padding:16px; }
  body.role-warrior #beranda .sp-home-quick-grid { grid-template-columns:minmax(0,1fr); }
- body.role-warrior #beranda .sp-summary-card { padding:0 12px; }
+ body.role-warrior #beranda .sp-summary-card { padding:14px 12px; min-height:108px; }
  body.role-warrior .sp-request-fields { grid-template-columns:minmax(0,1fr); gap:16px; }
  body.role-warrior #pickup-request-form .sp-request-fields > section:first-child { grid-row:auto; }
  body.role-warrior .sp-settings-form .sp-settings-fields { grid-template-columns:minmax(0,1fr); }
@@ -223,96 +206,93 @@ body.role-warrior #beranda .sp-panel { padding:24px; border-radius:14px; }
 body.role-warrior #beranda .sp-panel h2 { font-size:1.15rem; line-height:1.4; }
 body.role-warrior #beranda .sp-panel > p { font-size:.82rem; color:#526a5e; line-height:1.6; }
 body.role-warrior #beranda .leaflet-tile-pane { filter:none; opacity:1; }
-body.role-warrior #beranda .sp-map-legend { position:static; display:flex; flex-wrap:wrap; gap:10px 20px; padding:12px 0 0; margin:0; background:none; box-shadow:none; }
-body.role-warrior #beranda .sp-map-legend li { display:flex; gap:8px; align-items:center; font-size:.76rem; }
-body.role-warrior #beranda .sp-status-legend { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin-top:14px; padding-top:14px; }
+body.role-warrior #beranda .sp-map-legend:where(:not([hidden])) { position:static; display:flex; flex-wrap:wrap; gap:10px 20px; padding:12px 0 0; margin:0; background:none; box-shadow:none; }
+body.role-warrior #beranda .sp-map-legend li:where(:not([hidden])) { display:flex; gap:8px; align-items:center; font-size:.76rem; }
+body.role-warrior #beranda .sp-status-legend:where(:not([hidden])) { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin-top:14px; padding-top:14px; }
 body.role-warrior #beranda .sp-status-legend li { padding:8px 9px; border:1px solid #e4ebe5; border-radius:7px; background:#f7faf7; font-size:.7rem; line-height:1.45; gap:7px; }
 body.role-warrior #beranda .sp-status-dot { flex-shrink:0; }
-body.role-warrior #beranda #own-location-map { height:330px; border-radius:10px; }
 body.role-warrior #beranda .sp-section-heading { gap:12px; margin-bottom:16px; align-items:center; }
 body.role-warrior #beranda #sp-recent-activity { padding:0; margin:0; list-style:none; }
 body.role-warrior #beranda .sp-location-row { margin:0; padding:15px 0; }
 body.role-warrior #beranda .sp-location-row:last-child { border-bottom:0; }
-body.role-warrior #beranda .sp-activity-record { display:grid; grid-template-columns:34px minmax(0,1fr) auto; gap:11px; align-items:start; }
-body.role-warrior #beranda .sp-activity-icon { display:grid; place-items:center; width:34px; height:34px; border-radius:10px; background:#edf4ee; color:#24644b; }
+body.role-warrior #beranda .sp-activity-record:where(:not([hidden])) { display:grid; grid-template-columns:34px minmax(0,1fr) auto; gap:11px; align-items:start; }
+body.role-warrior #beranda .sp-activity-icon:where(:not([hidden])) { display:grid; place-items:center; width:34px; height:34px; border-radius:10px; background:#edf4ee; color:#24644b; }
 body.role-warrior #beranda .sp-location-row--facility .sp-activity-icon { background:#fff2e5; color:#a95a12; }
-body.role-warrior #beranda .sp-activity-copy { display:grid; gap:5px; min-width:0; }
+body.role-warrior #beranda .sp-activity-copy:where(:not([hidden])) { display:grid; gap:5px; min-width:0; }
 body.role-warrior #beranda .sp-activity-copy > small { font-size:.68rem; color:#63766b; }
 body.role-warrior #beranda .sp-activity-copy > strong { font-size:.84rem; color:#193e30; overflow-wrap:anywhere; line-height:1.5; }
-body.role-warrior #beranda .sp-activity-meta { display:flex; flex-wrap:wrap; gap:5px 10px; font-size:.68rem; color:#63766b; line-height:1.5; }
+body.role-warrior #beranda .sp-activity-meta:where(:not([hidden])) { display:flex; flex-wrap:wrap; gap:5px 10px; font-size:.68rem; color:#63766b; line-height:1.5; }
 body.role-warrior #beranda .sp-activity-state { font-weight:600; color:#355c47; }
 body.role-warrior #beranda .sp-activity-record > button { font-size:.72rem; padding:5px 0 5px 5px; min-height:34px; color:#24644b; }
-body.role-warrior #beranda .pickup-flow-card { display:grid; grid-template-columns:minmax(200px,.85fr) minmax(0,1.4fr); gap:24px; padding:20px; background:#f8fbf8; border-color:#e0e9df; border-radius:10px; margin-top:12px; }
+body.role-warrior #beranda .pickup-flow-card:where(:not([hidden])) { display:grid; grid-template-columns:minmax(200px,.85fr) minmax(0,1.4fr); gap:24px; padding:20px; background:#f8fbf8; border-color:#e0e9df; border-radius:10px; margin-top:12px; }
 body.role-warrior #beranda .sp-request-eyebrow { font-size:.65rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:#62796b; }
 body.role-warrior #beranda .pickup-flow-card-main h4 { margin:8px 0; font-size:.95rem; color:#194532; }
 body.role-warrior #beranda .pickup-flow-card-main h4 span { font-size:.78rem; font-weight:500; color:#62796b; }
 body.role-warrior #beranda .sp-request-tracking { margin:0; font-size:.69rem; line-height:1.6; overflow-wrap:anywhere; color:#63766b; }
-body.role-warrior #beranda .pickup-flow-card-status { display:grid; grid-template-columns:32px minmax(0,1fr) auto; gap:10px; align-items:center; }
+body.role-warrior #beranda .pickup-flow-card-status:where(:not([hidden])) { display:grid; grid-template-columns:32px minmax(0,1fr) auto; gap:10px; align-items:center; }
 body.role-warrior #beranda .pickup-flow-icon { width:32px; height:32px; font-size:.8rem; }
 body.role-warrior #beranda .pickup-flow-copy p { font-size:.76rem; line-height:1.6; margin:8px 0 4px; }
-body.role-warrior #beranda .pickup-flow-copy small { display:block; font-size:.68rem; line-height:1.6; color:#63766b; }
+body.role-warrior #beranda .pickup-flow-copy small:where(:not([hidden])) { display:block; font-size:.68rem; line-height:1.6; color:#63766b; }
 body.role-warrior #beranda .pickup-flow-track-btn { padding:8px 12px; font-size:.73rem; min-height:38px; }
-body.role-warrior #beranda .sp-request-actions { grid-column:2 / -1; display:flex; flex-wrap:wrap; gap:8px; }
+body.role-warrior #beranda .sp-request-actions:where(:not([hidden])) { grid-column:2 / -1; display:flex; flex-wrap:wrap; gap:8px; }
 body.role-warrior #beranda .sp-request-actions > button { width:auto; }
 body.role-warrior #beranda .sp-home-lower { grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr); gap:20px; align-items:stretch; }
-body.role-warrior #beranda .sp-reward-panel { display:flex; flex-direction:column; align-items:flex-start; }
-body.role-warrior #beranda .sp-reward-total { width:100%; display:grid; gap:9px; margin:20px 0 16px; padding:20px; background:#eff6ef; border-radius:10px; color:#526a5e; font-size:.76rem; }
-body.role-warrior #beranda .sp-reward-total strong { font-family:Manrope,Inter,sans-serif; font-size:1.9rem; color:#174c3c; font-variant-numeric:tabular-nums; overflow-wrap:anywhere; }
-body.role-warrior #beranda .sp-reward-completed { display:flex; align-items:center; gap:8px; margin:0 0 24px; font-size:.8rem; color:#526a5e; }
+body.role-warrior #beranda .sp-reward-panel:where(:not([hidden])) { display:flex; flex-direction:column; align-items:stretch; }
+body.role-warrior #beranda .sp-reward-heading:where(:not([hidden])) { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; }
+body.role-warrior #beranda .sp-reward-heading h2 { margin:0; }
+body.role-warrior #beranda .sp-reward-heading p { margin:7px 0 0; font-size:.79rem; line-height:1.6; color:#526a5e; }
+body.role-warrior #beranda .sp-reward-symbol:where(:not([hidden])) { display:grid; place-items:center; flex:0 0 42px; height:42px; border-radius:12px; background:#edf5ee; color:#277355; font-size:1rem; }
+body.role-warrior #beranda .sp-reward-total:where(:not([hidden])) { display:grid; gap:10px; margin:24px 0 0; padding:22px; background:#eff6ef; border:1px solid #e1ece2; border-radius:12px; color:#526a5e; font-size:.78rem; }
+body.role-warrior #beranda .sp-reward-total strong { font-family:Manrope,Inter,sans-serif; font-size:clamp(1.85rem,3vw,2.35rem); line-height:1.2; letter-spacing:-.04em; color:#174c3c; font-variant-numeric:tabular-nums; overflow-wrap:anywhere; }
+body.role-warrior #beranda .sp-reward-completed:where(:not([hidden])) { display:flex; align-items:center; justify-content:space-between; gap:12px; margin:0 0 22px; padding:18px 0; border-bottom:1px solid #e4ece6; font-size:.8rem; color:#526a5e; }
+body.role-warrior #beranda .sp-reward-completed > span:where(:not([hidden])) { display:flex; align-items:center; gap:9px; }
+body.role-warrior #beranda .sp-reward-completed strong { color:#174c3c; font-size:1rem; font-variant-numeric:tabular-nums; }
 body.role-warrior #beranda .sp-reward-completed i { color:#277355; }
-body.role-warrior #beranda .sp-reward-panel > button { margin-top:auto; }
-body.role-warrior #beranda .sp-contribution-stats { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin:16px 0 20px; }
-body.role-warrior #beranda .sp-contribution-stats > div { display:grid; gap:6px; padding:12px 14px; background:#f3f7f2; border-radius:8px; font-size:.72rem; color:#526a5e; }
+body.role-warrior #beranda .sp-reward-actions:where(:not([hidden])) { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:auto; }
+body.role-warrior #beranda .sp-reward-actions .sp-button { width:100%; min-height:44px; padding:11px 10px; font-size:.78rem; line-height:1.4; }
+@media(max-width:480px) { body.role-warrior #beranda .sp-reward-actions { grid-template-columns:minmax(0,1fr); } }
+body.role-warrior #beranda .sp-contribution-stats:where(:not([hidden])) { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin:16px 0 20px; }
+body.role-warrior #beranda .sp-contribution-stats > div:where(:not([hidden])) { display:grid; gap:6px; padding:12px 14px; background:#f3f7f2; border-radius:8px; font-size:.72rem; color:#526a5e; }
 body.role-warrior #beranda .sp-contribution-stats strong { font-size:1.25rem; color:#174c3c; }
 body.role-warrior #beranda .sp-contribution-stats small { font-size:.73rem; font-weight:500; }
 body.role-warrior #beranda .sp-monthly-chart { height:180px; }
-@media(max-width:1100px) {
- body.role-warrior #beranda .sp-summary-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
- body.role-warrior #beranda .sp-summary-card:nth-child(2) { border-right:1px solid #d4e1d8; }
-}
 @media(max-width:767px) {
  body.role-warrior #beranda .sp-panel { padding:18px; }
  body.role-warrior #beranda .sp-home-lower,body.role-warrior #beranda .pickup-flow-card { grid-template-columns:minmax(0,1fr); gap:16px; }
  body.role-warrior #beranda .sp-status-legend { grid-template-columns:repeat(2,minmax(0,1fr)); }
- body.role-warrior #beranda .sp-summary-card { padding:14px 12px; min-height:108px; }
  body.role-warrior #beranda .sp-summary-card dt { font-size:.69rem; }
  body.role-warrior #beranda .sp-activity-record { grid-template-columns:28px minmax(0,1fr) auto; gap:8px; }
  body.role-warrior #beranda .sp-activity-icon { width:28px; height:28px; }
  body.role-warrior #beranda #own-location-map { height:290px; }
 }
 /* Header and hero share the landing page's forest-green identity. */
-body.role-warrior .user-topbar { min-height:82px; padding-block:15px; background:#fff; }
-body.role-warrior .sp-header-context { display:flex; flex-direction:column; gap:5px; min-width:0; }
-body.role-warrior .sp-header-context > span { display:flex; align-items:center; gap:10px; color:#698174; font-size:.66rem; font-weight:600; letter-spacing:.08em; text-transform:uppercase; }
+body.role-warrior .sp-header-context:where(:not([hidden])) { display:flex; flex-direction:column; gap:5px; min-width:0; }
+body.role-warrior .sp-header-context > span:where(:not([hidden])) { display:flex; align-items:center; gap:10px; color:#698174; font-size:.66rem; font-weight:600; letter-spacing:.08em; text-transform:uppercase; }
 body.role-warrior .user-topbar .sp-header-context h1 { font-family:Manrope,Inter,sans-serif; font-size:1.2rem; font-weight:800; letter-spacing:-.035em; color:#193e30; }
 body.role-warrior .sp-header-controls { gap:18px; }
 body.role-warrior .sp-header-bell { width:40px; height:40px; border:1px solid #e2ebe2; border-radius:12px; background:#f8fbf6; }
 body.role-warrior .user-profile-header-card { border-left:0; padding-left:0; }
 body.role-warrior #profile-avatar { background:#e7f1e3; color:#24664b; border:3px solid #f5f9f1; }
-body.role-warrior #beranda .sp-welcome-banner { grid-template-columns:minmax(0,1.1fr) minmax(0,1fr); gap:0; padding:0; min-height:300px; background:#edf5eb; overflow:hidden; border:1px solid #dfe9dc; border-radius:18px; }
 body.role-warrior #beranda .sp-hero-copy { padding:34px; align-self:center; min-width:0; }
-body.role-warrior #beranda .sp-welcome-banner .sp-kicker { display:inline-flex; margin:0; padding:7px 11px; border:1px solid #d6e5ce; border-radius:20px; background:#ffffffb3; color:#426346; font-size:.68rem; font-weight:600; letter-spacing:0; text-transform:none; max-width:100%; overflow-wrap:anywhere; }
-body.role-warrior #beranda .sp-welcome-banner h2 { font-size:clamp(1.8rem,2.7vw,2.7rem); line-height:1.15; max-width:22ch; margin:18px 0 14px; letter-spacing:-.045em; }
+body.role-warrior #beranda .sp-welcome-banner .sp-kicker:where(:not([hidden])) { display:inline-flex; margin:0; padding:7px 11px; border:1px solid #d6e5ce; border-radius:20px; background:#ffffffb3; color:#426346; font-size:.68rem; font-weight:600; letter-spacing:0; text-transform:none; max-width:100%; overflow-wrap:anywhere; }
 body.role-warrior #beranda .sp-welcome-banner h2 span { color:#287553; }
 body.role-warrior #beranda .sp-hero-copy > p:not(.sp-kicker) { font-size:.85rem; line-height:1.8; color:#536e5e; max-width:45ch; margin:0; }
 body.role-warrior #beranda .sp-hero-visual { position:relative; align-self:stretch; min-width:0; min-height:300px; margin:12px 12px 12px 0; border-radius:12px; overflow:hidden; }
-body.role-warrior #beranda .sp-hero-visual > img { display:block; position:absolute; width:100%; height:100%; object-fit:cover; object-position:58% center; }
-body.role-warrior #beranda .sp-hero-visual figcaption { position:absolute; left:16px; right:16px; bottom:16px; display:flex; align-items:center; gap:10px; padding:12px; border:1px solid #ffffffb3; border-radius:10px; background:#fffffff0; color:#1e523a; }
-body.role-warrior #beranda .sp-hero-visual figcaption > span { display:grid; place-items:center; width:34px; height:34px; flex-shrink:0; background:#e6f1de; border-radius:9px; }
-body.role-warrior #beranda .sp-hero-visual figcaption strong { display:block; font-size:.75rem; line-height:1.5; }
-body.role-warrior #beranda .sp-hero-visual figcaption small { display:block; font-size:.64rem; line-height:1.5; color:#617769; }
+body.role-warrior #beranda .sp-hero-visual > img:where(:not([hidden])) { display:block; position:absolute; width:100%; height:100%; object-fit:cover; object-position:58% center; }
+body.role-warrior #beranda .sp-hero-visual figcaption:where(:not([hidden])) { position:absolute; left:16px; right:16px; bottom:16px; display:flex; align-items:center; gap:10px; padding:12px; border:1px solid #ffffffb3; border-radius:10px; background:#fffffff0; color:#1e523a; }
+body.role-warrior #beranda .sp-hero-visual figcaption > span:where(:not([hidden])) { display:grid; place-items:center; width:34px; height:34px; flex-shrink:0; background:#e6f1de; border-radius:9px; }
+body.role-warrior #beranda .sp-hero-visual figcaption strong:where(:not([hidden])) { display:block; font-size:.75rem; line-height:1.5; }
+body.role-warrior #beranda .sp-hero-visual figcaption small:where(:not([hidden])) { display:block; font-size:.64rem; line-height:1.5; color:#617769; }
 @media(max-width:1100px) {
  body.role-warrior #beranda .sp-hero-copy { padding:26px; }
  body.role-warrior #beranda .sp-welcome-banner h2 { font-size:2rem; }
 }
 @media(max-width:767px) {
- body.role-warrior .user-topbar { min-height:72px; padding:12px 16px; }
  body.role-warrior .user-topbar .sp-header-context h1 { font-size:1.08rem; }
  body.role-warrior .sp-header-controls { gap:6px; }
  body.role-warrior .user-profile-header-card { padding-left:8px; }
- body.role-warrior #beranda .sp-welcome-banner { grid-template-columns:minmax(0,1fr); padding:0; min-height:0; gap:0; }
  body.role-warrior #beranda .sp-hero-copy { padding:24px; }
- body.role-warrior #beranda .sp-welcome-banner h2 { font-size:1.95rem; margin:16px 0 12px; }
  body.role-warrior #beranda .sp-hero-visual { min-height:210px; margin:0 12px 12px; }
  body.role-warrior #beranda .sp-hero-visual > img { object-position:center 42%; }
+ body.role-warrior #beranda .sp-welcome-banner h2 { font-size:1.95rem; margin:16px 0 12px; }
 }

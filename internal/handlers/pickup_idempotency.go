@@ -20,10 +20,14 @@ type pickupReceipt struct {
 
 func pickupFingerprint(data map[string]string, categoryID int, weight float64, location pickupLocation, photo []byte) [32]byte {
 	// Only validated values that affect pickup creation belong in the fingerprint.
-	encoded, _ := json.Marshal([]any{
+	values := []any{
 		data["item_description"], data["pickup_address"], data["contact_phone"],
 		categoryID, weight, location.latitude, location.longitude, sha256.Sum256(photo),
-	})
+	}
+	if data["items"] != "" {
+		values = append(values, data["items"])
+	}
+	encoded, _ := json.Marshal(values)
 	return sha256.Sum256(encoded)
 }
 

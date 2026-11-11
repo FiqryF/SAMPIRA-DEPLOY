@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"net/mail"
+	"strconv"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -28,6 +29,7 @@ type App struct {
 	FacilityReports  repositories.FacilityReports
 	FacilityHandling repositories.FacilityHandling
 	Education        repositories.Education
+	loginAttempts    *loginLimiter
 }
 
 func NewApp(db *sql.DB, auth *services.AuthService) *App {
@@ -40,13 +42,24 @@ func NewApp(db *sql.DB, auth *services.AuthService) *App {
 		FacilityReports:  repositories.FacilityReports{DB: db},
 		FacilityHandling: repositories.FacilityHandling{DB: db},
 		Education:        repositories.Education{DB: db},
+		loginAttempts:    newLoginLimiter(),
 	}
 }
 
 func (a *App) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		httpx.SendResponse(w, "error", "Metode request tidak diizinkan.", nil, http.StatusMethodNotAllowed)
+		httpx.SendResponse(w, "error", methodNotAllowedMessage, nil, http.StatusMethodNotAllowed)
 		return
+	}
+	var releaseAttempt func()
+	if a.loginAttempts != nil {
+		var retry int
+		releaseAttempt, retry = a.loginAttempts.take(r.RemoteAddr)
+		if releaseAttempt == nil {
+			w.Header().Set("Retry-After", strconv.Itoa(retry))
+			httpx.SendResponse(w, "error", "Percobaan login terlalu banyak. Tunggu satu menit sebelum mencoba lagi.", nil, http.StatusTooManyRequests)
+			return
+		}
 	}
 	data := httpx.RequestData(r)
 	email := strings.ToLower(strings.TrimSpace(data["email"]))
@@ -82,6 +95,9 @@ func (a *App) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		httpx.SendResponse(w, "error", "Gagal membuat sesi aktif.", nil, http.StatusUnauthorized)
 		return
 	}
+	if releaseAttempt != nil {
+		releaseAttempt()
+	}
 	a.setPortalCookie(w, r, token, int(services.SessionTTL.Seconds()))
 	if r.Header.Get("X-SAMPIRA-Portal") == "1" {
 		httpx.SendResponse(w, "success", "Login berhasil.", map[string]interface{}{"id": user.ID, "name": user.Name, "role": user.Role}, http.StatusOK)
@@ -105,7 +121,7 @@ func (a *App) LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 func (a *App) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		httpx.SendResponse(w, "error", "Metode request tidak diizinkan.", nil, http.StatusMethodNotAllowed)
+		httpx.SendResponse(w, "error", methodNotAllowedMessage, nil, http.StatusMethodNotAllowed)
 		return
 	}
 	data := httpx.RequestData(r)
@@ -154,7 +170,7 @@ func (a *App) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 
 func (a *App) ProfileGetHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		httpx.SendResponse(w, "error", "Metode request tidak diizinkan.", nil, http.StatusMethodNotAllowed)
+		httpx.SendResponse(w, "error", methodNotAllowedMessage, nil, http.StatusMethodNotAllowed)
 		return
 	}
 	sessionUser, err := a.apiSession(r)
@@ -177,7 +193,7 @@ func (a *App) ProfileGetHandler(w http.ResponseWriter, r *http.Request) {
 
 func (a *App) ProfileUpdateHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		httpx.SendResponse(w, "error", "Metode request tidak diizinkan.", nil, http.StatusMethodNotAllowed)
+		httpx.SendResponse(w, "error", methodNotAllowedMessage, nil, http.StatusMethodNotAllowed)
 		return
 	}
 	sessionUser, err := a.apiSession(r)
@@ -223,7 +239,7 @@ func (a *App) ProfileUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 func (a *App) ListCollectorsHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		httpx.SendResponse(w, "error", "Metode request tidak diizinkan.", nil, http.StatusMethodNotAllowed)
+		httpx.SendResponse(w, "error", methodNotAllowedMessage, nil, http.StatusMethodNotAllowed)
 		return
 	}
 	sessionUser, err := a.apiSession(r)

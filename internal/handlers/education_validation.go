@@ -108,36 +108,59 @@ func readEducationFilter(rawQuery string, managed bool) (repositories.EducationF
 		if len(entries) != 1 {
 			return filter, false
 		}
-		value := strings.TrimSpace(entries[0])
-		switch key {
-		case "category":
-			if !models.ValidEducationCategory(value) {
-				return filter, false
-			}
-			filter.Category = value
-		case "q":
-			if !utf8.ValidString(value) || !educationText(value, 1, 100, false) {
-				return filter, false
-			}
-			filter.Search = value
-		case "status":
-			if !managed || (value != models.EducationDraft && value != models.EducationPublished && value != models.EducationArchived) {
-				return filter, false
-			}
-			filter.Status = value
-		case "page", "limit":
-			number, err := strconv.Atoi(value)
-			if err != nil || number < 1 || (key == "page" && number > educationMaxPage) || (key == "limit" && number > educationMaxLimit) {
-				return filter, false
-			}
-			if key == "page" {
-				filter.Page = number
-			} else {
-				filter.Limit = number
-			}
-		default:
+		if !applyEducationFilter(&filter, key, strings.TrimSpace(entries[0]), managed) {
 			return filter, false
 		}
 	}
 	return filter, true
+}
+
+func applyEducationFilter(filter *repositories.EducationFilter, key, value string, managed bool) bool {
+	switch key {
+	case "category":
+		if !models.ValidEducationCategory(value) {
+			return false
+		}
+		filter.Category = value
+	case "q":
+		if !utf8.ValidString(value) || !educationText(value, 1, 100, false) {
+			return false
+		}
+		filter.Search = value
+	case "status":
+		if !managed || !validEducationFilterStatus(value) {
+			return false
+		}
+		filter.Status = value
+	case "page", "limit":
+		number, ok := educationPageNumber(key, value)
+		if !ok {
+			return false
+		}
+		if key == "page" {
+			filter.Page = number
+		} else {
+			filter.Limit = number
+		}
+	default:
+		return false
+	}
+	return true
+}
+
+func validEducationFilterStatus(value string) bool {
+	switch value {
+	case models.EducationDraft, models.EducationPublished, models.EducationArchived:
+		return true
+	}
+	return false
+}
+
+func educationPageNumber(key, value string) (int, bool) {
+	number, err := strconv.Atoi(value)
+	upper := educationMaxLimit
+	if key == "page" {
+		upper = educationMaxPage
+	}
+	return number, err == nil && number >= 1 && number <= upper
 }

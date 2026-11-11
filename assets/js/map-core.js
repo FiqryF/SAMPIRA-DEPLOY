@@ -1,4 +1,3 @@
-import {locationPoint} from './location-routing.js';
 
 const pickupStates = {
     pending:['waiting','Menunggu penjemputan'], pickup:['accepted','Diambil Petugas'],
@@ -107,4 +106,4 @@ export async function facilityMapStates(items, read, base) {
     }));
 }
 
-export {locationPoint};
+export {locationPoint} from './location-routing.js';

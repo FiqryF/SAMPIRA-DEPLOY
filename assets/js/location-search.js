@@ -41,6 +41,26 @@ export function mountLocationSearch(host, pickerHost, picker, prefix) {
         searchButton.click();
     }
     searchInput.addEventListener('keydown', onKey);
+    function appendSearchResult(feature) {
+        const [longitude, latitude] = feature.geometry?.coordinates || [];
+        if (feature.geometry?.type !== 'Point' || !Number.isFinite(latitude) || !Number.isFinite(longitude)) return;
+        const {name, street, district, city} = feature.properties || {};
+        const label = [...new Set([name, street, district, city].filter(Boolean))].join(', ');
+        if (!label) return;
+        const result = document.createElement('li');
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.textContent = label;
+        button.addEventListener('click', () => {
+            picker.selectPoint(latitude, longitude);
+            clearSearch();
+            searchStatus.textContent = 'Lokasi dipilih. Periksa dan konfirmasi titik di peta.';
+            pickerHost.querySelector('.location-actions .primary')?.focus();
+        });
+        result.append(button);
+        searchResults.append(result);
+    }
+
     async function search() {
         clearSearch();
         const query = searchInput.value.trim();
@@ -68,23 +88,7 @@ export function mountLocationSearch(host, pickerHost, picker, prefix) {
             const {features} = await response.json();
             if (run !== revision || !host.isConnected) return;
             for (const feature of Array.isArray(features) ? features : []) {
-                const [longitude, latitude] = feature.geometry?.coordinates || [];
-                if (feature.geometry?.type !== 'Point' || !Number.isFinite(latitude) || !Number.isFinite(longitude)) continue;
-                const {name, street, district, city} = feature.properties || {};
-                const label = [...new Set([name, street, district, city].filter(Boolean))].join(', ');
-                if (!label) continue;
-                const result = document.createElement('li');
-                const button = document.createElement('button');
-                button.type = 'button';
-                button.textContent = label;
-                button.addEventListener('click', () => {
-                    picker.selectPoint(latitude, longitude);
-                    clearSearch();
-                    searchStatus.textContent = 'Lokasi dipilih. Periksa dan konfirmasi titik di peta.';
-                    pickerHost.querySelector('.location-actions .primary')?.focus();
-                });
-                result.append(button);
-                searchResults.append(result);
+                appendSearchResult(feature);
             }
             searchResults.hidden = !searchResults.childElementCount;
             searchStatus.textContent = searchResults.hidden ? 'Lokasi tidak ditemukan. Coba nama jalan lain.' : 'Pilih salah satu hasil pencarian.';

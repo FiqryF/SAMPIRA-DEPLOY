@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"ecorecycle/internal/models"
 )
@@ -55,6 +56,7 @@ func (a *App) roleAnalytics(w http.ResponseWriter, r *http.Request) {
 			"awaiting_assignment":  "SELECT COUNT(*) FROM facility_handling WHERE status='approved'",
 			"assigned":             "SELECT COUNT(*) FROM facility_assignments WHERE status='active'",
 			"awaiting_validation":  "SELECT COUNT(*) FROM facility_handling WHERE status='resolution_submitted'",
+			"handling_in_progress": "SELECT COUNT(*) FROM facility_handling WHERE status='handling_in_progress'",
 			"completed":            "SELECT COUNT(*) FROM facility_handling WHERE status='completed'",
 		}
 	case models.RoleAdministrator:
@@ -98,23 +100,7 @@ func parseFacilityGrid(r *http.Request) (facilityGridQuery, bool) {
 			return q, false
 		}
 	}
-	fields := []struct {
-		key      string
-		target   *float64
-		min, max float64
-	}{{"min_lat", &q.MinLat, -90, 90}, {"max_lat", &q.MaxLat, -90, 90}, {"min_lng", &q.MinLng, -180, 180}, {"max_lng", &q.MaxLng, -180, 180}}
-	present := 0
-	for _, field := range fields {
-		if value := r.URL.Query().Get(field.key); value != "" {
-			n, err := strconv.ParseFloat(value, 64)
-			if err != nil || math.IsNaN(n) || math.IsInf(n, 0) || n < field.min || n > field.max {
-				return q, false
-			}
-			*field.target = n
-			present++
-		}
-	}
-	if present != 0 && present != 4 {
+	if !parseGridBounds(r, &q) {
 		return q, false
 	}
 	if q.MinLat >= q.MaxLat || q.MinLng >= q.MaxLng {
@@ -238,48 +224,16 @@ func (a *App) changeAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer tx.Rollback()
-	// Shared control-row lock serializes administrative account changes.
-	var control int
-	if tx.QueryRowContext(r.Context(), "SELECT id FROM contribution_rules WHERE id=1 FOR UPDATE").Scan(&control) != nil {
-		phase9Error(w)
+	if !lockAccountAuthority(w, r, tx, actor.ID) {
 		return
 	}
-	// Revalidate authority after the lock, including a concurrent session revocation.
-	var authorized bool
-	if tx.QueryRowContext(r.Context(), "SELECT (role='administrator' AND is_active=TRUE) FROM users WHERE id=? FOR UPDATE", actor.ID).Scan(&authorized) != nil {
-		phase9Error(w)
+	oldRole, oldActive, problem := lockedAccountChange(r, tx, id, body.Role, body.ExpectedRole, *body.ExpectedActive)
+	if problem != nil {
+		problem.write(w)
 		return
 	}
-	if !authorized {
-		(&apiProblem{"Otoritas akun berubah.", 403}).write(w)
+	if oldRole == models.RolePetugas && !(*body.Active) && !officerAvailable(w, r, tx, id) {
 		return
-	}
-	var oldRole string
-	var oldActive bool
-	err = tx.QueryRowContext(r.Context(), "SELECT role,is_active FROM users WHERE id=? FOR UPDATE", id).Scan(&oldRole, &oldActive)
-	if err == sql.ErrNoRows {
-		(&apiProblem{"Akun tidak ditemukan.", 404}).write(w)
-		return
-	}
-	if err != nil {
-		phase9Error(w)
-		return
-	}
-	if oldRole != body.ExpectedRole || oldActive != *body.ExpectedActive {
-		(&apiProblem{"Akun telah berubah. Muat ulang.", 409}).write(w)
-		return
-	}
-	// Prevent moving an officer while they still own unfinished operational work.
-	if oldRole == models.RolePetugas && (body.Role != oldRole || !*body.Active) {
-		var tasks int
-		if tx.QueryRowContext(r.Context(), "SELECT (SELECT COUNT(*) FROM pickups WHERE collector_id=? AND status IN ('pickup','transit','arrived'))+(SELECT COUNT(*) FROM facility_assignments WHERE petugas_id=? AND status='active')", id, id).Scan(&tasks) != nil {
-			phase9Error(w)
-			return
-		}
-		if tasks > 0 {
-			(&apiProblem{"Selesaikan atau alihkan tugas aktif sebelum perubahan akun.", 409}).write(w)
-			return
-		}
 	}
 	if _, err = tx.ExecContext(r.Context(), "UPDATE users SET role=?,is_active=? WHERE id=?", body.Role, *body.Active, id); err != nil {
 		phase9Error(w)
@@ -308,7 +262,7 @@ func (a *App) contributionAudit(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
-	rows, err := a.DB.QueryContext(r.Context(), "SELECT id,actor_id,action,entity_id,details,created_at FROM phase9_audit WHERE (?=0 OR id<?) ORDER BY id DESC LIMIT ?", before, before, limit)
+	rows, err := a.DB.QueryContext(r.Context(), "SELECT id,actor_id,action,entity_id,details,UNIX_TIMESTAMP(created_at) FROM phase9_audit WHERE (?=0 OR id<?) ORDER BY id DESC LIMIT ?", before, before, limit)
 	if err != nil {
 		phase9Error(w)
 		return
@@ -317,16 +271,100 @@ func (a *App) contributionAudit(w http.ResponseWriter, r *http.Request) {
 	items := []any{}
 	for rows.Next() {
 		var id, entity, actor int64
-		var action, details, at string
-		if rows.Scan(&id, &actor, &action, &entity, &details, &at) != nil {
+		var action, details string
+		var epoch int64
+		if rows.Scan(&id, &actor, &action, &entity, &details, &epoch) != nil {
 			phase9Error(w)
 			return
 		}
-		items = append(items, map[string]any{"id": id, "actor_id": actor, "action": action, "entity_id": entity, "details": details, "created_at": at})
+		items = append(items, map[string]any{"id": id, "actor_id": actor, "action": action, "entity_id": entity, "details": details, "created_at": time.Unix(epoch, 0).UTC()})
 	}
 	if rows.Err() != nil {
 		phase9Error(w)
 		return
 	}
 	phase9OK(w, items, 200)
+}
+
+func lockAccountAuthority(w http.ResponseWriter, r *http.Request, tx *sql.Tx, actorID int) bool {
+	// Shared control-row lock serializes administrative account changes.
+	var control int
+	if tx.QueryRowContext(r.Context(), "SELECT id FROM contribution_rules WHERE id=1 FOR UPDATE").Scan(&control) != nil {
+		phase9Error(w)
+		return false
+	}
+	// Revalidate authority after the lock, including a concurrent session revocation.
+	var authorized bool
+	if tx.QueryRowContext(r.Context(), "SELECT (role='administrator' AND is_active=TRUE) FROM users WHERE id=? FOR UPDATE", actorID).Scan(&authorized) != nil {
+		phase9Error(w)
+		return false
+	}
+	if !authorized {
+		(&apiProblem{"Otoritas akun berubah.", 403}).write(w)
+		return false
+	}
+
+	return true
+}
+
+func officerAvailable(w http.ResponseWriter, r *http.Request, tx *sql.Tx, id int) bool {
+	var tasks int
+	if tx.QueryRowContext(r.Context(), "SELECT (SELECT COUNT(*) FROM pickups WHERE collector_id=? AND status IN ('pickup','transit','arrived'))+(SELECT COUNT(*) FROM facility_assignments WHERE petugas_id=? AND status='active')", id, id).Scan(&tasks) != nil {
+		phase9Error(w)
+		return false
+	}
+	if tasks > 0 {
+		(&apiProblem{"Selesaikan atau alihkan tugas aktif sebelum perubahan akun.", 409}).write(w)
+		return false
+	}
+	return true
+}
+
+func validGridNumber(n, minimum, maximum float64) bool {
+	return !math.IsNaN(n) && !math.IsInf(n, 0) && n >= minimum && n <= maximum
+}
+
+func parseGridBounds(r *http.Request, q *facilityGridQuery) bool {
+	fields := []struct {
+		key      string
+		target   *float64
+		min, max float64
+	}{{"min_lat", &q.MinLat, -90, 90}, {"max_lat", &q.MaxLat, -90, 90}, {"min_lng", &q.MinLng, -180, 180}, {"max_lng", &q.MaxLng, -180, 180}}
+	present := 0
+	for _, field := range fields {
+		if value := r.URL.Query().Get(field.key); value != "" {
+			n, err := strconv.ParseFloat(value, 64)
+			if err != nil || !validGridNumber(n, field.min, field.max) {
+				return false
+			}
+			*field.target = n
+			present++
+		}
+	}
+	if present != 0 && present != 4 {
+		return false
+	}
+
+	return true
+}
+
+func lockedAccountChange(r *http.Request, tx *sql.Tx, id int, role, expectedRole string, expectedActive bool) (string, bool, *apiProblem) {
+	var oldRole string
+	var oldActive bool
+	err := tx.QueryRowContext(r.Context(), "SELECT role,is_active FROM users WHERE id=? FOR UPDATE", id).Scan(&oldRole, &oldActive)
+	if err == sql.ErrNoRows {
+		return "", false, &apiProblem{"Akun tidak ditemukan.", 404}
+	}
+	if err != nil {
+		return "", false, &apiProblem{"Kesalahan layanan akun.", 500}
+	}
+	if oldRole != expectedRole || oldActive != expectedActive {
+		return "", false, &apiProblem{"Akun telah berubah. Muat ulang.", 409}
+	}
+	// Account administration may change activation, but must not escalate or replace roles.
+	if role != oldRole {
+		return "", false, &apiProblem{"Role akun tidak dapat diubah melalui Administrator.", 403}
+	}
+
+	return oldRole, oldActive, nil
 }

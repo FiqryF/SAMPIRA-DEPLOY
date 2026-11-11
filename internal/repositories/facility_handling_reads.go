@@ -15,7 +15,7 @@ const handlingSelect = `SELECT r.id,r.tracking_number,r.title,r.description,r.ca
 	handlingStatusSQL + `,COALESCE(h.version,0),
     CASE WHEN r.status='approved' THEN COALESCE(a.status,'unassigned') END,
     CASE WHEN r.status='approved' THEN COALESCE(h.coordination_status,'not_forwarded') END,
-    h.public_result,h.public_evidence_version,h.updated_at,a.id,a.petugas_id,a.assigned_by,a.assigned_at,a.ended_at
+    h.public_result,h.public_evidence_version,h.updated_at,a.id,a.petugas_id,a.assigned_by,a.assigned_at,a.ended_at,1+(SELECT COUNT(*) FROM facility_report_affected af WHERE af.report_id=r.id)
     FROM facility_reports r LEFT JOIN facility_handling h ON h.report_id=r.id
     LEFT JOIN facility_assignments a ON a.report_id=r.id AND a.status=IF(h.status='completed','completed','active')`
 
@@ -26,7 +26,7 @@ func scanHandling(row interface{ Scan(...any) error }, role string) (models.Faci
 	err := row.Scan(&report.ReportID, &report.TrackingNumber, &report.Title, &report.Description, &report.Category,
 		&report.Address, &report.Latitude, &report.Longitude, &report.VerificationStatus, &report.Status, &report.Version,
 		&report.AssignmentStatus, &report.CoordinationStatus, &report.PublicResult, &report.PublicEvidenceVersion,
-		&report.UpdatedAt, &assignmentID, &petugasID, &assignedBy, &assignedAt, &endedAt)
+		&report.UpdatedAt, &assignmentID, &petugasID, &assignedBy, &assignedAt, &endedAt, &report.AffectedCount)
 	if err == nil && assignmentID != nil && role != models.RoleUser {
 		report.Assignment = &models.FacilityAssignment{
 			ID: *assignmentID, PetugasID: *petugasID, AssignedBy: *assignedBy, Status: *report.AssignmentStatus, AssignedAt: *assignedAt, EndedAt: endedAt,

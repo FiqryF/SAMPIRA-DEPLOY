@@ -8,32 +8,41 @@
     <link rel="stylesheet" href="/assets/css/admin.css">
     <link rel="stylesheet" href="/assets/css/portal-system.css">
     <link rel="stylesheet" href="/assets/css/portal-controls.css">
-    <script src="/assets/js/portal-session.js?v=phase1-final" defer></script>
+    <script src="/assets/js/portal-session.js?v=session-dialog-2" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/sweetalert2@11.26.25/dist/sweetalert2.all.min.js" integrity="sha384-nLoOnA/BDh8A/jxqtckg4DumuCGOBYUnNJLZdQz/zfYNp3wcjGSoWTAzgko06G/2" crossorigin="anonymous"></script>
     <script src="/assets/js/admin.js?v=phase1-final" defer></script>
-    <script src="/assets/js/reward-payments.js?v=phase2" defer></script>
+    <script src="/assets/js/reward-payments.js?v=payment-clean-1" defer></script>
     <link rel="icon" href="/assets/img/sampira-mark.svg" type="image/svg+xml">
     <link rel="stylesheet" href="/assets/css/sampira.css?v=phase6b-live">
     <script type="module" src="/assets/js/operations.js?v=phase6b"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/css/portal-design.css?v=roles-1">
+<link rel="stylesheet" href="/assets/css/contributions.css?v=phase9b">
+<script type="module" src="/assets/js/contributions.js?v=bandung-2"></script>
+<link rel="stylesheet" href="/assets/css/administrator-refresh.css?v=maps-reader-9">
+<script src="/assets/js/administrator-workspace.js?v=administrator-refresh-1" defer></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha384-sHL9NAb7lN7rfvG5lfHpm643Xkcjzp4jFvuavGOndn6pjVqS6ny56CAt3nsEVT4H" crossorigin="anonymous">
+<script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="/assets/css/city-datasets.css?v=bandung-2">
+    <link rel="stylesheet" href="/assets/css/session-dialog.css?v=1">
 </head>
-<body class="sp-portal sp-console sp-system">
+<body class="sp-portal sp-console sp-system administrator-refresh">
     <aside class="sp-system-sidebar"><a class="sp-brand" href="/home"><img src="/assets/img/sampira-mark.svg" width="36" height="36" alt=""><span>SAMPIRA<small>Administrator</small></span></a><nav class="sp-system-nav" aria-label="Navigasi Administrator">
-            <a href="#sp-system-metrics">Ringkasan</a><a href="#content-view">Pengumuman</a><a href="#reward-payments-title">Pembayaran Reward</a>
+            <span class="system-nav-label">Operasional</span><a href="#sp-system-metrics">Ringkasan</a><a href="#p9-system">Statistik sistem</a><a href="#p9-accounts">Akun &amp; Role</a><a href="#p9-voucher-admin">Manajemen Voucher</a><a href="#p9-audit">Monitoring &amp; Audit</a><a href="#p9-system-grid">Sebaran Fasilitas</a><span class="system-nav-label">Komunikasi &amp; reward</span><a href="#content-view">Pengumuman</a><a href="#system-payments">Pembayaran Reward</a>
         </nav><p class="sp-system-scope">Administrasi operasional<br>Pengumuman dan pembayaran</p></aside>
 <main class="container sp-system-main" id="sp-system-main">
-        <header class="sp-system-header"><div><p class="sp-kicker">Portal Administrator</p><h1>Kontrol operasional SAMPIRA</h1></div>
+        <header class="sp-system-header"><button id="system-menu-toggle" type="button" aria-label="Buka navigasi" aria-controls="system-navigation" aria-expanded="false"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button><div><p class="sp-kicker">Portal Administrator</p><h1 id="system-page-title">Ringkasan</h1></div>
 
         <form action="/logout" method="post">
-            <button class="btn btn-primary" type="submit">Keluar</button>
+            <button class="btn" type="submit">Keluar</button>
         </form>
         </header>
 
         <section class="sp-panel" id="sp-system-metrics" aria-labelledby="sp-metrics-title">
-    <p class="sp-kicker">Ringkasan sistem</p><h2 id="sp-metrics-title">Aktivitas penjemputan dan reward</h2>
-    <p role="status">Memuat ringkasan…</p>
+    <div class="system-welcome"><p class="sp-kicker">Pusat kendali layanan</p><h2 id="sp-metrics-title">Kelola layanan.<br><span>Pantau dampaknya.</span></h2><p>Ringkasan penjemputan, petugas, dan pembayaran reward yang tercatat di SAMPIRA.</p><a href="#system-payments" class="system-welcome-link">Periksa pembayaran reward</a></div>
+    <output aria-live="polite">Memuat ringkasan…</output>
     <dl class="sp-metric-grid"><div><dt>Total penjemputan</dt><dd data-metric="total_pickups" >—</dd></div><div><dt>Menunggu petugas</dt><dd data-metric="pending_verifications" >—</dd></div><div><dt>Berat terverifikasi (kg)</dt><dd data-metric="total_weight" >—</dd></div><div><dt>Akun petugas aktif</dt><dd data-metric="collectors_online" >—</dd></div><div><dt>Reward menunggu pembayaran</dt><dd data-metric="total_reward_pending" data-currency>—</dd></div><div><dt>Reward dibayar</dt><dd data-metric="total_reward_paid" data-currency>—</dd></div></dl>
+    <div class="system-shortcuts"><a href="#p9-accounts"><strong>Kelola akun</strong><span>Periksa peran dan akses pengguna</span></a><a href="#p9-voucher-admin"><strong>Atur voucher</strong><span>Kelola stok, biaya poin, dan masa berlaku</span></a><a href="#p9-audit"><strong>Tinjau aktivitas</strong><span>Pantau penukaran dan perubahan sistem</span></a></div>
 </section>
             <div id="content-view" class="view-section active">
             <div class="page-header">
@@ -94,23 +103,38 @@
         </div>
 
         <section class="panel-card sp-payments" id="system-payments" aria-labelledby="reward-payments-title">
-            <h2 id="reward-payments-title">Pencatatan Pembayaran Reward</h2>
-            <p>Cocokkan transfer eksternal dengan kewajiban dan bukti sebelum mencatat pembayaran.</p>
-            <output id="reward-payment-status"></output>
+            <div class="payment-heading"><div><p class="sp-kicker">Reward penjemputan</p><h2 id="reward-payments-title">Pembayaran Reward</h2><p>Periksa kewajiban, lalu catat transfer yang sudah Anda lakukan.</p></div><button type="button" id="reward-payment-refresh" class="sp-button sp-button--quiet">Muat ulang</button></div>
+            <div class="payment-overview" id="reward-payment-overview" aria-label="Ringkasan data pembayaran yang dimuat"></div>
+            <output id="reward-payment-status" aria-live="polite"></output>
+            <div class="payment-workspace"><div class="payment-register"><h3>Daftar pembayaran</h3><div class="payment-filters"><label for="reward-payment-filter">Status<select id="reward-payment-filter"><option value="pending">Menunggu pembayaran</option><option value="paid">Pembayaran tercatat</option><option value="">Semua status</option></select></label><label for="reward-payment-search">Cari penjemputan / referensi<input type="search" id="reward-payment-search" placeholder="Nomor penjemputan atau referensi"></label></div><output id="reward-payment-count" class="payment-caption"></output>
             <ul id="reward-payment-list"></ul>
+            </div><div class="payment-entry"><div class="payment-form-heading"><p class="sp-kicker">Pencatatan transfer</p><h3>Catat pembayaran</h3><p>Transfer dilakukan di luar SAMPIRA. Form ini hanya mencatat pembayaran beserta buktinya.</p></div><p id="reward-payment-form-empty" class="payment-empty" hidden>Tidak ada kewajiban yang menunggu pembayaran.</p>
             <form id="reward-payment-form" class="cms-form" hidden>
+                <div class="payment-field">
                 <label for="reward-pickup-id">Penjemputan</label>
                 <select name="pickup_id" id="reward-pickup-id" required></select>
+                </div><div class="payment-field">
                 <label for="reward-payment-amount">Nominal yang dibayar (Rp)</label>
-                <input name="amount" id="reward-payment-amount" type="number" min="0.01" step="0.01" required>
+                <input name="amount" id="reward-payment-amount" type="number" min="0.01" step="0.01" aria-describedby="reward-amount-help" required><small id="reward-amount-help">Terisi sesuai kewajiban yang dipilih. Cocokkan dengan transfer Anda.</small>
+                </div><div class="payment-field">
                 <label for="reward-payment-reference">Referensi transfer</label>
-                <input name="reference" id="reward-payment-reference" minlength="6" maxlength="100" required>
+                <input name="reference" id="reward-payment-reference" minlength="6" maxlength="100" placeholder="Contoh format: BCA-20261109-001" aria-describedby="reward-reference-help" required>
+                <small id="reward-reference-help">Gunakan referensi asli, 6–100 karakter. Huruf/angka di awal, lalu huruf, angka, . _ / -; tanpa spasi.</small>
+                </div><div class="payment-field payment-proof-field">
                 <label for="reward-payment-proof">Bukti pembayaran (JPG, PNG, WEBP)</label>
                 <input name="proof" id="reward-payment-proof" type="file" accept="image/jpeg,image/png,image/webp" required>
-                <label for="reward-payment-confirm"><input id="reward-payment-confirm" type="checkbox" required> Saya telah memeriksa nominal, penerima, dan bukti pembayaran eksternal.</label>
+                <small>Maksimal 5 MB. Foto besar dioptimalkan; pastikan nominal dan referensi terbaca pada pratinjau.</small>
+                <img id="reward-proof-preview" alt="Pratinjau bukti pembayaran yang akan disimpan" hidden>
+                </div><label for="reward-payment-confirm" class="payment-confirm"><input id="reward-payment-confirm" type="checkbox" required><span>Saya telah memeriksa nominal, penerima, dan bukti pembayaran eksternal.</span></label>
                 <button class="btn btn-primary" type="submit">Catat pembayaran</button>
             </form>
+            </div></div>
         </section>
+        <section class="p9 sp-panel" id="p9-system" data-p9-analytics="administrator"></section>
+        <section class="p9 sp-panel" id="p9-accounts" data-p9-accounts></section>
+        <section class="p9 sp-panel" id="p9-voucher-admin" data-p9-catalog-admin></section>
+        <section class="p9 sp-panel" id="p9-audit" data-p9-audit></section>
+        <section class="p9 sp-panel" id="p9-system-grid" data-p9-grid></section>
     </main>
 </body>
 </html>

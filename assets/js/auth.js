@@ -33,9 +33,11 @@ form.addEventListener('input', event => {
 
 function validateRegistration() {
     const length = new TextEncoder().encode(password.value).length;
+    let nameError = '';
+    if (!nameInput.value.trim()) nameError = 'Isi nama lengkap.';
+    else if ([...nameInput.value.trim()].length > 100) nameError = 'Nama lengkap maksimal 100 karakter.';
     const errors = [
-        [nameInput, !nameInput.value.trim() ? 'Isi nama lengkap.' :
-            [...nameInput.value.trim()].length > 100 ? 'Nama lengkap maksimal 100 karakter.' : ''],
+        [nameInput, nameError],
         [password, length >= 6 && length <= 72 ? '' : 'Kata sandi harus terdiri dari 6 hingga 72 byte.'],
         [confirmation, password.value === confirmation.value ? '' : 'Konfirmasi kata sandi belum cocok.']
     ];
@@ -65,7 +67,9 @@ function setPending(value) {
     pending = value;
     submit.disabled = value;
     form.setAttribute('aria-busy', String(value));
-    submitLabel.textContent = value ? (kind === 'login' ? 'Sedang masuk…' : 'Sedang mendaftar…') : (kind === 'login' ? 'Masuk' : 'Daftar');
+    let label = kind === 'login' ? 'Masuk' : 'Daftar';
+    if (value) label = kind === 'login' ? 'Sedang masuk…' : 'Sedang mendaftar…';
+    submitLabel.textContent = label;
     progress.textContent = value ? submitLabel.textContent : '';
 }
 
@@ -102,6 +106,7 @@ form.addEventListener('submit', async event => {
             showError('Sesi tidak dapat dibuka. Muat ulang halaman dan coba lagi.');
             return;
         }
+        try { sessionStorage.setItem('sampira:login-welcome', String(Date.now())); } catch { /* Login also works with storage disabled. */ }
         form.reset();
         navigating = true;
         disableAuthTransition();

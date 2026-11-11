@@ -9,12 +9,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha384-iw3OoTErCYJJB9mCa8LNS2hbsQ7M3C0EpIsO/H5+EGAkPGc6rk+V8i04oW/K5xq0" crossorigin="anonymous">
 
 
-    <script src="/assets/js/portal-session.js?v=phase1-final"></script>
+    <script src="/assets/js/portal-session.js?v=session-dialog-2"></script>
     <link rel="icon" href="/assets/img/sampira-mark.svg" type="image/svg+xml">
     <link rel="stylesheet" href="/assets/css/sampira.css?v=phase6b-live">
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/css/portal-design.css?v=roles-1">
+    <link rel="stylesheet" href="/assets/css/session-dialog.css?v=1">
 </head>
 
 <body class="sp-portal portal-page sp-profile">
@@ -64,7 +65,7 @@
                 </div>
             </div>
             <div>
-                <a href="login" onclick="logoutProfile(event)">
+                <a href="login" id="profile-logout">
                     <i class="fas fa-sign-out-alt" aria-hidden="true"></i> Keluar
                 </a>
             </div>
@@ -87,7 +88,7 @@
                 <div class="avatar-glow" id="profile-avatar-glow">EW</div>
                 <h1 class="user-name" id="profile-user-name">Memuat...</h1>
                 <div class="premium-badge" id="profile-user-role">Warga SAMPIRA</div>
-                <p id="profile-load-status" role="status"></p><button type="button" class="sp-button sp-button--quiet" id="profile-retry" hidden>Muat ulang profil</button>
+                <output id="profile-load-status"></output><button type="button" class="sp-button sp-button--quiet" id="profile-retry" hidden>Muat ulang profil</button>
             </div>
 
             <section class="content-area">
@@ -118,7 +119,7 @@
                             </div>
                         </div>
                         <button type="submit" class="action-btn"><i class="fas fa-save"></i> Simpan Perubahan</button>
-                    <p id="profile-save-status" role="status"></p></form>
+                    <output id="profile-save-status"></output></form>
                 </div>
 
                 <!-- PANE 2: Pengaturan -->
@@ -154,7 +155,7 @@
         </main>
     </div> <!-- End of portal-content -->
 
-    <script>
+    <script type="module">
         // Interactive Tab Switching Logic for Profile Tabs
         let profileData;
         const headerTabs = document.querySelectorAll('.header-tab');
@@ -206,7 +207,7 @@
             save.disabled=true; retry.hidden=true; status.textContent='Memuat profil…';
             try {
                 const user=await portalUser('user');
-                if (!user) throw Error('Profile unavailable');
+                if (!user) throw new Error('Profile unavailable');
                 profileData=user;
                 for (const id of ['nav-user-name','profile-user-name']) document.getElementById(id).textContent=user.name;
                 document.getElementById('nav-user-role').textContent='Warga';
@@ -242,7 +243,7 @@
                     payout_method:profileData.payout_method || '',payout_account_name:profileData.payout_account_name || '',payout_account_number:profileData.payout_account_number || ''
                 })});
                 const result=await response.json();
-                if (!response.ok || result.status!=='success') throw Error('Simpan profil gagal. Periksa isian dan coba lagi.');
+                if (!response.ok || result.status!=='success') throw new Error('Simpan profil gagal. Periksa isian dan coba lagi.');
                 profileData=result.data;
                 document.getElementById('profile-user-name').textContent=result.data.name;
                 document.getElementById('nav-user-name').textContent=result.data.name;
@@ -250,8 +251,9 @@
             } catch { status.textContent='Profil belum dapat disimpan. Periksa isian atau koneksi, lalu coba lagi.'; }
             finally {button.disabled=false;}
         });
+        document.getElementById('profile-logout').addEventListener('click', logoutProfile);
         // Run on load
-        loadUserData();
+        await loadUserData();
     </script>
 </body>
 

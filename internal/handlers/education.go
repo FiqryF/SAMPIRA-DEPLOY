@@ -17,6 +17,9 @@ const educationPath = "/api/ecorecycle/education/articles"
 const educationManagePath = "/api/ecorecycle/education/manage/articles"
 
 func (a *App) RegisterEducation(mux *http.ServeMux) {
+	mux.HandleFunc("GET /api/ecorecycle/education/manage/photos", a.educationPhotoConfig)
+	mux.HandleFunc("POST "+educationManagePath+"/{id}/photos", a.educationSavePhotos)
+	mux.HandleFunc("GET /api/ecorecycle/education/media/{id}/{slot}", a.educationPhoto)
 	mux.HandleFunc("GET "+educationPath, func(w http.ResponseWriter, r *http.Request) { a.educationList(w, r, false) })
 	mux.HandleFunc("GET "+educationPath+"/{slug}", a.educationPublicDetail)
 	mux.HandleFunc("GET "+educationManagePath, func(w http.ResponseWriter, r *http.Request) { a.educationList(w, r, true) })

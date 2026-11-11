@@ -22,6 +22,7 @@ func ValidFacilityCategory(category string) bool {
 }
 
 type FacilityReport struct {
+	AffectedCount    int        `json:"affected_count"`
 	ID               int        `json:"id"`
 	TrackingNumber   string     `json:"tracking_number"`
 	ReporterID       int        `json:"reporter_id"`

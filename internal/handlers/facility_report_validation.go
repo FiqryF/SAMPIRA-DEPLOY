@@ -9,6 +9,7 @@ import (
 	_ "image/png"
 	"io"
 	"mime"
+	"mime/multipart"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -27,9 +28,9 @@ const (
 var facilityRequestKey = regexp.MustCompile(`^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`)
 var facilityCoordinatePattern = regexp.MustCompile(`^-?[0-9]{1,3}(\.[0-9]{1,6})?$`)
 
-func facilityTextLength(text string, min, max int) bool {
+func facilityTextLength(text string, minLength, maxLength int) bool {
 	size := utf8.RuneCountInString(text)
-	return utf8.ValidString(text) && !strings.ContainsRune(text, 0) && size >= min && size <= max
+	return utf8.ValidString(text) && !strings.ContainsRune(text, 0) && size >= minLength && size <= maxLength
 }
 
 func parseFacilityCoordinates(latitude, longitude string) (*float64, *float64, bool) {
@@ -66,24 +67,8 @@ func readFacilityForm(w http.ResponseWriter, r *http.Request, revision bool) (mo
 	}
 	defer r.MultipartForm.RemoveAll()
 	values := url.Values(r.MultipartForm.Value)
-	for key, fields := range values {
-		switch key {
-		case "category", "title", "description", "address", "latitude", "longitude":
-		case "version":
-			if !revision {
-				return input, 0, &apiProblem{"Field version hanya untuk revisi.", http.StatusBadRequest}
-			}
-		default:
-			return input, 0, &apiProblem{"Field formulir laporan tidak diizinkan.", http.StatusBadRequest}
-		}
-		if len(fields) != 1 {
-			return input, 0, &apiProblem{"Setiap field formulir hanya boleh muncul sekali.", http.StatusBadRequest}
-		}
-	}
-	for key, files := range r.MultipartForm.File {
-		if key != "photo" || len(files) != 1 {
-			return input, 0, &apiProblem{"Hanya satu file photo yang diizinkan.", http.StatusBadRequest}
-		}
+	if problem := validateFacilityFormFields(values, r.MultipartForm.File, revision); problem != nil {
+		return input, 0, problem
 	}
 	version := 0
 	if revision {
@@ -135,9 +120,10 @@ func validFacilityPhoto(data []byte, mediaType string) bool {
 }
 
 type facilityVerification struct {
-	Status  string  `json:"status"`
-	Version int     `json:"version"`
-	Note    *string `json:"note"`
+	Status    string  `json:"status"`
+	PetugasID int     `json:"petugas_id"`
+	Version   int     `json:"version"`
+	Note      *string `json:"note"`
 }
 
 func readFacilityVerification(w http.ResponseWriter, r *http.Request) (facilityVerification, *apiProblem) {
@@ -160,6 +146,9 @@ func readFacilityVerification(w http.ResponseWriter, r *http.Request) (facilityV
 	default:
 		return input, &apiProblem{"Status verifikasi tidak valid.", http.StatusBadRequest}
 	}
+	if input.PetugasID < 0 || int64(input.PetugasID) > 2147483647 || (input.PetugasID != 0 && input.Status != models.FacilityApproved) {
+		return input, &apiProblem{"Pilih Petugas aktif hanya saat menyetujui laporan.", http.StatusBadRequest}
+	}
 	if input.Version <= 0 || input.Version > 2147483647 {
 		return input, &apiProblem{"Versi laporan wajib valid.", http.StatusBadRequest}
 	}
@@ -172,4 +161,27 @@ func readFacilityVerification(w http.ResponseWriter, r *http.Request) (facilityV
 		input.Note = &note
 	}
 	return input, nil
+}
+
+func validateFacilityFormFields(values url.Values, files map[string][]*multipart.FileHeader, revision bool) *apiProblem {
+	for key, fields := range values {
+		switch key {
+		case "category", "title", "description", "address", "latitude", "longitude":
+		case "version":
+			if !revision {
+				return &apiProblem{"Field version hanya untuk revisi.", http.StatusBadRequest}
+			}
+		default:
+			return &apiProblem{"Field formulir laporan tidak diizinkan.", http.StatusBadRequest}
+		}
+		if len(fields) != 1 {
+			return &apiProblem{"Setiap field formulir hanya boleh muncul sekali.", http.StatusBadRequest}
+		}
+	}
+	for key, files := range files {
+		if key != "photo" || len(files) != 1 {
+			return &apiProblem{"Hanya satu file photo yang diizinkan.", http.StatusBadRequest}
+		}
+	}
+	return nil
 }

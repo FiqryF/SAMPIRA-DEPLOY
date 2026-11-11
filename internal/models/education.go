@@ -1,6 +1,32 @@
 package models
 
-import "time"
+import (
+	"encoding/json"
+	"fmt"
+	"time"
+)
+
+type EducationPhoto struct {
+	URL    string `json:"url"`
+	Alt    string `json:"alt"`
+	Credit string `json:"credit,omitempty"`
+}
+type EducationPhotos []EducationPhoto
+
+func (photos *EducationPhotos) Scan(value any) error {
+	if value == nil {
+		*photos = EducationPhotos{}
+		return nil
+	}
+	switch data := value.(type) {
+	case []byte:
+		return json.Unmarshal(data, photos)
+	case string:
+		return json.Unmarshal([]byte(data), photos)
+	default:
+		return fmt.Errorf("invalid education photo metadata")
+	}
+}
 
 const (
 	EducationDraft     = "draft"
@@ -44,12 +70,13 @@ type EducationInput struct {
 }
 
 type EducationSummary struct {
-	ID          int        `json:"id"`
-	Slug        string     `json:"slug"`
-	Title       string     `json:"title"`
-	Summary     string     `json:"summary"`
-	Category    string     `json:"category"`
-	PublishedAt *time.Time `json:"published_at"`
+	ID          int             `json:"id"`
+	Slug        string          `json:"slug"`
+	Title       string          `json:"title"`
+	Summary     string          `json:"summary"`
+	Category    string          `json:"category"`
+	PublishedAt *time.Time      `json:"published_at"`
+	Photos      EducationPhotos `json:"photos,omitempty"`
 }
 
 type EducationArticle struct {

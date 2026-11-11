@@ -45,8 +45,10 @@
 
     window.PortalAnnouncements = { escapeHTML, load };
 
-    document.addEventListener('DOMContentLoaded', () => {
-        load('warrior-announcement-section', 'warrior-announcement-list');
-        load('collector-announcement-section', 'collector-announcement-list');
+    document.addEventListener('DOMContentLoaded', async () => {
+        await Promise.all([
+            load('warrior-announcement-section', 'warrior-announcement-list'),
+            load('collector-announcement-section', 'collector-announcement-list')
+        ]);
     });
 })();

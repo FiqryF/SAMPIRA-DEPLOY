@@ -96,3 +96,9 @@
         flex: 1 1 auto;
     }
 }
+
+/* Keep secondary facility actions out of the main task flow. */
+.facility-extra-actions { flex-basis:100%; margin-top:8px; }
+.facility-extra-actions>summary { cursor:pointer; color:#315e4c; font-size:14px; padding:10px 0; }
+.facility-extra-actions[open]>.facility-actions { margin-top:12px; }
+.handling-dialog .facility-field>small { display:block; line-height:1.6; font-weight:400; }

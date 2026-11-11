@@ -81,41 +81,58 @@ func readPickupJSON(body io.Reader, invalidCoordinates *apiProblem) (map[string]
 		if decoder.Decode(&value) != nil {
 			return nil, invalidBody
 		}
-		if key == "latitude" || key == "longitude" {
-			if _, exists := data[key]; exists {
-				return nil, invalidCoordinates
-			}
-			switch v := value.(type) {
-			case string:
-				data[key] = v
-			case json.Number:
-				data[key] = v.String()
-			case nil:
-				data[key] = ""
-			default:
-				return nil, invalidCoordinates
-			}
-			continue
-		}
-
-		// Preserve the legacy scalar conversions for the other pickup fields.
-		switch v := value.(type) {
-		case string:
-			data[key] = v
-		case json.Number:
-			number, err := v.Float64()
-			if err != nil {
-				return nil, invalidBody
-			}
-			data[key] = fmt.Sprintf("%g", number)
-		case bool:
-			data[key] = strconv.FormatBool(v)
-		default:
-			delete(data, key)
+		if problem := pickupJSONValue(data, key, value, invalidCoordinates, invalidBody); problem != nil {
+			return nil, problem
 		}
 	}
 	if _, err := decoder.Token(); err != nil || decoder.Decode(new(json.RawMessage)) != io.EOF {
 		return nil, invalidBody
 	}
 	return data, nil
+}
+
+func pickupJSONValue(data map[string]string, key string, value any, invalidCoordinates, invalidBody *apiProblem) *apiProblem {
+	if key == "latitude" || key == "longitude" {
+		if _, exists := data[key]; exists {
+			return invalidCoordinates
+		}
+		switch v := value.(type) {
+		case string:
+			data[key] = v
+		case json.Number:
+			data[key] = v.String()
+		case nil:
+			data[key] = ""
+		default:
+			return invalidCoordinates
+		}
+		return nil
+	}
+
+	if key == "items" {
+		if _, exists := data[key]; exists {
+			return invalidBody
+		}
+		if array, ok := value.([]any); ok {
+			raw, _ := json.Marshal(array)
+			data[key] = string(raw)
+			return nil
+		}
+	}
+	// Preserve the legacy scalar conversions for the other pickup fields.
+	switch v := value.(type) {
+	case string:
+		data[key] = v
+	case json.Number:
+		number, err := v.Float64()
+		if err != nil {
+			return invalidBody
+		}
+		data[key] = fmt.Sprintf("%g", number)
+	case bool:
+		data[key] = strconv.FormatBool(v)
+	default:
+		delete(data, key)
+	}
+	return nil
 }

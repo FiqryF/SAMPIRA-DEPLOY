@@ -38,12 +38,12 @@ func handlingVersion(value *int) bool {
 	return value != nil && *value >= 0 && int64(*value) <= 2147483647
 }
 
-func handlingText(value string, max int, required bool) (*string, bool) {
+func handlingText(value string, maxLength int, required bool) (*string, bool) {
 	text := strings.TrimSpace(value)
 	if text == "" {
 		return nil, !required
 	}
-	return &text, facilityTextLength(text, 1, max)
+	return &text, facilityTextLength(text, 1, maxLength)
 }
 
 func readHandlingAssignment(w http.ResponseWriter, r *http.Request) (models.HandlingCommand, *apiProblem) {

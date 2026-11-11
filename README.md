@@ -1,254 +1,275 @@
-# SAMPIRA — Sampah, Informasi, Pelaporan, dan Respons Aksi
+# SAMPIRA
 
-**Tagline:** *Laporkan Sampah, Pantau Perubahannya.*
+**Laporkan Sampah, Pantau Perubahannya.**
 
-SAMPIRA adalah aplikasi web untuk mengajukan dan melacak penjemputan sampah terpilah. Pengembangan selanjutnya mencakup pelaporan permasalahan sampah, pemantauan tindak lanjut, dan visualisasi data pengelolaan sampah.
+SAMPIRA adalah aplikasi web pengelolaan sampah untuk masyarakat, Petugas, Admin, dan Administrator. Layanannya mencakup penjemputan sampah terpilah, pelaporan fasilitas bermasalah, konfirmasi warga terdampak, edukasi lingkungan, serta pencatatan reward dan poin kontribusi.
 
-Phase 1 mengamankan autentikasi dan akses ke portal Masyarakat, Petugas, Admin, serta Administrator. Lihat [panduan operasi](docs/phase-01-operations.md) dan [laporan verifikasi final](docs/progress/PHASE_01_FINAL_VERIFICATION.md).
+README ini menjelaskan implementasi pada source repository. Server yang masih memakai executable lama perlu dibuild atau dijalankan ulang agar perubahan Backend berlaku.
 
-Phase 2 mengintegrasikan pickup, timbang aktual, dan pencatatan pembayaran eksternal yang diverifikasi. Lihat [progres Phase 2](docs/progress/PHASE_02_PICKUP_WORKFLOW.md), [audit kumulatif](docs/progress/SAMPIRA_PHASE_01_02_COMPREHENSIVE_REPORT.md), dan [changelog](docs/progress/SAMPIRA_PHASE_01_02_CHANGELOG.md).
+## Fitur dan akses setiap role
 
----
+| Role | Halaman | Fitur utama |
+| --- | --- | --- |
+| Masyarakat (`user`) | `/dashboard` | Pengajuan pickup, laporan fasilitas, konfirmasi terdampak, riwayat dan detail progres, Reward Saya, Poin & Voucher, edukasi, pengaturan akun. |
+| Petugas (`petugas`) | `/petugas` | Klaim pickup, pickup aktif, lokasi penjemputan, pembaruan status, penimbangan, riwayat misi, komisi, dan tugas fasilitas dari Admin. |
+| Admin (`admin`) | `/admin` | Ringkasan operasional, verifikasi dan penugasan fasilitas, pemeriksaan hasil Petugas, monitoring peta, statistik, serta CMS artikel edukasi. |
+| Administrator (`administrator`) | `/administrator` | Dashboard sistem, status aktif akun, katalog dan stok voucher, monitoring penukaran, pencatatan pembayaran reward, statistik, sebaran fasilitas, dan pengumuman. |
 
-## 1. Tech Stack
+Role Admin dan Administrator mempunyai kewenangan berbeda. Administrator tidak otomatis mendapat akses ke verifikasi fasilitas milik Admin. **Perubahan role akun melalui halaman Administrator dinonaktifkan**; pengelolaan status aktif akun tetap mengikuti validasi dan kewenangan Backend.
 
-Teknologi yang digunakan pada basis kode proyek saat ini adalah:
+Halaman publik meliputi Landing Page, Login, Registrasi, dan [Pusat Edukasi](assets/education.html). Registrasi publik hanya membuat akun Masyarakat. Logout memakai popup konfirmasi; setelah login berhasil, popup selamat datang muncul sekali pada sesi tab tersebut.
 
-| Bagian | Teknologi | Kegunaan |
-|---|---|---|
-| Backend | Go (Golang) 1.24.6 | Menjalankan server HTTP, logika aplikasi, dan endpoint API. |
-| API | Go `net/http` (routing native) | Menangani komunikasi request dan response antara frontend dan backend. |
-| Database | MySQL / MariaDB | Menyimpan akun, kategori sampah, permintaan penjemputan, riwayat, transaksi, dan pengumuman. |
-| Database Driver | `github.com/go-sql-driver/mysql` | Menghubungkan aplikasi Go dengan MySQL/MariaDB. |
-| Password Security | `golang.org/x/crypto/bcrypt` | Melakukan hashing password pengguna. |
-| Token Authentication | HMAC-SHA256 (implementasi internal proyek) | Menandatangani dan memvalidasi token autentikasi API. |
-| Frontend | HTML5, CSS3, JavaScript (Vanilla) | Membangun halaman dan interaksi antarmuka tanpa framework frontend. |
-| Charts | Chart.js | Menampilkan grafik pada dashboard. |
-| Maps | Leaflet.js | Menampilkan peta pada halaman yang menggunakannya. |
-| UI Notifications | SweetAlert2 | Menampilkan dialog konfirmasi, notifikasi, dan pesan interaksi. |
+## Alur layanan
 
-**Catatan:** Chart.js, Leaflet.js, dan SweetAlert2 dimuat melalui CDN dari halaman HTML. Proyek ini tidak menggunakan React, Vue, Laravel, Node.js, atau framework CSS seperti Bootstrap/Tailwind sebagai fondasi utama frontend.
+### Penjemputan sampah
 
----
+1. User memilih satu atau beberapa kategori dalam **satu permintaan**, lalu mengisi rincian berat masing-masing kategori.
+2. User menentukan titik pada peta, memeriksa alamat, mengisi kontak, dan menambahkan foto jika diperlukan. Foto dapat dipilih dari perangkat atau diambil melalui kamera yang didukung browser.
+3. Estimasi nilai sampah, biaya proses, dan reward dihitung berdasarkan kategori serta berat perkiraan.
+4. Petugas mengambil tugas dan memperbarui perjalanan: **Menunggu → Petugas ditugaskan → Menuju hub → Tiba di hub**.
+5. Petugas mencatat berat aktual. Penjemputan selesai dan kewajiban reward dicatat sesuai hasil verifikasi; poin kontribusi diberikan mengikuti aturan Backend.
+6. Administrator mencatat pembayaran reward yang benar-benar sudah dilakukan di luar aplikasi, dengan nominal, referensi, dan bukti yang valid.
 
-## 2. Persyaratan Sistem
+**Estimasi bukan nilai pembayaran final.** Pickup selesai tidak berarti reward sudah dibayar. User melihat status pembayaran berdasarkan transaksi Backend. SAMPIRA mencatat pembayaran manual, bukan mengirim uang melalui payment gateway.
 
-Pastikan perangkat pengembangan telah memiliki:
+Kategori tersedia: organik, plastik PET, kertas/kardus, besi, kaca, gadget kecil, komputer, elektronik besar, baterai, serta B3 rumah tangga. Tarif dan batas kategori dijelaskan pada [panduan kategori sampah](docs/waste-categories.md).
 
-- Go versi **1.24.6** atau kompatibel dengan versi pada `go.mod`.
-- MariaDB 10.4+ untuk lingkungan pengembangan yang dipakai dalam verifikasi Phase 1–2.
-- Git untuk mengambil source code (jika proyek di-clone dari repository).
-- Browser modern seperti Chrome, Firefox, atau Edge.
+### Pelaporan fasilitas
 
-Contoh lingkungan lokal yang dapat digunakan adalah XAMPP untuk menjalankan MySQL/MariaDB.
+1. User mengisi kategori, judul, deskripsi, lokasi, alamat, dan foto opsional.
+2. Warga lain dapat membuka **Laporan fasilitas warga**, melihat detail fasilitas, dan memilih **Saya juga terdampak** agar tidak perlu membuat laporan yang sama.
+3. Admin memeriksa laporan, memilih Petugas, lalu menekan **Setujui dan tugaskan**. Jika belum layak, Admin dapat meminta perbaikan atau menolak dengan alasan.
+4. Petugas memilih **Mulai menangani**, lalu **Kirim hasil pekerjaan** berisi penjelasan hasil dan foto opsional. Kendala serta pencatatan koordinasi tersedia melalui opsi tambahan.
+5. Admin memeriksa hasil, meminta perbaikan bila diperlukan, atau memilih **Selesaikan laporan**. Ringkasan publik dan foto yang dipilih tersedia bagi pelapor.
 
----
+Persetujuan dan penugasan gabungan disimpan dalam satu transaksi. Status verifikasi terpisah dari status penanganan: **disetujui belum berarti selesai**. Petugas hanya dapat mengubah tugas yang menjadi penugasannya.
 
-## 3. Cara Menjalankan Project
+Jumlah terdampak dihitung per akun, termasuk pelapor, dan tampil pada data Admin/Petugas. Konfirmasi warga tidak menggantikan pemeriksaan Admin. Revisi isi laporan mereset konfirmasi terdampak sebelumnya; laporan selesai tidak menerima konfirmasi baru.
 
-Ikuti langkah berikut dari direktori utama repository SAMPIRA.
+Detail komunitas membagikan isi, alamat, koordinat, dan foto laporan kepada User lain, tanpa identitas pelapor atau catatan internal. Hindari memasukkan data pribadi ke deskripsi maupun foto yang dibagikan.
 
-### 3.1. Clone Repository
+### Reward, poin, dan voucher
 
-Jika belum memiliki source code, clone repository:
+- **Reward Saya:** nilai berdasarkan berat terverifikasi, keterangan transaksi, serta status pencatatan pembayaran.
+- **Poin & Voucher:** saldo poin, total kontribusi, level/badge, katalog, penukaran, Voucher Saya, dan riwayat.
+- Penukaran memeriksa saldo, stok, masa berlaku, serta idempotency. Perubahan saldo dan stok mengikuti transaksi Backend.
+- **Voucher masih simulasi dan tidak berlaku pada merchant nyata.** Poin bukan saldo uang dan tidak dapat dikonversi langsung menjadi uang.
+- Estimasi kontribusi CO₂ merupakan simulasi; bukan pengukuran emisi lapangan.
 
-```bash
+### Edukasi dan statistik
+
+Admin dapat membuat, mengedit, menerbitkan, dan mengarsipkan artikel melalui CMS Edukasi. Foto artikel dapat memakai upload perangkat atau tautan internet yang didukung. Artikel terbit tersedia pada halaman edukasi dan bagian artikel di Landing Page.
+
+Dashboard menggabungkan statistik operasional dari API dengan dataset statis Bandung yang diberi konteks sumber, periode, dan satuan. UI dataset menampilkan produksi sampah serta capaian penanganan; data anggota bank sampah Coblong tidak ditampilkan pada UI saat ini. Sumber CSV/PDF tetap disimpan di `data/datasets/`, sedangkan frontend menggunakan `assets/data/bandung-waste.json`.
+
+Dataset kota bukan data transaksi SAMPIRA dan tidak mempunyai koordinat fasilitas. Jangan menganggapnya sebagai lokasi/hotspot laporan. Perbedaan satuan pada metadata produksi dijelaskan pada [catatan dataset](data/datasets/README.md).
+
+## Teknologi dan kebutuhan
+
+| Bagian | Teknologi |
+| --- | --- |
+| Backend | Go 1.24.6, `net/http`, routing native |
+| Database | MySQL/MariaDB; lingkungan lokal diuji dengan MariaDB XAMPP |
+| Akses database | `github.com/go-sql-driver/mysql` |
+| Autentikasi | Password bcrypt, token bertanda tangan HMAC-SHA256, sesi yang dapat dicabut, cookie HttpOnly |
+| Frontend | HTML, CSS, JavaScript tanpa framework frontend |
+| Visualisasi | Leaflet, Chart.js, serta grafik SVG pada komponen terkait |
+| Dialog | Dialog HTML native dengan CSS SAMPIRA; SweetAlert2 pada fitur existing tertentu |
+
+Siapkan Go sesuai `go.mod`, MySQL/MariaDB, Git, dan browser modern. Tidak ada langkah `npm install` untuk menjalankan aplikasi. XAMPP dapat digunakan untuk database; server web aplikasi dijalankan oleh Go, sehingga Apache tidak wajib.
+
+Library CDN, tile peta OpenStreetMap, pencarian/reverse alamat Photon, dan gambar dari internet memerlukan koneksi jaringan. Akses lokasi/kamera memerlukan izin browser; gunakan localhost atau HTTPS. Peta menampilkan titik data yang tersedia, bukan pelacakan GPS Petugas secara langsung. Petunjuk arah eksternal dapat dibuka melalui Google Maps.
+
+## Menjalankan di komputer baru
+
+Jalankan perintah dari folder yang berisi `go.mod`.
+
+### 1. Ambil source dan dependensi
+
+```sh
 git clone https://github.com/azitriyadi/SAMPIRA.git
 cd SAMPIRA
+go mod download
 ```
 
-Jika source code sudah tersedia di komputer, langsung buka terminal pada direktori utama proyek yang berisi `go.mod`.
+Jika folder proyek sudah tersedia, cukup buka terminal di folder tersebut dan unduh dependensi Go.
 
-### 3.2. Jalankan Database
+### 2. Jalankan database dan siapkan `.env`
 
-1. Buka XAMPP Control Panel atau layanan database yang digunakan.
-2. Jalankan MySQL/MariaDB.
-3. Pastikan host dan port database sesuai konfigurasi lokal. Konfigurasi bawaan proyek menggunakan `localhost:3306`.
-
-### 3.3. Konfigurasi Environment
-
-Salin file `.env.example` menjadi `.env`.
-
-Linux/macOS/Git Bash:
-
-```bash
-cp .env.example .env
-```
-
-Windows PowerShell:
+Aktifkan MySQL/MariaDB. Pada PowerShell:
 
 ```powershell
 Copy-Item .env.example .env
 ```
 
-Sesuaikan isi `.env` dengan konfigurasi database lokal:
+Untuk Git Bash/Linux/macOS, gunakan `cp .env.example .env`. Salin hanya jika `.env` belum ada agar konfigurasi lokal tidak tertimpa.
+
+Isi konfigurasi database dan secret pada `.env`:
 
 ```env
-DB_HOST=localhost
+DB_HOST=127.0.0.1:3306
 DB_USER=root
 DB_PASS=
 DB_NAME=ecorecycle
-
-# Ganti dengan secret acak yang panjang dan jangan gunakan contoh ini untuk produksi.
 JWT_SECRET=
+PORT=8080
 SAMPIRA_LISTEN_HOST=127.0.0.1
 SAMPIRA_SECURE_COOKIE=false
+SAMPIRA_INITIAL_USER_PASSWORD=
+SAMPIRA_INITIAL_PETUGAS_PASSWORD=
+SAMPIRA_INITIAL_ADMIN_PASSWORD=
+SAMPIRA_INITIAL_ADMINISTRATOR_PASSWORD=
 ```
 
-Keterangan:
+`JWT_SECRET` wajib berupa secret acak minimal 32 byte. Contoh membuat nilai acak melalui PowerShell, lalu salin hasilnya ke `.env` secara privat:
 
-- `DB_HOST`: host database. Dapat berisi host dan port, misalnya `127.0.0.1:3306`.
-- `DB_USER`: username database.
-- `DB_PASS`: password database.
-- `DB_NAME`: nama database aplikasi. Nilai bawaan adalah `ecorecycle`.
-- `JWT_SECRET`: secret acak minimal 32 byte untuk penandatanganan token autentikasi. Isi sebelum menjalankan server.
-- `SAMPIRA_LISTEN_HOST` membatasi alamat dengar server. Gunakan `127.0.0.1` untuk pengembangan lokal.
-- `SAMPIRA_SECURE_COOKIE` disetel ke `true` saat HTTPS ditangani oleh reverse proxy tepercaya.
-
-### 3.4. Unduh Dependensi Go
-
-Jalankan:
-
-```bash
-go mod download
+```powershell
+$secretBytes = New-Object byte[] 32
+$rng = [System.Security.Cryptography.RandomNumberGenerator]::Create()
+$rng.GetBytes($secretBytes)
+[Convert]::ToBase64String($secretBytes)
+$rng.Dispose()
 ```
 
-### 3.5. Inisialisasi Database (Khusus Instalasi Baru)
+Sesuaikan `DB_USER` dan `DB_PASS` dengan database setempat. Gunakan `SAMPIRA_SECURE_COOKIE=true` untuk aplikasi HTTPS. Jangan commit `.env`, secret, atau hasil terminal yang berisi password.
 
-Untuk membuat database, tabel, dan kategori awal, jalankan:
+### 3. Inisialisasi khusus database baru
 
-```bash
+```sh
 go run ./db_init
 ```
 
-Initializer memakai nama skema dari `DB_NAME` dan berhenti jika skema itu sudah ada. Untuk database lama, buat cadangan, ikuti [migrasi empat role](docs/phase-01-operations.md#migrasi-database-yang-sudah-ada), lalu [prosedur upgrade Phase 2](docs/progress/PHASE_02_PICKUP_WORKFLOW.md). Startup server menyiapkan skema sesi dan ledger pickup.
+Initializer membuat database, tabel dasar, kategori sampah, serta akun demo untuk semua role:
 
-### 3.6. Jalankan Aplikasi
+| Role | Email | Password |
+| --- | --- | --- |
+| User | `user@eco.com` | Acak; ditampilkan setelah inisialisasi berhasil |
+| Petugas | `petugas@eco.com` | Acak; ditampilkan setelah inisialisasi berhasil |
+| Admin | `admin@eco.com` | Acak; ditampilkan setelah inisialisasi berhasil |
+| Administrator | `administrator@eco.com` | Acak; ditampilkan setelah inisialisasi berhasil |
 
-Dari direktori utama proyek, jalankan:
+Password disimpan sebagai hash bcrypt. Jika ingin memilih password sendiri, isi variabel `SAMPIRA_INITIAL_USER_PASSWORD`, `SAMPIRA_INITIAL_PETUGAS_PASSWORD`, `SAMPIRA_INITIAL_ADMIN_PASSWORD`, dan `SAMPIRA_INITIAL_ADMINISTRATOR_PASSWORD` sebelum inisialisasi; panjang masing-masing 15–72 byte. Nilai kosong menghasilkan password acak yang berbeda untuk setiap akun dan password tersebut ditampilkan sekali di terminal.
 
-```bash
+**Jangan membuat database kosong secara manual sebelum menjalankan initializer.** Initializer menggunakan `CREATE DATABASE` dan menolak nama database yang sudah ada. Simpan password awal secara privat; jangan menjalankannya pada database utama yang telah berisi data.
+
+Akun Petugas tidak dibuat otomatis. Provisioning akun Petugas dilakukan operator database yang berwenang sesuai [panduan operasi](docs/phase-01-operations.md). Registrasi User tidak dapat digunakan untuk membuat role istimewa.
+
+### 4. Jalankan server
+
+```sh
 go run ./cmd/server
 ```
 
-Jika server berhasil berjalan, buka browser pada:
+Startup menyiapkan/memeriksa skema sesi dan fitur lanjutan, termasuk fasilitas, edukasi, lokasi, pickup, reward, poin, serta voucher. Akun database perlu izin DDL yang sesuai pada skema aplikasi.
 
-- Halaman utama: `http://localhost:8080`
-- Login: `http://localhost:8080/login`
-- Registrasi: `http://localhost:8080/register`
-- Dashboard pengguna: `http://localhost:8080/dashboard`
-- Dashboard admin: `http://localhost:8080/admin`
-- Dashboard petugas: `http://localhost:8080/petugas`
-- Portal Administrator: `http://localhost:8080/administrator`
-- Dokumentasi API Swagger: `http://localhost:8080/swagger`
+| Halaman | URL lokal |
+| --- | --- |
+| Landing Page | http://localhost:8080/ |
+| Login | http://localhost:8080/login |
+| Registrasi | http://localhost:8080/register |
+| Masyarakat | http://localhost:8080/dashboard |
+| Petugas | http://localhost:8080/petugas |
+| Admin | http://localhost:8080/admin |
+| Administrator | http://localhost:8080/administrator |
+| Edukasi publik | http://localhost:8080/assets/education.html |
+| Swagger | http://localhost:8080/swagger |
 
-Port bawaan adalah `8080`. Port dapat diubah dengan menambahkan variabel `PORT` pada `.env`, misalnya `PORT=8081`.
+Portal memerlukan login sesuai role. Ubah `PORT` jika 8080 sudah digunakan; seluruh view, aset, dan API harus diakses melalui satu origin yang sama agar sesi cookie bekerja.
 
-### 3.7. Akun Aplikasi
+### 5. Hentikan, perbarui, atau build
 
-Registrasi publik membuat akun Masyarakat. Ikuti [prosedur bootstrap Administrator](docs/phase-01-operations.md#bootstrap-administrator) untuk membuat akun Administrator. Operator melakukan provisioning akun Admin dan Petugas.
+Tekan **Ctrl+C** pada terminal server untuk menghentikannya. Perubahan Go membutuhkan server dijalankan ulang; perubahan HTML/CSS/JS dapat dimuat dengan **Ctrl+F5**. Pastikan file yang diedit berasal dari checkout yang sedang disajikan server.
 
----
+Untuk membuat executable Windows dari source saat ini:
 
-## 4. Progress Pengembangan Saat Ini
+```powershell
+go build -o sampira.exe ./cmd/server
+.\sampira.exe
+```
 
-Bagian ini menjelaskan kondisi implementasi berdasarkan source code repository saat ini. Fitur yang belum memiliki implementasi backend dan database tidak dinyatakan sebagai fitur yang sudah selesai.
+Jalankan executable dari root proyek agar folder view, aset, dan `.env` terbaca. Jangan menjalankan `go run` dan executable bersamaan pada port yang sama. Tidak perlu memakai executable lama dari komputer lain.
 
-### 4.1. Fitur yang Sudah Tersedia pada Basis Kode
+## Database existing dan keamanan data
 
-- [x] Struktur aplikasi web dengan backend Go dan frontend HTML, CSS, serta JavaScript.
-- [x] Registrasi dan login pengguna.
-- [x] Autentikasi API dengan token HMAC-SHA256, sesi yang dapat dicabut, cookie HttpOnly untuk portal, dan perlindungan CSRF.
-- [x] Pengelolaan profil pengguna.
-- [x] Empat peran dengan portal terpisah: Masyarakat (`user`), `petugas`, `admin`, dan `administrator`.
-- [x] Pengajuan permintaan penjemputan sampah.
-- [x] Pemilihan kategori sampah dan estimasi reward.
-- [x] Unggah foto untuk permintaan penjemputan.
-- [x] Antrean dan klaim pickup oleh Petugas untuk dirinya sendiri. Detail dan foto hanya tersedia untuk pemilik dan Petugas yang ditugaskan.
-- [x] Pelacakan dan riwayat penjemputan dengan alur `pending → pickup → transit → arrived → completed`.
-- [x] Pencatatan berat aktual oleh Petugas setelah tiba di hub. Penutupan pickup dan pembuatan kewajiban reward berjalan dalam satu transaksi.
-- [x] Pencatatan pembayaran eksternal oleh Administrator dengan nominal yang sesuai, referensi unik, dan bukti gambar. Status reward dilacak terpisah dari status pickup.
-- [x] Dashboard dengan komponen grafik dan peta.
-- [x] Pengelolaan pengumuman portal oleh Administrator.
-- [x] Dokumentasi endpoint API melalui Swagger/OpenAPI.
+- **Jangan hapus/reset database lama dan jangan gunakan `db_init` untuk menambah akun ke database existing.**
+- Buat backup database dan `uploads/` sebelum upgrade. Uji perubahan pada fixture/clone terlebih dahulu.
+- Tinjau migrasi dalam `db_init/migrations/` sebelum menjalankan versi Backend baru, karena startup dapat mengubah skema. Migrasi empat role untuk instalasi lama dijelaskan pada [panduan operasi](docs/phase-01-operations.md#migrasi-database-yang-sudah-ada).
+- Seed akun awal hanya untuk database baru. Untuk database lama yang belum memiliki Administrator, gunakan [bootstrap Administrator](docs/phase-01-operations.md#bootstrap-administrator); bukan menjalankan ulang initializer.
+- Dokumen phase lama merekam kondisi saat fase tersebut dikerjakan. Gunakan source dan kontrak terbaru untuk menilai perilaku saat ini.
+- Backup data tidak otomatis menyertakan gambar lokal yang hanya tersedia melalui `uploads/`. Simpan keduanya.
 
-### 4.2. Cakupan Kategori
+## Pengujian dan troubleshooting
 
-Kategori pada alur penjemputan mencakup organik, anorganik, elektronik, dan B3 rumah tangga. Kategori baterai dikelompokkan ke B3. Anorganik dirinci menjadi PET bening, kertas/kardus, besi, dan kaca dengan tarif masing-masing.
+Tes Go dapat dijalankan dari root:
 
-Tarif anorganik memakai acuan awal Bank Sampah Indonesia; organik dan B3 rumah tangga umum adalah setoran tanpa reward awal. Biaya pemrosesan kategori baru belum diberlakukan. Tarif elektronik sebelumnya dipertahankan. Lihat [riset, asumsi tarif, dan batas kategori](docs/waste-categories.md).
+```sh
+go test ./...
+```
 
-**Database yang sudah ada:** jalankan `db_init/add_waste_categories.sql` pada database aplikasi. Migrasi ini hanya menambah kategori yang belum ada. Untuk migrasi empat role, ikuti [panduan operasi Phase 1](docs/phase-01-operations.md). Inisialisasi database baru mencakup seluruh kategori.
+Gunakan database fixture terisolasi untuk pengujian transaksi, migrasi, upload, dan alur lintas role. Jangan menguji pembayaran atau perubahan data palsu pada database utama. Tes Go saja tidak membuktikan seluruh UI telah lulus pengujian browser.
 
-### 4.3. Pengembangan Lanjutan SAMPIRA
+| Kendala | Pemeriksaan |
+| --- | --- |
+| Gagal terhubung ke database | Pastikan layanan database aktif serta host, port, user, password, dan nama database benar. |
+| Secret tidak valid | Isi `JWT_SECRET` acak minimal 32 byte; jangan membiarkannya kosong. |
+| Database sudah ada saat init | Jangan menghapusnya. Gunakan database baru yang berbeda, atau ikuti prosedur upgrade database existing. |
+| Halaman berubah tetapi API menolak field baru | Periksa apakah executable/`go run` yang aktif sudah memakai Backend terbaru. |
+| Port sudah digunakan | Identifikasi proses pemilik port sebelum menghentikannya, atau gunakan `PORT` lain. |
+| Foto gagal dikirim | Periksa pesan validasi, ukuran/format foto, dan kapasitas `max_allowed_packet` MariaDB; jangan mengubah status transaksi secara manual. |
+| Peta/alamat tidak termuat | Periksa koneksi internet, layanan tile/Photon, izin browser, dan pesan error halaman. |
+| Login tertolak | Pastikan akun aktif, role sesuai portal, dan kredensial berasal dari instalasi/database yang benar. |
 
-Fokus pengembangan berikutnya adalah mengarahkan fondasi aplikasi yang sudah tersedia menjadi platform pelaporan dan pemantauan permasalahan sampah. Pekerjaan lanjutan yang direncanakan meliputi:
-
-- [ ] Modul laporan permasalahan sampah oleh masyarakat, terpisah dari permintaan penjemputan.
-- [ ] Proses verifikasi laporan oleh admin, termasuk permintaan revisi atau penolakan dengan alasan.
-- [ ] Penugasan laporan kepada petugas untuk ditindaklanjuti.
-- [ ] Pembaruan status penanganan dan riwayat khusus laporan permasalahan.
-- [ ] Dashboard ringkasan laporan berdasarkan status, kategori, dan wilayah sesuai data yang tersedia.
-- [ ] Integrasi dataset persampahan dari sumber resmi, disertai validasi periode, satuan, dan cakupan wilayah.
-- [ ] Visualisasi tren dan informasi dataset pada dashboard analitik.
-- [ ] Penyempurnaan peta agar lokasi yang ditampilkan bersumber dari data yang valid.
-
-### 4.4. Catatan Status dan Batasan
-
-- Permintaan penjemputan sampah (`pickups`) merupakan alur layanan pengumpulan sampah, bukan modul pelaporan permasalahan sampah.
-- Riwayat penjemputan (`pickup_history`) mencatat perubahan status penjemputan dan bukan riwayat status laporan permasalahan.
-- Grafik yang sudah ada pada dashboard merupakan bagian dari fitur aplikasi saat ini; integrasi analisis dataset persampahan resmi masih menjadi pekerjaan pengembangan lanjutan.
-- Informasi lokasi pada peta perlu diverifikasi sebelum digunakan sebagai representasi lokasi layanan atau laporan yang sebenarnya.
-- Checklist di atas perlu diperbarui kembali setiap kali fitur selesai diimplementasikan dan diuji.
-
----
-
-## 5. Struktur Direktori
+## Struktur proyek
 
 ```text
 SAMPIRA/
-├── app/
-│   └── Views/                 # Halaman HTML aplikasi
+├── app/Views/          # Halaman publik dan portal empat role
 ├── assets/
-│   ├── css/                   # Stylesheet frontend
-│   ├── js/                    # JavaScript frontend
-│   └── img/                   # Gambar dan aset visual
-├── cmd/
-│   └── server/
-│       └── main.go            # Entry point server Go dan routing
+│   ├── css/            # Tema dan komponen UI
+│   ├── js/             # Interaksi form, peta, CMS, reward, dan dashboard
+│   ├── img/            # Gambar, ikon, dan ilustrasi
+│   ├── data/           # Agregat dataset untuk frontend
+│   └── education.html  # Daftar/detail artikel publik
+├── cmd/server/         # Entry point HTTP dan bootstrap Administrator
 ├── db_init/
-│   ├── db_init.go             # Inisialisasi skema baru dan kategori awal
-│   ├── add_waste_categories.sql
-│   └── migrations/            # Migrasi database yang sudah ada
+│   ├── db_init.go      # Inisialisasi database baru dan akun awal
+│   └── migrations/     # Migrasi fitur aplikasi
+├── data/datasets/      # Sumber CSV dan metadata dataset
 ├── docs/
-│   ├── openapi.json           # Spesifikasi API
-│   ├── swagger.html           # UI dokumentasi API
-│   └── progress/              # Laporan Phase 1–2
-├── internal/
-│   ├── handlers/              # Handler HTTP/API
-│   ├── middleware/            # Middleware HTTP dan autentikasi
-│   ├── models/                # Model data
-│   ├── repositories/          # Akses database
-│   └── services/              # Logika layanan aplikasi
-├── scripts/                   # Skrip pemeriksaan dan pengujian
-├── .env.example               # Contoh konfigurasi environment
-├── go.mod                     # Modul dan dependensi Go
-├── go.sum                     # Checksum dependensi
-└── README.md                  # Dokumentasi proyek
+│   ├── content/        # Konten dan instruksi integrasi edukasi
+│   ├── progress/       # Laporan pengembangan dan pengujian
+│   ├── openapi.json    # Dokumentasi endpoint
+│   └── swagger.html    # Swagger UI
+├── internal/           # Handler, middleware, model, repository, service
+├── uploads/            # Media lokal; tidak dipush
+├── .env.example        # Template konfigurasi tanpa secret
+├── .gitignore
+├── go.mod
+├── go.sum
+└── README.md
 ```
 
----
+Folder `scripts/` sudah tidak menjadi bagian repository. Jangan mengikuti perintah `scripts/...` dari laporan historis tanpa memeriksa keberadaan alatnya.
 
-## 6. Keamanan dan Penggunaan
+## Berkas yang dibagikan
 
-- Jangan mengunggah file `.env` atau kredensial database ke repository publik.
-- Gunakan `JWT_SECRET` yang kuat dan berbeda dari nilai contoh.
-- Audit akun lama dan buat cadangan sebelum migrasi.
-- Gunakan HTTPS pada deployment publik.
-- Validasi kembali data lokasi dan data statistik sebelum dipublikasikan.
+Push source, migrasi, aset aplikasi, dokumentasi, `.env.example`, `go.mod`, dan `go.sum`. Jangan push `.env`, password/secret, upload pengguna, backup database, log runtime, atau executable hasil build.
 
----
+`.gitignore` tidak menghentikan pelacakan file yang sudah terlanjur masuk Git. Jika log masih dilacak, periksa lalu keluarkan dari index tanpa menghapus file lokal:
 
-## 7. Status Dokumen
+```sh
+git rm --cached -- server.out.log server.err.log
+```
 
-README ini mendokumentasikan teknologi, cara menjalankan aplikasi, serta progress berdasarkan source code yang tersedia pada repository. Informasi progress harus disesuaikan secara berkala dengan implementasi dan hasil pengujian terbaru.
+Jangan menghapus `uploads/` atau gambar yang masih dirujuk data aplikasi hanya untuk membersihkan folder.
+
+## Dokumentasi lanjutan
+
+- [Panduan operasi, role, dan bootstrap](docs/phase-01-operations.md)
+- [Kategori dan asumsi tarif sampah](docs/waste-categories.md)
+- [Kontrak API fasilitas](docs/progress/PHASE_04_API_CONTRACT.md)
+- [Kontrak API lokasi dan peta](docs/progress/PHASE_05_API_CONTRACT.md)
+- [Kontrak API edukasi](docs/progress/PHASE_06_API_CONTRACT.md)
+- [Reward, poin, voucher, dan integrasi Phase 9](docs/progress/PHASE_09.md)
+- [Audit dan pengujian Phase 10](docs/progress/PHASE_10.md)
+- [Sumber serta keterbatasan dataset](data/datasets/README.md)
